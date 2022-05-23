@@ -1,0 +1,5 @@
+.horizontal-divider-silver {
+  position: relative;
+  border: 1px dashed lightgray;
+  border-radius: 5px;
+}

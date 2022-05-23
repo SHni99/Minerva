@@ -1,0 +1,13 @@
+.h5-regular-grey {
+  margin: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  font-family: Inter;
+  font-size: 16px;
+  line-height: 21px;
+  letter-spacing: -0.1px;
+  text-align: left;
+  text-transform: none;
+  color: rgba(79, 79, 79, 1);
+}

@@ -1,0 +1,28 @@
+.checkbox-fuchsia-blue {
+  flex-shrink: 1;
+  margin: 10px;
+  display: block;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 16px;
+  background-color: rgba(49, 100, 244, 1);
+}
+
+.checkbox-fuchsia-blue-toggle {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 1);
+}
+
+.checkbox-fuchsia-blue-input {
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  width: 1px;
+  height: 1px;
+}

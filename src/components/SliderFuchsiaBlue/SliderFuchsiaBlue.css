@@ -1,0 +1,40 @@
+.slider-fuchsia-blue {
+  display: block;
+  position: relative;
+  height: 20px;
+  margin: 10px;
+}
+
+.slider-fuchsia-blue-track {
+  display: block;
+  position: absolute;
+  top: calc(50% - 2px);
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: rgba(193, 193, 193, 1);
+  border-radius: 10px;
+}
+
+.slider-fuchsia-blue-range {
+  display: block;
+  position: absolute;
+  top: calc(50% - 2px);
+  left: 0;
+  width: calc(60% - 8px);
+  height: 4px;
+  background-color: rgba(113, 96, 210, 1);
+  border-radius: 10px;
+}
+
+.slider-fuchsia-blue-toggle {
+  display: block;
+  position: absolute;
+  top: calc(50% - 8px);
+  left: calc(60% - 8px);
+  width: 16px;
+  height: 16px;
+  background-color: rgba(113, 96, 210, 1);
+  border-radius: 10px;
+  border: 4px solid rgba(255, 255, 255, 1);
+}

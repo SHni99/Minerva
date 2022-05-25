@@ -40,7 +40,7 @@ const ListingsPagePage = () => {
               >{`Home`}</Button>
               <Button className="font-medium lg:ml-[27px] xl:ml-[31px] ml-[35px] 3xl:ml-[42px] lg:py-[10px] xl:py-[12px] py-[14px] 3xl:py-[16px] rounded-radius4 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 text-indigo_700 w-[27%]">{`Listings`}</Button>
               <Button
-                className="common-pointer font-medium lg:ml-[18px] xl:ml-[21px] ml-[24px] 3xl:ml-[28px] lg:py-[10px] xl:py-[12px] py-[14px] 3xl:py-[16px] rounded-radius4 text-black_901 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 w-[32%]"
+                className="common-pointer absolute font-medium lg:ml-[18px] xl:ml-[21px] ml-[24px] 3xl:ml-[28px] lg:py-[10px] xl:py-[12px] py-[14px] 3xl:py-[16px] rounded-radius4 text-black_901 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 w-[32%]"
                 onClick={handleNavigate14}
               >{`About Us`}</Button>
             </Row>

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import NavBar from "../components/NavBar/navBar";
+import FooterBar from "components/FooterBar/footerBar";
 
 const Home = () => {
   return (
@@ -29,6 +30,7 @@ const Home = () => {
           <Link to="/listingspage">ListingsPage</Link>
         </li>
       </ul>
+      <FooterBar />
     </div>
   );
 };

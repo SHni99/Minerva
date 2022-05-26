@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useNavigate } from "react-router-dom";
-import NavBar from "components/NavBar";
+import NavBar from "components/NavBar/navBar";
 import { Column } from "components/Column";
 import { Row } from "components/Row";
 import { Image } from "components/Image";

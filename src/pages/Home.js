@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import NavBar from "../components/NavBar";
-import ListingCard from "components/ListingCard";
+import NavBar from "../components/NavBar/navBar";
 
 const Home = () => {
   return (
@@ -30,7 +29,6 @@ const Home = () => {
           <Link to="/listingspage">ListingsPage</Link>
         </li>
       </ul>
-      <ListingCard />
     </div>
   );
 };

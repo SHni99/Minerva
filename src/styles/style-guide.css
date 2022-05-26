@@ -37,6 +37,11 @@ rgba(252, 252, 253, 1);
 rgba(255, 150, 0, 1);
   --whitebase---ffffff: 
 rgba(255, 255, 255, 1);
+  --zircon: 
+rgba(247, 251, 255, 1);
+  --whitebase---ffffff: 
+rgba(255, 255, 255, 1);
+
 
   --font-size-xxs: 14px;
   --font-size-s: 20px;
@@ -232,6 +237,13 @@ rgba(255, 255, 255, 1);
   font-weight: 600;
   font-style: normal;
 }
+.nunito-medium-black-48px {
+  color: var(--black);
+  font-family: var(--font-family-nunito);
+  font-size: 48px;
+  font-weight: 500;
+  font-style: normal;
+}
 .nunitosans-bold-black-32px {
   color: var(--black);
   font-family: var(--font-family-nunito_sans);
@@ -251,5 +263,12 @@ rgba(255, 255, 255, 1);
   font-family: var(--font-family-inter);
   font-size: var(--font-size-m);
   font-weight: 400;
+  font-style: normal;
+}
+.inter-medium-sapphire-48px {
+  color: var(--sapphire);
+  font-family: var(--font-family-inter);
+  font-size: 48px;
+  font-weight: 500;
   font-style: normal;
 }

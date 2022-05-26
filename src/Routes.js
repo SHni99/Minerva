@@ -1,5 +1,5 @@
 import React from "react";
-import ListingsPage from "pages/ListingsPage";
+import ListingsPage from "pages/ListingsPage/listingsPage";
 import AboutusPage from "pages/AboutusPage";
 import RegisterPage from "pages/RegisterPage";
 import LoginPage from "pages/LoginPage";

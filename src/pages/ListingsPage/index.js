@@ -1,59 +1,25 @@
 import React from "react";
 
 import { useNavigate } from "react-router-dom";
+import NavBar from "components/NavBar";
 import { Column } from "components/Column";
 import { Row } from "components/Row";
 import { Image } from "components/Image";
 import { Button } from "components/Button";
 import { Text } from "components/Text";
 import { Stack } from "components/Stack";
-import { Grid } from "components/Grid";
-import { List } from "components/List";
 import { Line } from "components/Line";
 
 const ListingsPagePage = () => {
   const navigate = useNavigate();
 
-  const handleNavigate22 = () => navigate("/");
-  const handleNavigate15 = () => navigate("/");
-  const handleNavigate14 = () => navigate("/aboutuspage");
-  const handleNavigate13 = () => navigate("/loginpage");
-  const handleNavigate12 = () => navigate("/registerpage");
   const handleNavigate11 = () => navigate("/");
   const handleNavigate10 = () => navigate("/aboutuspage");
 
   return (
-    <>
+    <div>
+      <NavBar />
       <Column className="bg-white_A700 font-nunitosans items-center justify-end mx-[auto] w-[100%]">
-        <header className="lg:mt-[39px] xl:mt-[45px] mt-[51px] 3xl:mt-[61px] mx-[auto] w-[86%]">
-          <Row className="items-center justify-start w-[100%]">
-            <Image
-              src="img_minervalogo1_3.png"
-              className="common-pointer 3xl:h-[112px] lg:h-[73px] xl:h-[83px] h-[93px] 2xl:h-[94px] object-contain w-[24%]"
-              onClick={handleNavigate22}
-              alt="MINERVALOGO1"
-            />
-            <Row className="font-inter items-center justify-center xl:mb-[20px] mb-[23px] 3xl:mb-[27px] lg:ml-[29px] xl:ml-[33px] ml-[38px] 3xl:ml-[45px] xl:mt-[19px] mt-[22px] 3xl:mt-[26px] lg:my-[17px] w-[22%]">
-              <Button
-                className="common-pointer font-medium lg:py-[10px] xl:py-[12px] py-[14px] 3xl:py-[16px] rounded-radius4 text-black_901 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 w-[20%]"
-                onClick={handleNavigate15}
-              >{`Home`}</Button>
-              <Button className="font-medium lg:ml-[27px] xl:ml-[31px] ml-[35px] 3xl:ml-[42px] lg:py-[10px] xl:py-[12px] py-[14px] 3xl:py-[16px] rounded-radius4 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 text-indigo_700 w-[27%]">{`Listings`}</Button>
-              <Button
-                className="common-pointer font-medium lg:ml-[18px] xl:ml-[21px] ml-[24px] 3xl:ml-[28px] lg:py-[10px] xl:py-[12px] py-[14px] 3xl:py-[16px] rounded-radius4 text-black_901 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 w-[32%]"
-                onClick={handleNavigate14}
-              >{`About Us`}</Button>
-            </Row>
-            <Button
-              className="common-pointer font-normal lg:mb-[13px] xl:mb-[15px] mb-[17px] 3xl:mb-[20px] lg:ml-[312px] xl:ml-[357px] ml-[402px] 3xl:ml-[482px] lg:mt-[12px] xl:mt-[14px] mt-[16px] 3xl:mt-[19px] not-italic lg:py-[15px] xl:py-[17px] py-[20px] 3xl:py-[24px] rounded-radius4 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 text-light_blue_900 w-[8%]"
-              onClick={handleNavigate13}
-            >{`Log in`}</Button>
-            <Button
-              className="common-pointer bg-light_blue_900 border border-light_blue_900 border-solid font-normal xl:mb-[20px] mb-[23px] 3xl:mb-[27px] 3xl:ml-[10px] lg:ml-[7px] xl:ml-[8px] ml-[9px] xl:mt-[19px] mt-[22px] 3xl:mt-[26px] lg:my-[17px] not-italic lg:py-[10px] xl:py-[12px] py-[14px] 3xl:py-[16px] rounded-radius11 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 text-white_A700 w-[9%]"
-              onClick={handleNavigate12}
-            >{`Sign up`}</Button>
-          </Row>
-        </header>
         <Column className="bg-gray_52 font-inter items-center justify-center mx-[auto] rounded-radius33 shadow-bs w-[83%]">
           <Column className="items-center justify-start lg:mt-[24px] xl:mt-[27px] mt-[31px] 3xl:mt-[37px] w-[100%]">
             <Row className="items-center justify-center mx-[auto] w-[40%]">
@@ -118,7 +84,7 @@ const ListingsPagePage = () => {
           </Column>
         </footer>
       </Column>
-    </>
+    </div>
   );
 };
 

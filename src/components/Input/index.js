@@ -9,7 +9,7 @@ export const Input = React.forwardRef(
       <>
         <input
           ref={ref}
-          style={{width: "1000px" }}
+          style={{width: "90%", padding: "10px 10px 20px 20px"}}
           className={className}
           type={type}
           name={name}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Row } from "components/Row";
@@ -10,6 +10,8 @@ import { Stack } from "components/Stack";
 import { Input } from "components/Input";
 import { SelectBox } from "components/SelectBox";
 
+
+
 const RegisterPagePage = () => {
   const navigate = useNavigate();
 
@@ -19,10 +21,12 @@ const RegisterPagePage = () => {
   return (
     <>
       <Row className="bg-white_A700 font-nunitosans items-center mx-[auto] w-[100%]">
-        <Column className="bg-bluegray_101 items-start mb-[1px] w-[57%]">
+      
+        <Column className="bg-bluegray_101 items-start mb-[0px] w-[57%]">
+        
           <Image
             src="img_minervalogo1_2.png"
-            className="common-pointer lg:h-[62px] xl:h-[71px] h-[79px] 2xl:h-[80px] 3xl:h-[95px] lg:mt-[20px] xl:mt-[23px] mt-[26px] 3xl:mt-[31px] lg:mx-[51px] xl:mx-[58px] mx-[66px] 3xl:mx-[79px] object-contain w-[31%]"
+            className="common-pointer lg:h-[62px] xl:h-[71px] h-[79px] 2xl:h-[80px] 3xl:h-[95px] lg:mt-[20px] xl:mt-[23px] mt-[26px] 3xl:mt-[31px] lg:mx-[51px] xl:mx-[58px] mx-[66px] 3xl:mx-[79px] object-contain w-[20%]"
             onClick={handleNavigate21}
             alt="MINERVALOGO1"
           />
@@ -47,15 +51,20 @@ const RegisterPagePage = () => {
                 onClick={handleNavigate16}
               >{`Log in now`}</Text>
             </Row>
+            
           </Column>
+          
         </Column>
-        <Stack className="font-merriweather 3xl:h-[1025px] lg:h-[500px] xl:h-[1000px] h-[1000px] 2xl:h-[1000px] w-[43%]">
-          <Image
+        
+        <Stack className="font-merriweather 3xl:h-[1025px] lg:h-[500px] xl:h-[1000px] h-[100%] 2xl:h-[1000px] w-[43%]">
+        <Image
             src="img_image5.png"
-            className="absolute 3xl:h-[1025px] lg:h-[500px] xl:h-[700px] h-[1000px] 2xl:h-[600px] inset-[0] object-cover w-[100%]"
+            className="3xl:h-[1025px] lg:h-[500px] xl:h-[1000px] h-[1000px] 2xl:h-[1000px] inset-[0] object-cover w-[100%]"
             alt="image5"
           />
           <Column className="absolute inset-x-[0] items-start justify-start mx-[auto] top-[5%] w-[86%]">
+          
+            
             <Column className="w-[100%]">
               <Row className="items-start justify-end w-[100%]">
                 <Image
@@ -82,7 +91,9 @@ const RegisterPagePage = () => {
                 <>
                   {`Anytime`}
                   <br />
+                  <br />
                   {`Anywhere`}
+                  <br />
                   <br />
                   {`with Minerva`}
                 </>

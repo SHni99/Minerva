@@ -153,7 +153,7 @@ const AboutusPagePage = () => {
               <Text className="font-poppins font-semibold lg:leading-lh24 xl:leading-lh27 2xl:leading-lh31 leading-lh3100 3xl:leading-lh37 lg:mb-[15px] xl:mb-[17px] mb-[20px] 3xl:mb-[24px] lg:mt-[36px] xl:mt-[41px] mt-[47px] 3xl:mt-[56px] mx-[auto] text-black_900 text-center lg:text-fs62 xl:text-fs71 text-fs80 3xl:text-fs96 tracking-ls2 w-[76%]">
                 <span className="text-black_900 text-fs64 lg:text-fs49 xl:text-fs56 3xl:text-fs76">
                   <>
-                    {`Our mission `}
+                    {`Our mission`}
                     <br />
                     {``}
                   </>

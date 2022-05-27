@@ -45,9 +45,9 @@ const LandingPagePage = () => {
                           className="common-pointer absolute lg:h-[45px] xl:h-[51px] h-[57px] 2xl:h-[58px] 3xl:h-[69px] shadow-bs top-[0] w-[100%]"
                           onClick={handleNavigate23}
                         ></div>
-                        <Column className="absolute inset-[0] rounded-radius50 shadow-bs w-[100%]">
+                        <Column className="absolute inset-[0] rounded-radius50  w-[100%]">
                           <Button
-                            className="common-pointer bg-light_blue_900 border border-light_blue_900 border-solid font-medium lg:mb-[17px] xl:mb-[19px] mb-[22px] 3xl:mb-[26px] lg:py-[12px] xl:py-[14px] py-[16px] 3xl:py-[19px] rounded-radius12 shadow-bs text-center lg:text-fs12 xl:text-fs14 text-fs16 3xl:text-fs19 text-white_A700 w-[100%]"
+                            className="common-pointer bg-light_blue_900 border border-light_blue_900 border-solid font-medium lg:mb-[15px] xl:mb-[15px] mb-[25px] 3xl:mb-[20px] lg:py-[10px] xl:py-[14px] py-[6px] 3xl:py-[19px] rounded-radius12 shadow-bs text-center lg:text-fs12 xl:text-fs14 text-fs16 3xl:text-fs19 text-white_A700 w-[100%]"
                             onClick={handleNavigate17}
                           >{`View listings`}</Button>
                         </Column>
@@ -69,16 +69,17 @@ const LandingPagePage = () => {
               </Column>
             </Column>
             <Stack className="font-inter lg:h-[158px] xl:h-[181px] h-[203px] 2xl:h-[204px] 3xl:h-[244px] lg:mx-[55px] xl:mx-[63px] mx-[71px] 3xl:mx-[85px] w-[32%]">
-              <Button
-                className="common-pointer absolute bg-gray_901 border border-gray_901 border-solid bottom-[11%] font-medium lg:py-[12px] xl:py-[14px] py-[16px] 3xl:py-[19px] right-[22%] rounded-radius11 text-center lg:text-fs12 xl:text-fs14 text-fs16 3xl:text-fs19 text-white_A700 w-[35%]"
-                onClick={handleNavigate7}
-              >{`About Us`}</Button>
+              
               <Stack className="absolute lg:h-[158px] xl:h-[181px] h-[203px] 2xl:h-[204px] 3xl:h-[244px] inset-[0] w-[100%]">
                 <Column className="absolute bottom-[0] font-inter left-[0] rounded-radius1 w-[35%]">
                   <Button className="bg-light_blue_900 border border-blue_900 border-solid font-medium lg:mb-[17px] xl:mb-[19px] mb-[22px] 3xl:mb-[26px] lg:py-[12px] xl:py-[14px] py-[16px] 3xl:py-[19px] rounded-radius11 text-center lg:text-fs12 xl:text-fs14 text-fs16 3xl:text-fs19 text-white_A700 w-[100%]">{`See How It Works`}</Button>
                 </Column>
                 <Text className="absolute font-normal font-nunitosans lg:leading-lh24 xl:leading-lh28 2xl:leading-lh32 leading-lh3200 3xl:leading-lh38 not-italic lg:text-fs18 xl:text-fs21 text-fs24 3xl:text-fs28 text-indigo_901 text-left top-[0] w-[100%]">{`Minerva can help with its easy-to-use and convenient tuition-matching service. Get started with just three simple steps!`}</Text>
               </Stack>
+              <Button
+                className="common-pointer absolute bg-gray_901 border border-gray_901 border-solid bottom-[11%] font-medium lg:py-[12px] xl:py-[14px] py-[16px] 3xl:py-[19px] right-[22%] rounded-radius11 text-center lg:text-fs12 xl:text-fs14 text-fs16 3xl:text-fs19 text-white_A700 w-[35%]"
+                onClick={handleNavigate7}
+              >{`About Us`}</Button>
             </Stack>
           </Column>
         </Stack>
@@ -167,11 +168,11 @@ const LandingPagePage = () => {
           />
           <Stack className="absolute bg-gray_51 lg:h-[516px] xl:h-[590px] h-[663px] 2xl:h-[664px] 3xl:h-[797px] inset-[0] justify-center m-[auto] rounded-radius20 shadow-bs1 w-[83%]">
             <Stack className="absolute bottom-[7%] lg:h-[112px] xl:h-[128px] h-[143px] 2xl:h-[144px] 3xl:h-[172px] left-[8%] w-[33%]">
+              <Text className="absolute font-normal inset-[0] leading-lh10000 not-italic text-black_900 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 w-[100%]">{`Minerva provides a quick and easy solution to find tutors and tutees through our online platform.`}</Text>
               <Button
                 className="common-pointer absolute bg-orange_500 border border-orange_500 border-solid bottom-[3%] font-normal inset-x-[0] mx-[auto] lg:py-[11px] xl:py-[13px] py-[15px] 3xl:py-[18px] rounded-radius10 text-center lg:text-fs14 xl:text-fs16 text-fs18 3xl:text-fs21 text-gray_900 w-[61%]"
                 onClick={handleNavigate9}
               >{`Sign up now`}</Button>
-              <Text className="absolute font-normal inset-[0] leading-lh10000 not-italic text-black_900 text-center lg:text-fs15 xl:text-fs17 text-fs20 3xl:text-fs24 w-[100%]">{`Minerva provides a quick and easy solution to find tutors and tutees through our online platform.`}</Text>
             </Stack>
             <Row className="absolute items-start justify-between left-[3%] top-[5%] w-[77%]">
               <Column className="font-nunitosans items-center justify-start xl:mb-[111px] mb-[125px] 3xl:mb-[150px] lg:mb-[97px] w-[55%]">

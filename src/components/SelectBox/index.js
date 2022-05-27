@@ -2,9 +2,9 @@ import React from "react";
 import Select from "react-select";
 
 const selectOptions = [
-  { value: "option1", label: "Option1" },
-  { value: "option2", label: "Option2" },
-  { value: "option3", label: "Option3" },
+  { value: "Nil", label: "Nil" },
+  { value: "Singapore", label: "Singapore" },
+  { value: "Malaysia", label: "Malaysia" },
 ];
 
 export const SelectBox = React.forwardRef(
@@ -36,10 +36,15 @@ export const SelectBox = React.forwardRef(
             IndicatorSeparator: () => null,
           }}
           styles={{
+           
             control: (provided) => ({
               ...provided,
+              height: "50px",
+              fontSize: "20px",
               backgroundColor: "transparent",
-              border: "0 !important",
+              borderColor: "black",
+              borderStyle: "solid",
+              right: "40px",
               boxShadow: "0 !important",
               minHeight: "auto",
               "&:hover": {
@@ -59,7 +64,7 @@ export const SelectBox = React.forwardRef(
               color: "inherit",
               margin: "0",
               padding: "0",
-              // height: "0",
+              
             }),
             valueContainer: (provided) => ({
               ...provided,
@@ -67,6 +72,7 @@ export const SelectBox = React.forwardRef(
             }),
             dropdownIndicator: (provided) => ({
               ...provided,
+              height: "50px",
               paddingTop: "0px",
               paddingBottom: "0px",
             }),

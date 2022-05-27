@@ -46,7 +46,7 @@ const RegisterPagePage = () => {
               ></SelectBox>
             <Button onClick={e => {
                     e.preventDefault();
-                    handleLogin(email, password, navigate );
+                    handleSignUp(email, password, navigate );       
             }} 
                   className="bg-blue_A700 border border-blue_A700 border-solid font-bold lg:mt-[31px] xl:mt-[36px] mt-[41px] 3xl:mt-[49px] mx-[auto] lg:py-[24px] xl:py-[27px] py-[31px] 3xl:py-[37px] rounded-radius12 text-center lg:text-fs24 xl:text-fs28 text-fs32 3xl:text-fs38 text-white_A700 tracking-ls1 w-[89%]">{`Sign up`}</Button>
             <Row className="items-end justify-center mt-[1px] mx-[auto] w-[45%]">
@@ -111,12 +111,12 @@ const RegisterPagePage = () => {
   );
 };
 
-const handleLogin = async (email, password, navigate) => {
+const handleSignUp = async (email, password, navigate) => {
   try {
-    const { error } = await supabaseClient.auth.signIn(email, password);
+    const { error } = await supabaseClient.auth.signUp({email, password});
     if (error) throw error;
-    alert('logged in');
-    navigate.push('/listingspage');
+    alert('Signed up');
+    navigate("/listingspage");   
   } catch (error) {
     alert(error.message);
   }

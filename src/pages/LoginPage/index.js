@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Stack } from "components/Stack";
@@ -7,12 +7,14 @@ import { Column } from "components/Column";
 import { Text } from "components/Text";
 import { Button } from "components/Button";
 import { Input } from "components/Input";
+import { supabaseClient } from '../../config/supabase-client';
 
 const LoginPagePage = () => {
   const navigate = useNavigate();
-
   const handleNavigate20 = () => navigate("/");
   const handleNavigate19 = () => navigate("/registerpage");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <>
@@ -32,13 +34,16 @@ const LoginPagePage = () => {
             />
           </Column>
           <Text className="font-normal lg:mt-[45px] xl:mt-[52px] mt-[59px] 3xl:mt-[70px] lg:mx-[54px] xl:mx-[62px] mx-[70px] 3xl:mx-[84px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Username or email`}</Text>
-          <Input className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:leading-lh28 xl:leading-lh32 2xl:leading-lh36 leading-lh3600 3xl:leading-lh43 lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] lg:mx-[54px] xl:mx-[62px] mx-[70px] 3xl:mx-[84px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[14px] xl:py-[16px] py-[18.5px] 2xl:py-[18px] 3xl:py-[22px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left w-[86%]" placeholder="Enter username or email"></Input>
+          <Input value={email} onChange={e=> setEmail(e.target.value)} className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:leading-lh28 xl:leading-lh32 2xl:leading-lh36 leading-lh3600 3xl:leading-lh43 lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] lg:mx-[54px] xl:mx-[62px] mx-[70px] 3xl:mx-[84px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[14px] xl:py-[16px] py-[18.5px] 2xl:py-[18px] 3xl:py-[22px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left w-[86%]" placeholder="Enter username or email"></Input>
           <Text className="font-normal lg:mt-[17px] xl:mt-[20px] mt-[23px] 3xl:mt-[27px] lg:mx-[54px] xl:mx-[62px] mx-[70px] 3xl:mx-[84px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Password`}</Text>
-          <Input type="password" className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:leading-lh28 xl:leading-lh32 2xl:leading-lh36 leading-lh3600 3xl:leading-lh43 lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] lg:mx-[54px] xl:mx-[62px] mx-[70px] 3xl:mx-[84px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[13px] xl:py-[15px] py-[17px] 3xl:py-[20px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left w-[86%]" placeholder="Enter password"></Input>
+          <Input type="password" onChange={e => setPassword(e.target.value)} className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:leading-lh28 xl:leading-lh32 2xl:leading-lh36 leading-lh3600 3xl:leading-lh43 lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] lg:mx-[54px] xl:mx-[62px] mx-[70px] 3xl:mx-[84px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[13px] xl:py-[15px] py-[17px] 3xl:py-[20px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left w-[86%]" placeholder="Enter password"></Input>
           <Button className="font-bold lg:mt-[10px] xl:mt-[12px] mt-[14px] 3xl:mt-[16px] lg:mx-[54px] xl:mx-[62px] mx-[70px] 3xl:mx-[84px] xl:py-[11px] py-[12.5px] 2xl:py-[12px] 3xl:py-[15px] lg:py-[9px] rounded-radius4 text-center lg:text-fs18 xl:text-fs21 text-fs24 3xl:text-fs28 text-light_blue_900 w-[12%]">{`Forgot password?`}</Button>
           <Column className="items-center mb-[104px] 3xl:mb-[124px] lg:mb-[80px] xl:mb-[92px] lg:mt-[31px] xl:mt-[36px] mt-[41px] 3xl:mt-[49px] w-[100%]">
             <Column className="bg-blue_A700 border border-blue_A700 border-solid items-center justify-start mx-[auto] lg:py-[24px] xl:py-[28px] py-[31.5px] 2xl:py-[31px] 3xl:py-[37px] rounded-radius12 w-[91%]">
-              <Text className="font-bold mx-[auto] text-center lg:text-fs24 xl:text-fs28 text-fs32 3xl:text-fs38 text-white_A700 tracking-ls1">{`Log in`}</Text>
+              <Button onClick={e => {
+                    e.preventDefault();
+                    handleLogin(email, password, navigate );       
+            }}  className="font-bold mx-[auto] text-center lg:text-fs24 xl:text-fs28 text-fs32 3xl:text-fs38 text-white_A700 tracking-ls1">{`Log in`}</Button>
             </Column>
             <Stack className="lg:h-[54px] xl:h-[62px] h-[69px] 2xl:h-[70px] 3xl:h-[83px] lg:mt-[31px] xl:mt-[36px] mt-[41px] 3xl:mt-[49px] mx-[auto] w-[48%]">
              <Text className="absolute font-normal h-[max-content] inset-y-[0] left-[0] my-[auto] not-italic text-black_900 text-center lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 w-[80%]">{`Don’t have an account?`}</Text>
@@ -51,7 +56,18 @@ const LoginPagePage = () => {
         </Column>
       </Stack>
     </>
-  );
+  ); 
+};
+
+const handleLogin = async (email, password, navigate) => {
+  try {
+    const { error } = await supabaseClient.auth.signIn({email, password});
+    if (error) throw error;
+    alert('Logged in');
+    navigate("/listingspage");   
+  } catch (error) {
+    alert(error.message);
+  }
 };
 
 export default LoginPagePage;

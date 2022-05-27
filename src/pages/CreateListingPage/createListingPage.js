@@ -62,12 +62,15 @@ function SelectionField(props) {
     return (
         <div className={createListingPageStyles["selection-field-1"]}>
             
-            <select className={createListingPageStyles["selection-dropdown-box-master"]} />
+            <select 
+            className={createListingPageStyles["selection-dropdown-box-master"]}>
+                <option disabled selected hidden>Requirement</option>
+            </select>
 
             <div className={`\
             ${createListingPageStyles["selection-input-box-master"]} \
             ${createListingPageStyles["border-1px-gray500---98a2b3"]}`}>
-                <input className={createListingPageStyles["input-text-4"]} />
+                <input className={createListingPageStyles["input-text-4"]} placeholder="Tell us more..."/>
             </div>
         </div>
     );

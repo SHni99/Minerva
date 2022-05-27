@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Row } from "components/Row";
@@ -9,15 +9,16 @@ import { Button } from "components/Button";
 import { Stack } from "components/Stack";
 import { Input } from "components/Input";
 import { SelectBox } from "components/SelectBox";
-
+import { supabaseClient } from '../../config/supabase-client';
 
 
 const RegisterPagePage = () => {
   const navigate = useNavigate();
-
   const handleNavigate21 = () => navigate("/");
   const handleNavigate16 = () => navigate("/loginpage");
-
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
   return (
     <>
       <Row className="bg-white_A700 font-nunitosans items-center mx-[auto] w-[100%]">
@@ -33,9 +34,9 @@ const RegisterPagePage = () => {
           <Text className="font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[32px] xl:mt-[37px] mt-[42px] 3xl:mt-[50px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Username`}</Text>
           <Input className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Enter username"></Input>
           <Text className="font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] mt-[11px] 3xl:mt-[13px] lg:mt-[8px] xl:mt-[9px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Email`}</Text>
-          <Input className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Enter email"></Input>
+          <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Enter email"></Input>
           <Text className="font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[12px] xl:mt-[14px] mt-[16px] 3xl:mt-[19px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Password`}</Text>
-          <Input type="password" className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Enter password"></Input>
+          <Input value={password} onChange={e => setPassword(e.target.value)} type="password" className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Enter password"></Input>
           <Text className="font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[12px] xl:mt-[14px] mt-[16px] 3xl:mt-[19px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Confirm password`}</Text>
           <Input type="password" className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Confirm password"></Input>
           <Text className="font-normal 3xl:mt-[10px] lg:mt-[7px] xl:mt-[8px] mt-[9px] lg:mx-[51px] xl:mx-[58px] mx-[66px] 3xl:mx-[79px] not-italic text-black_900 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left">{`Country`}</Text>
@@ -43,7 +44,11 @@ const RegisterPagePage = () => {
             <SelectBox
               className="lg:h-[35px] xl:h-[41px] h-[45px] 2xl:h-[46px] 3xl:h-[55px] mx-[auto] object-contain rounded-radius12 w-[85%]"
               ></SelectBox>
-            <Button className="bg-blue_A700 border border-blue_A700 border-solid font-bold lg:mt-[31px] xl:mt-[36px] mt-[41px] 3xl:mt-[49px] mx-[auto] lg:py-[24px] xl:py-[27px] py-[31px] 3xl:py-[37px] rounded-radius12 text-center lg:text-fs24 xl:text-fs28 text-fs32 3xl:text-fs38 text-white_A700 tracking-ls1 w-[89%]">{`Sign up`}</Button>
+            <Button onClick={e => {
+                    e.preventDefault();
+                    handleLogin(email, password, navigate );
+            }} 
+                  className="bg-blue_A700 border border-blue_A700 border-solid font-bold lg:mt-[31px] xl:mt-[36px] mt-[41px] 3xl:mt-[49px] mx-[auto] lg:py-[24px] xl:py-[27px] py-[31px] 3xl:py-[37px] rounded-radius12 text-center lg:text-fs24 xl:text-fs28 text-fs32 3xl:text-fs38 text-white_A700 tracking-ls1 w-[89%]">{`Sign up`}</Button>
             <Row className="items-end justify-center mt-[1px] mx-[auto] w-[45%]">
               <Text className="font-normal xl:mb-[2px] lg:mb-[2px] mb-[3px] xl:mt-[10px] mt-[12px] 3xl:mt-[14px] lg:mt-[9px] not-italic text-black_900 text-center lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33">{`Have an account?`}</Text>
               <Text
@@ -104,6 +109,17 @@ const RegisterPagePage = () => {
       </Row>
     </>
   );
+};
+
+const handleLogin = async (email, password, navigate) => {
+  try {
+    const { error } = await supabaseClient.auth.signIn(email, password);
+    if (error) throw error;
+    alert('logged in');
+    navigate.push('/listingspage');
+  } catch (error) {
+    alert(error.message);
+  }
 };
 
 export default RegisterPagePage;

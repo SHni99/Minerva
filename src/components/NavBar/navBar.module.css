@@ -61,10 +61,9 @@
 }
 
 .login-button {
-  align-items: flex-start;
+  align-items: flex-end;
   display: flex;
   height: 48px;
-  margin-bottom: 5px;
   min-width: 103px;
   position: relative;
 }

@@ -1,0 +1,184 @@
+.navBar {
+    align-items: center;
+    display: flex;
+    min-width: 1000px;
+    margin-bottom: 30px;
+    position: relative;
+  }
+  
+  .minerva_logo {
+    margin-left: 80px;
+    height: 93px;
+    object-fit: cover;
+    width: 302px;
+  }
+  
+  .links {
+    align-items: flex-start;
+    display: flex;
+    height: 48px;
+    margin-bottom: 1px;
+    margin-left: 38px;
+    min-width: 280px;
+    position: relative;
+  }
+  
+  .loginSignup {
+    align-items: flex-end;
+    display: flex;
+    height: 48px;
+    margin-bottom: 1px;
+    margin-left: 38px;
+    min-width: 280px;
+    right: 0px;
+    position: absolute;
+  }
+  
+  .home-link {
+    align-items: flex-start;
+    display: flex;
+    height: 48px;
+    min-width: 57px;
+    position: relative;
+  }
+  
+  .listings-link {
+    align-items: flex-start;
+    display: flex;
+    height: 48px;
+    margin-left: 35px;
+    min-width: 75px;
+    position: relative;
+  }
+  
+  .aboutus-link {
+    align-items: flex-start;
+    display: flex;
+    height: 48px;
+    margin-left: 35px;
+    min-width: 120px;
+    position: relative;
+  }
+  
+  .login-button {
+    align-items: flex-start;
+    display: flex;
+    height: 48px;
+    margin-bottom: 5px;
+    min-width: 103px;
+    position: relative;
+  }
+  
+  .sign-up-button {
+    align-items: flex-end;
+    display: flex;
+    height: 48px;
+    margin-bottom: 1px;
+    margin-left: 9px;
+    min-width: 111px;
+    position: relative;
+  }
+  
+  .button-variant-set-master {
+    align-items: flex-start;
+    display: flex;
+    height: 48px;
+    min-width: 57px;
+    position: relative;
+  }
+  
+  .button-variant-set-master.button-variant-set-master-1 {
+    margin-left: 24px;
+    min-width: 89px;
+  }
+  
+  .button-master {
+    align-items: flex-start;
+    border-radius: 4px;
+    display: flex;
+    height: 48px;
+    overflow: hidden;
+    padding: 11px 0;
+    width: 57px;
+  }
+  
+  .text {
+    letter-spacing: 0;
+    line-height: 24px;
+    min-height: 24px;
+    white-space: nowrap;
+  }
+  
+  .button-master.button-master-1 {
+    width: 89px;
+  }
+  
+  .button-variant-set-master-2 {
+    align-items: flex-start;
+    display: flex;
+    height: 48px;
+    min-width: 75px;
+    position: relative;
+  }
+  
+  .button-master-2 {
+    align-items: flex-start;
+    border-radius: 4px;
+    display: flex;
+    height: 48px;
+    overflow: hidden;
+    padding: 11px 0;
+    width: 75px;
+  }  
+  
+  .text-1 {
+    letter-spacing: 0;
+    line-height: 24px;
+    min-height: 24px;
+    white-space: nowrap;
+  }
+  
+  .button-variant-set-master-3 {
+    align-items: flex-end;
+    display: flex;
+    height: 48px;
+    min-width: 103px;
+    position: relative;
+  }
+  
+  .button-master-3 {
+    align-items: flex-start;
+    border-radius: 4px;
+    display: flex;
+    height: 48px;
+    overflow: hidden;
+    padding: 10px 23px;
+    width: 103px;
+    position: relative;
+  }
+  
+  .inter {
+    -webkit-text-stroke: 1px var(--black);
+    letter-spacing: 0;
+    line-height: 36px;
+    min-height: 36px;
+    white-space: nowrap;
+  }
+  
+  .button-master-4 {
+    align-items: flex-start;
+    background-color: var(--primary400---0354a6);
+    border-radius: 11px;
+    display: flex;
+    height: 48px;
+    overflow: hidden;
+    padding: 5px 21px;
+    width: 111px;
+  }
+  
+  .text-2 {
+    letter-spacing: 0;
+    line-height: 36px;
+    min-height: 36px;
+    white-space: nowrap;
+  }

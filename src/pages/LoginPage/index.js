@@ -64,7 +64,7 @@ const handleLogin = async (email, password, navigate) => {
     const { error } = await supabaseClient.auth.signIn({email, password});
     if (error) throw error;
     alert('Logged in');
-    navigate("/listingspage");   
+    navigate("/loggedlistingspage");   
   } catch (error) {
     alert(error.message);
   }

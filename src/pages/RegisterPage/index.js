@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Row } from "components/Row";
@@ -13,11 +13,14 @@ import { supabaseClient } from '../../config/supabase-client';
 
 
 const RegisterPagePage = () => {
+
   const navigate = useNavigate();
   const handleNavigate21 = () => navigate("/");
   const handleNavigate16 = () => navigate("/loginpage");
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [country, setCountry] = useState('');
   
   return (
     <>
@@ -32,7 +35,7 @@ const RegisterPagePage = () => {
             alt="MINERVALOGO1"
           />
           <Text className="font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[32px] xl:mt-[37px] mt-[42px] 3xl:mt-[50px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Username`}</Text>
-          <Input className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Enter username"></Input>
+          <Input value={username} onChange={e => setUsername(e.target.value)} className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Enter username"></Input>
           <Text className="font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] mt-[11px] 3xl:mt-[13px] lg:mt-[8px] xl:mt-[9px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Email`}</Text>
           <Input value={email} onChange={e => setEmail(e.target.value)} type="email" className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Enter email"></Input>
           <Text className="font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[12px] xl:mt-[14px] mt-[16px] 3xl:mt-[19px] not-italic lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-gray_901 text-left">{`Password`}</Text>
@@ -41,12 +44,14 @@ const RegisterPagePage = () => {
           <Input type="password" className="bg-gray_100 border border-bluegray_100 border-solid font-normal lg:ml-[51px] xl:ml-[58px] ml-[66px] 3xl:ml-[79px] lg:mr-[44px] xl:mr-[50px] mr-[57px] 3xl:mr-[68px] lg:mt-[4px] xl:mt-[5px] mt-[6px] 3xl:mt-[7px] not-italic lg:pl-[12px] xl:pl-[14px] pl-[16px] 3xl:pl-[19px] lg:py-[3px] py-[4.5px] 2xl:py-[4px] xl:py-[4px] 3xl:py-[5px] rounded-radius12 text-bluegray_500 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left" placeholder="Confirm password"></Input>
           <Text className="font-normal 3xl:mt-[10px] lg:mt-[7px] xl:mt-[8px] mt-[9px] lg:mx-[51px] xl:mx-[58px] mx-[66px] 3xl:mx-[79px] not-italic text-black_900 lg:text-fs21 xl:text-fs24 text-fs28 3xl:text-fs33 text-left">{`Country`}</Text>
           <Column className="items-center lg:mb-[19px] xl:mb-[22px] mb-[25px] 3xl:mb-[30px] lg:mt-[10px] xl:mt-[11px] mt-[13px] 3xl:mt-[15px] w-[100%]">
-            <SelectBox
+            <SelectBox 
+              defaultValue={country} onClick={e => setCountry(e.target.value)} 
               className="lg:h-[35px] xl:h-[41px] h-[45px] 2xl:h-[46px] 3xl:h-[55px] mx-[auto] object-contain rounded-radius12 w-[85%]"
               ></SelectBox>
             <Button onClick={e => {
                     e.preventDefault();
-                    handleSignUp(email, password, navigate );       
+                    handleSignUp(email, password, username,country , navigate );
+                          
             }} 
                   className="bg-blue_A700 border border-blue_A700 border-solid font-bold lg:mt-[31px] xl:mt-[36px] mt-[41px] 3xl:mt-[49px] mx-[auto] lg:py-[24px] xl:py-[27px] py-[31px] 3xl:py-[37px] rounded-radius12 text-center lg:text-fs24 xl:text-fs28 text-fs32 3xl:text-fs38 text-white_A700 tracking-ls1 w-[89%]">{`Sign up`}</Button>
             <Row className="items-end justify-center mt-[1px] mx-[auto] w-[45%]">
@@ -111,10 +116,17 @@ const RegisterPagePage = () => {
   );
 };
 
-const handleSignUp = async (email, password, navigate) => {
+const handleSignUp = async (email, password, username, country, navigate) => {
   try {
-    const { error } = await supabaseClient.auth.signUp({email, password});
+    const { error } = await supabaseClient.auth.signUp({email, password},
+      {
+      data:{
+        username,
+        country
+      }
+    });
     if (error) throw error;
+    
     alert('Signed up');
     navigate("/listingspage");   
   } catch (error) {

@@ -93,13 +93,14 @@
   position: relative;
 }
 
-.home-link {
+.footer-link {
   align-items: flex-start;
   display: flex;
   height: 48px;
   margin-left: 42px;
   position: relative;
   text-decoration: none;
+  color: black;
 }
 
 

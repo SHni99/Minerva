@@ -1,10 +1,37 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import navBarStyles from "./navBar.module.css";
+import { supabaseClient as supabase } from "../../config/supabase-client"
 
-class NavBar extends Component {
+const NavBar = () => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState(null);
 
-    generateNavBarLinks = () => {
+    const minervaLogoSrc = "/images/img_minervaLogo.png";
+
+    const getUser = async () => {
+        try {
+            const user = supabase.auth.user();
+
+            if (!user) return;
+            setIsLoggedIn(true);
+
+            let { data, error, status } = await supabase
+                .from("profiles")
+                .select("avatar_url")
+                .eq("id", user.id)
+                .single();
+            
+            if (error && status !== 406) throw error;
+            if (data) {
+                setAvatarUrl(data.avatarUrl);
+            }
+        } catch (error) {
+            alert(error.message);
+        } 
+    }
+
+    const generateNavBarLinks = () => {
         return (
             <React.Fragment>
                 <Link className={`${navBarStyles["home-link"]} ${navBarStyles["button-variant-set-master"]} ${navBarStyles["button-master"]}`} to='/'>
@@ -22,31 +49,41 @@ class NavBar extends Component {
         );
     }
 
-    generateLoginSignup = () => {
-        return (
-            <React.Fragment>
-                <Link className={`${navBarStyles["login-button"]} ${navBarStyles["button-variant-set-master-3"]} ${navBarStyles["button-master-3"]}`} to='/loginpage'>
-                    <div className={`inter nunitosans-normal-endeavour-20px`}>Log in</div>
-                </Link>
+    useEffect(() => getUser(), []);
 
-                <Link className={`${navBarStyles["sign-up-button"]} ${navBarStyles["button-master-4"]}`} to="/registerpage">
-                    <div className={`${navBarStyles["text-2"]} nunitosans-normal-white-20px`}>Sign Up</div>
-                </Link>
-            </React.Fragment>
-        );
-    };
-
-    render() { 
-        const minervaLogoSrc = "/images/img_minervaLogo.png";
-
-        return (
-            <div className={navBarStyles.navBar}>
-                <Link to="/"> <img className={navBarStyles.minerva_logo} src={minervaLogoSrc} alt="Minerva Logo" /> </Link>
-                <div className={navBarStyles.links}>{ this.generateNavBarLinks() }</div>
-                <div className={navBarStyles.loginSignup}> { this.generateLoginSignup() } </div>
-            </div>
-        );
-    }
+    return (
+        <div className={navBarStyles.navBar}>
+            <Link to="/"> <img className={navBarStyles.minerva_logo} src={minervaLogoSrc} alt="Minerva Logo" /> </Link>
+            <div className={navBarStyles.links}>{ generateNavBarLinks() }</div>
+            <CredentialsCorner isLoggedIn={isLoggedIn} avatarUrl={avatarUrl}/> 
+        </div>
+    );
 }
 
 export default NavBar;
+
+function CredentialsCorner(props) {
+    const { isLoggedIn, avatarUrl } = props;
+
+    if (isLoggedIn) {
+        return (
+            <div 
+            className={navBarStyles["avatar"]} 
+            style={{
+                backgroundImage: ( avatarUrl || `url("/images/img_avatarDefault.jpg")`)
+            }} /> 
+        );
+    }
+
+    return (
+        <div className={navBarStyles.credentialsCorner}>
+            <Link className={`${navBarStyles["login-button"]} ${navBarStyles["button-variant-set-master-3"]} ${navBarStyles["button-master-3"]}`} to='/loginpage'>
+                <div className={`inter nunitosans-normal-endeavour-20px`}>Log in</div>
+            </Link>
+
+            <Link className={`${navBarStyles["sign-up-button"]} ${navBarStyles["button-master-4"]}`} to="/registerpage">
+                <div className={`${navBarStyles["text-2"]} nunitosans-normal-white-20px`}>Sign Up</div>
+            </Link>
+        </div>
+    );
+}

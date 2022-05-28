@@ -1,0 +1,200 @@
+.screen a {
+    display: contents;
+    text-decoration: none;
+  }
+  
+  .container-center-horizontal {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    pointer-events: none;
+    width: 100%;
+  }
+  
+  .container-center-horizontal > * {
+    flex-shrink: 0;
+    pointer-events: auto;
+  }
+  
+  .login-page {
+    align-items: flex-start;
+    background-color: var(--white);
+    display: flex;
+    height: 1080px;
+    overflow: hidden;
+    width: 1440px;
+  }
+  
+  .overlap-group1 {
+    align-items: flex-start;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    height: 100%;
+    margin: 0;
+    padding: 50px 225px;
+  }
+  
+  .login-overlay {
+    align-items: center;
+    background-color: 
+  #abc1c5;
+    border-radius: 40px;
+    display: flex;
+    flex-direction: column;
+    min-height: 954px;
+    padding: 89px 0;
+    width: 990px;
+  }
+  
+  .minerva_logo_1-removebg-preview_1-3 {
+    height: 135px;
+    object-fit: cover;
+    width: 464px;
+  }
+  
+  .username-input {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    margin-top: 59px;
+    min-height: 115px;
+    width: 850px;
+  }
+  
+  .label {
+    letter-spacing: 0;
+    line-height: 36px;
+    min-height: 36px;
+    white-space: nowrap;
+  }
+  
+  .input-box-set-master {
+    align-items: center;
+    background-color: '#E7E4DE';
+    border-radius: 12px;
+    display: flex;
+    height: 73px;
+    margin-top: 6px;
+    overflow: hidden;
+    padding: 0 16px;
+    position: relative;
+    width: 850px;
+  }
+  
+  .password-input {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    margin-top: 23px;
+    min-height: 112px;
+    width: 850px;
+  }
+  
+  .input-box-set-master-1 {
+    align-items: center;
+    background-color: '#E7E4DE';
+    border-radius: 12px;
+    display: flex;
+    height: 70px;
+    margin-top: 6px;
+    overflow: hidden;
+    padding: 0 16px;
+    position: relative;
+    width: 850px;
+  }
+  
+  .button-master {
+    align-items: center;
+    align-self: flex-start;
+    border-radius: 4px;
+    display: flex;
+    height: 49px;
+    margin-left: 70px;
+    margin-top: 14px;
+    overflow: hidden;
+    padding: 0 1.5px;
+    width: 203px;
+  }
+  
+  .text {
+    letter-spacing: 0;
+    line-height: 32px;
+    min-height: 32px;
+    min-width: 200px;
+    white-space: nowrap;
+  }
+  
+  .button-master-1 {
+    align-items: center;
+    background-color: #4169e1;
+    border-radius: 12px;
+    display: flex;
+    height: 103px;
+    margin-top: 70px;
+    overflow: hidden;
+    padding: 0 406px;
+    width: 900px;
+  }
+  
+  .text-1 {
+    letter-spacing: -0.64px;
+    line-height: 40px;
+    min-height: 40px;
+    min-width: 88px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  
+  .overlap-group {
+    height: 39px;
+    margin-right: 107px;
+    margin-top: 56px;
+    position: relative;
+    width: 443px;
+  }
+  
+  .button-master-2 {
+    align-items: center;
+    border-radius: 4px;
+    display: flex;
+    height: 35px;
+    left: 344px;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 99px;
+  }
+  
+  .text-2 {
+    letter-spacing: 0;
+    line-height: 11px;
+    min-height: 11px;
+    min-width: 99px;
+    white-space: nowrap;
+  }
+  
+  .dontt-have-an-account {
+    left: 0;
+    letter-spacing: 0;
+    line-height: 36px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    white-space: nowrap;
+    width: 369px;
+  }
+  
+  .input-text-1 {
+    align-items: flex-start;
+    display: flex;
+    height: 36px;
+    width: 818px;
+  }
+  
+  .text-3 {
+    letter-spacing: 0;
+    line-height: 36px;
+    min-height: 36px;
+    white-space: nowrap;
+  }

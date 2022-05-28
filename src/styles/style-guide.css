@@ -141,6 +141,31 @@ rgba(255, 255, 255, 1);
   font-weight: 400;
   font-style: normal;
 }
+
+.nunitosans-bold-endeavour-24px {
+  color: #315F97;
+  font-family: var(--font-family-nunito_sans);
+  font-size: var(--font-size-xxxl);
+  font-weight: 700;
+  font-style: normal;
+}
+
+.nunitosans-normal-black-28px {
+  color: var(--black);
+  font-family: var(--font-family-nunito_sans);
+  font-size: 69;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.nunitosans-bold-white-32px {
+  color: var(--white);
+  font-family: var(--font-family-nunito_sans);
+  font-size: 32px;
+  font-weight: 700;
+  font-style: normal;
+}
+
 .nunitosans-normal-storm-gray-28px {
   color: var(--gray600---667085);
   font-family: var(--font-family-nunito_sans);
@@ -271,4 +296,10 @@ rgba(255, 255, 255, 1);
   font-size: 48px;
   font-weight: 500;
   font-style: normal;
+}
+
+.border-1px-mischka {
+  border-width: 1px;
+  border-style: solid;
+  border-color: '#A2A9B3';
 }

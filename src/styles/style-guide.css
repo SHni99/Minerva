@@ -1,47 +1,26 @@
- @import url("https://fonts.googleapis.com/css?family=Inter:400,500,600|Nunito+Sans:400,700,800|Poppins:400,600|Merriweather:700,700italic|Nunito:500,600");
+@import url("https://fonts.googleapis.com/css?family=Inter:400,500,600|Nunito+Sans:400,700,800|Poppins:400,600|Merriweather:700,700italic|Nunito:500,600");
 
 :root {
-  --black: 
-rgba(0, 0, 0, 1);
-  --black-2: 
-rgba(3, 3, 3, 1);
-  --primary400---0354a6: 
-rgba(3, 84, 166, 1);
-  --primary500---064280: 
-rgba(6, 66, 128, 1);
-  --gray700---101828: 
-rgba(16, 24, 40, 1);
-  --blackbase---121212: 
-rgba(18, 18, 18, 1);
-  --sapphire: 
-rgba(46, 66, 164, 1);
-  --primary300---3d90e3: 
-rgba(49, 100, 244, 1);
-  --gray600---667085: 
-rgba(102, 112, 133, 1);
-  --mountain-mist: 
-rgba(151, 151, 151, 1);
-  --gray500---98a2b3: 
-rgba(152, 161, 178, 1);
-  --gray400---d0d5dd: 
-rgba(208, 213, 221, 1);
-  --gray300---e4e7ec: 
-rgba(228, 231, 236, 1);
-  --gold-sand: 
-rgba(232, 195, 129, 1);
-  --gray200---f2f4f7: 
-rgba(242, 244, 247, 1);
-  --gray100---fcfcfd: 
-rgba(252, 252, 253, 1);
-  --warning200---ffd481: 
-rgba(255, 150, 0, 1);
-  --whitebase---ffffff: 
-rgba(255, 255, 255, 1);
-  --zircon: 
-rgba(247, 251, 255, 1);
-  --whitebase---ffffff: 
-rgba(255, 255, 255, 1);
-
+  --black: rgba(0, 0, 0, 1);
+  --black-2: rgba(3, 3, 3, 1);
+  --primary400---0354a6: rgba(3, 84, 166, 1);
+  --primary500---064280: rgba(6, 66, 128, 1);
+  --gray700---101828: rgba(16, 24, 40, 1);
+  --blackbase---121212: rgba(18, 18, 18, 1);
+  --sapphire: rgba(46, 66, 164, 1);
+  --primary300---3d90e3: rgba(49, 100, 244, 1);
+  --gray600---667085: rgba(102, 112, 133, 1);
+  --mountain-mist: rgba(151, 151, 151, 1);
+  --gray500---98a2b3: rgba(152, 161, 178, 1);
+  --gray400---d0d5dd: rgba(208, 213, 221, 1);
+  --gray300---e4e7ec: rgba(228, 231, 236, 1);
+  --gold-sand: rgba(232, 195, 129, 1);
+  --gray200---f2f4f7: rgba(242, 244, 247, 1);
+  --gray100---fcfcfd: rgba(252, 252, 253, 1);
+  --warning200---ffd481: rgba(255, 150, 0, 1);
+  --whitebase---ffffff: rgba(255, 255, 255, 1);
+  --zircon: rgba(247, 251, 255, 1);
+  --whitebase---ffffff: rgba(255, 255, 255, 1);
 
   --font-size-xxs: 14px;
   --font-size-s: 20px;
@@ -143,7 +122,7 @@ rgba(255, 255, 255, 1);
 }
 
 .nunitosans-bold-endeavour-24px {
-  color: #315F97;
+  color: #315f97;
   font-family: var(--font-family-nunito_sans);
   font-size: var(--font-size-xxxl);
   font-weight: 700;
@@ -163,6 +142,14 @@ rgba(255, 255, 255, 1);
   font-family: var(--font-family-nunito_sans);
   font-size: 32px;
   font-weight: 700;
+  font-style: normal;
+}
+
+.nunitosans-normal-mirage-28px {
+  color: var(--mirage);
+  font-family: var(--font-family-nunito_sans);
+  font-size: var(--font-size-xxxxl);
+  font-weight: 400;
   font-style: normal;
 }
 
@@ -201,10 +188,10 @@ rgba(255, 255, 255, 1);
   font-weight: 600;
   font-style: normal;
 }
-.nunitosans-bold-white-32px {
+.nunitosans-bold-white-26px {
   color: var(--whitebase---ffffff);
   font-family: var(--font-family-nunito_sans);
-  font-size: var(--font-size-xl);
+  font-size: 26px;
   font-weight: 700;
   font-style: normal;
 }
@@ -301,5 +288,13 @@ rgba(255, 255, 255, 1);
 .border-1px-mischka {
   border-width: 1px;
   border-style: solid;
-  border-color: '#A2A9B3';
+  border-color: "#A2A9B3";
+}
+
+.merriweather-bold-black-60px {
+  color: var(--black);
+  font-family: var(--font-family-merriweather);
+  font-size: 60px;
+  font-weight: 700;
+  font-style: normal;
 }

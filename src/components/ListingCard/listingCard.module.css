@@ -10,6 +10,8 @@
   overflow: hidden;
   position: relative;
   width: 225px;
+  margin: 30px 30px;
+  cursor: pointer;
 }
 
 .details {

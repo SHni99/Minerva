@@ -11,7 +11,7 @@
 .label,
 .text {
   letter-spacing: 0;
-  line-height: 40px;
+  line-height: 36px;
   min-height: 36px;
   white-space: nowrap;
 }

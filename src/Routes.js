@@ -5,6 +5,7 @@ import AboutusPage from "pages/AboutusPage";
 import RegisterPage from "pages/RegisterPage";
 import LoginPage from "pages/LoginPage";
 import LandingPage from "pages/LandingPage";
+import CreateListingPage from "pages/CreateListingPage/createListingPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "pages/Home";
 import NotFound from "pages/NotFound";
@@ -21,6 +22,7 @@ const ProjectRoutes = () => {
         <Route path="/listingspage" element={<ListingsPage />} />
         <Route path="/loggedlistingspage" element={<LoggedListingsPage />} />
         <Route path="/dhiwise-dashboard" element={<Home />} />
+        <Route path="/create-listing" element={<CreateListingPage />} />
       </Routes>
     </Router>
   );

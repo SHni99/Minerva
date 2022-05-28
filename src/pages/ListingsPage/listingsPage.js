@@ -4,12 +4,14 @@ import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from 'components/ListingCard/listingCard';
 import { supabaseClient as supabase } from 'config/supabase-client';
 import { Spinner } from 'react-bootstrap';
+import { CloseButton } from 'react-bootstrap';
 
 import listingsPageStyles from "./listingsPage.module.css";
 
 const ListingsPage = () => {
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [listingData, setListingData] = useState([]);
+  const [query, setQuery] = useState(null);
 
   return (
     <div>
@@ -17,6 +19,7 @@ const ListingsPage = () => {
       <ListingPageBody 
       tutorTuteeState={[tutorTutee, setTutorTutee]}
       listingDataState={[listingData, setListingData]}
+      queryState={[query, setQuery]}
       />
       <FooterBar />
     </div>
@@ -25,8 +28,14 @@ const ListingsPage = () => {
 
 export default ListingsPage;
 
-function ListingPageBody({ tutorTuteeState, listingDataState }) {
+function ListingPageBody({ tutorTuteeState, listingDataState, queryState }) {
   const [ tutorTutee, setTutorTutee ] = tutorTuteeState;
+  const [ query, setQuery ] = queryState;
+
+  const searchHandler = () => {
+      setQuery(document.getElementById("search-input").value);
+      console.log(query);
+  }
 
   return (
     <div className={listingsPageStyles["body"]}>
@@ -41,12 +50,20 @@ function ListingPageBody({ tutorTuteeState, listingDataState }) {
         />
       </div>
 
-      <div className={listingsPageStyles["search-bar"]}>
-        <div className={`${listingsPageStyles["input-text"]} ${listingsPageStyles["input-composition-master"]} ${listingsPageStyles["input-box-set-master"]} ${listingsPageStyles["border-1px-gray500---98a2b3"]}`}>
-          <input className={listingsPageStyles["input-text-1"]} />
+      <div className={listingsPageStyles["search-bar"]} >
+        <div className={`
+        ${listingsPageStyles["input-text"]} 
+        ${listingsPageStyles["input-composition-master"]} 
+        ${listingsPageStyles["input-box-set-master"]} 
+        ${listingsPageStyles["border-1px-gray500---98a2b3"]}`}>
+          <input className={listingsPageStyles["input-text-1"]} id="search-input" />
+          <CloseButton onClick={() => { 
+            setQuery(null); 
+            document.getElementById("search-input").value = "";
+          }}/>
         </div>
 
-        <div className={listingsPageStyles["button-master-1"]}>
+        <div className={listingsPageStyles["button-master-1"]} onClick={searchHandler}>
           <div className={`${listingsPageStyles["text-1"]} text-mdmedium`}>
             Search
           </div>
@@ -56,6 +73,7 @@ function ListingPageBody({ tutorTuteeState, listingDataState }) {
       <Listings 
       tutorTutee={tutorTutee}
       listingDataState={listingDataState}
+      query={query}
       />
     </div>
   );
@@ -76,7 +94,7 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   );
 }
  
-const Listings = ({ tutorTutee, listingDataState }) => {
+const Listings = ({ tutorTutee, listingDataState, query }) => {
   const [loading, setLoading] = useState(false);
   const [listingData, setListingData] = listingDataState;
 
@@ -122,22 +140,27 @@ const Listings = ({ tutorTutee, listingDataState }) => {
     // (because we are actively mutating `listingData` on each call!)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tutorTutee])
+  }, [tutorTutee, query])
 
 
   return (
     <div className={listingsPageStyles["listings"]} >
       {loading ? 
-      <Spinner animation="border" role="status" style={{marginLeft:"50%", marginTop:"10%"}} /> :
+      <Spinner animation="border" role="status" style={{marginLeft:"50%", marginTop:"10%"}} /> 
+      :
       <React.Fragment>
-        {listingData.map(listing => {
+        {listingData
+        .filter(listing => listing.title.indexOf(query || "") > -1 || listing.description.indexOf(query || "") > -1)
+        .map(listing => {
           return (
           <ListingCard
           avatarLink={listing.avatarLink}
           title={listing.title}
           description={listing.description}
           key={listing.listingId}
-          />);
+          />
+          ||
+          <h1>Nothing here!</h1>);
         })}
       </React.Fragment>
       }

@@ -65,7 +65,7 @@ function FooterLink(props) {
     const { label, referTo, minWidth } = props;
     return (
         <Link 
-            className={`${footerBarStyles["home-link"]} ${footerBarStyles["button-variant-set-master"]} ${footerBarStyles["button-master"]}`}
+            className={`${footerBarStyles["footer-link"]} ${footerBarStyles["button-variant-set-master"]} ${footerBarStyles["button-master"]}`}
             style={{ minWidth }}
          to={referTo}>
             <div className={`${footerBarStyles["text"]} text-smmedium`}>{label}</div>

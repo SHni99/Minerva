@@ -93,28 +93,16 @@
   position: relative;
 }
 
-.home-link {
+.footer-link {
   align-items: flex-start;
   display: flex;
   height: 48px;
   margin-left: 42px;
   position: relative;
+  text-decoration: none;
+  color: black;
 }
 
-.home-link.privacy-policy-link {
-  margin-left: 100px;
-  min-width: 94px;
-}
-
-.home-link.to-s-link {
-  margin-left: 100px;
-  min-width: 113px;
-}
-
-.home-link.about-us-link {
-  margin-left: 100px;
-  min-width: 63px;
-}
 
 .button-variant-set-master {
   align-items: flex-start;

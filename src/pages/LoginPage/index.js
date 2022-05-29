@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { Text } from "components/Text";
 import { Input } from "components/Input";
@@ -9,7 +8,7 @@ import loginPageStyles from "./login.module.css";
 const LoginPagePage = () => {
   const navigate = useNavigate();
   const handleNavigate20 = () => navigate("/");
-  const handleNavigate19 = () => navigate("/registerpage");
+  const handleNavigate19 = () => navigate("/profilepage");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -107,7 +106,7 @@ const handleLogin = async (email, password, navigate) => {
     const { error } = await supabaseClient.auth.signIn({ email, password });
     if (error) throw error;
     alert("Logged in");
-    navigate("/loggedlistingspage");
+    navigate("/profilepage");
   } catch (error) {
     alert(error.message);
   }

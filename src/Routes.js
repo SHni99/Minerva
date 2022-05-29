@@ -1,7 +1,7 @@
 import React from "react";
 import ListingsPage from "pages/ListingsPage/listingsPage";
-import LoggedListingsPage from "pages/LoggedListingsPage/loggedListingPage";
 import AboutusPage from "pages/AboutusPage";
+import ProfilePage from "pages/ProfilePage/profile";
 import RegisterPage from "pages/RegisterPage";
 import LoginPage from "pages/LoginPage";
 import LandingPage from "pages/LandingPage";
@@ -19,7 +19,7 @@ const ProjectRoutes = () => {
         <Route path="/registerpage" element={<RegisterPage />} />
         <Route path="/aboutuspage" element={<AboutusPage />} />
         <Route path="/listingspage" element={<ListingsPage />} />
-        <Route path="/loggedlistingspage" element={<LoggedListingsPage />} />
+        <Route path="/profilepage" element={<ProfilePage />} />
         <Route path="/dhiwise-dashboard" element={<Home />} />
       </Routes>
     </Router>

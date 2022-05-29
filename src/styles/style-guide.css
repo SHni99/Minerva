@@ -298,3 +298,49 @@
   font-weight: 700;
   font-style: normal;
 }
+
+.border-1px-santas-gray {
+  border-width: 1px;
+  border-style: solid;
+  border-color: #9D9DA6;
+}
+
+.inter-normal-licorice-20px {
+  color: var(--licorice);
+  font-family: 'Inter';
+  font-size: 20px;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.inter-medium-concord-16px {
+  color: var(--concord);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-l);
+  font-weight: 500;
+  font-style: normal;
+}
+
+.inter-normal-eerie-black-24px {
+  color: var(--eerie-black);
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-xxxl);
+  font-weight: 400;
+  font-style: normal;
+}
+
+.inter-bold-licorice-20px {
+  color: var(--licorice);
+  font-family: 'Inter';
+  font-size: 20px;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.inter-bold-romance-20px {
+  color: #F2F1EE;
+  font-family: var(--font-family-inter);
+  font-size: 20px;
+  font-weight: 700;
+  font-style: normal;
+}

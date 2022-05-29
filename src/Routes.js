@@ -1,5 +1,9 @@
 import React from "react";
 import ListingsPage from "pages/ListingsPage/listingsPage";
+<<<<<<< HEAD
+=======
+import ProfilePage from "pages/ProfilePage/profile";
+>>>>>>> features/login-page
 import AboutusPage from "pages/AboutusPage/aboutUsPage";
 import RegisterPage from "pages/RegisterPage";
 import LoginPage from "pages/LoginPage";
@@ -19,6 +23,7 @@ const ProjectRoutes = () => {
         <Route path="/registerpage" element={<RegisterPage />} />
         <Route path="/aboutuspage" element={<AboutusPage />} />
         <Route path="/listingspage" element={<ListingsPage />} />
+        <Route path="/profilepage" element={<ProfilePage />} />
         <Route path="/dhiwise-dashboard" element={<Home />} />
         <Route path="/create-listing" element={<CreateListingPage />} />
       </Routes>

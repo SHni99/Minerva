@@ -9,7 +9,11 @@ const ListingCard = props => {
             <div 
             className={listingCardStyles["avatar"]} 
             style={{
+<<<<<<< HEAD
                 backgroundImage: (avatarLink || "url(/images/img_avatarDefault.jpg)")
+=======
+                backgroundImage: (avatarLink || "url(/images/img_avatardefault.jpg)")
+>>>>>>> features/login-page
             }}
             ></div>
 

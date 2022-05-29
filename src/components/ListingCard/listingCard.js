@@ -9,7 +9,7 @@ const ListingCard = props => {
             <div 
             className={listingCardStyles["avatar"]} 
             style={{
-                backgroundImage: (avatarLink || "url(/images/img_avatardefault.jpg)")
+                backgroundImage: (avatarLink || "url(/images/img_avatarDefault.jpg)")
             }}
             ></div>
 

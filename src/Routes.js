@@ -1,9 +1,6 @@
 import React from "react";
 import ListingsPage from "pages/ListingsPage/listingsPage";
-<<<<<<< HEAD
-=======
 import ProfilePage from "pages/ProfilePage/profile";
->>>>>>> features/login-page
 import AboutusPage from "pages/AboutusPage/aboutUsPage";
 import RegisterPage from "pages/RegisterPage";
 import LoginPage from "pages/LoginPage";

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import navBarStyles from "./navBar.module.css";
 import { supabaseClient as supabase } from "../../config/supabase-client"
+import { Button } from 'react-bootstrap';
 
 const NavBar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -67,11 +68,17 @@ function CredentialsCorner(props) {
 
     if (isLoggedIn) {
         return (
-            <div 
-            className={navBarStyles["avatar"]} 
-            style={{
-                backgroundImage: ( avatarUrl || `url("/images/img_avatarDefault.jpg")`)
-            }} /> 
+            <div className={navBarStyles["credentialsCorner"]}>
+                
+                <Button href="create-listing" active>Create Listing</Button>
+                
+                <div 
+                className={navBarStyles["avatar"]} 
+                style={{
+                    backgroundImage: ( avatarUrl || `url("/images/img_avatarDefault.jpg")`)
+                }} /> 
+
+            </div>
         );
     }
 

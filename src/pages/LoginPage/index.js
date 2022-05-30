@@ -52,7 +52,7 @@ const LoginPagePage = () => {
               >
                 <Text
                   className={`poppins-semi-bold-black-24px`}
-                >{`Username or email`}</Text>
+                >{`Email`}</Text>
                 <Input
                   type="email"
                   value={email}

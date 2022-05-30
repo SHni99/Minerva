@@ -34,7 +34,6 @@ function ListingPageBody({ tutorTuteeState, listingDataState, queryState }) {
 
   const searchHandler = () => {
       setQuery(document.getElementById("search-input").value);
-      console.log(query);
   }
 
   return (

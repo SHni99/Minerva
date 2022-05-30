@@ -8,17 +8,17 @@ import loginPageStyles from "./login.module.css";
 const LoginPagePage = () => {
   const navigate = useNavigate();
   const handleNavigate20 = () => navigate("/");
-  const handleNavigate19 = () => navigate("/profilepage");
-  const handleNavigate18 = () => navigate("/passwordpage" );
+  const handleNavigate19 = () => navigate("/registerpage");
+  const handleNavigate18 = () => navigate("/passwordpage");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (email, password, navigate, e) => {
     e.preventDefault();
-  
+
     try {
-      setLoading(true)
+      setLoading(true);
       const { error } = await supabaseClient.auth.signIn({ email, password });
       if (error) throw error;
       alert("Logged in");
@@ -26,7 +26,7 @@ const LoginPagePage = () => {
     } catch (error) {
       alert(error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -47,7 +47,6 @@ const LoginPagePage = () => {
               onClick={handleNavigate20}
             />
             <div className={loginPageStyles["username-input"]}>
-              
               <div
                 className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
               >
@@ -79,25 +78,31 @@ const LoginPagePage = () => {
                 className={`${loginPageStyles["text-1"]} nunitosans-bold-endeavour-24px`}
               >
                 <span
-                  onClick={handleNavigate18} 
+                  onClick={handleNavigate18}
                   className={`nunitosans-bold-endeavour-24px`}
                 >{`Forgot password?`}</span>
               </h1>
             </div>
 
             <div className={loginPageStyles["button-master-1"]}>
-              
-              { loading? <text className={`${loginPageStyles["align-left"]} nunitosans-bold-white-32px`}>Logging..</text>:
-                (<h1
+              {loading ? (
+                <text
+                  className={`${loginPageStyles["align-left"]} nunitosans-bold-white-32px`}
+                >
+                  Logging..
+                </text>
+              ) : (
+                <h1
                   className={`${loginPageStyles["text-1"]} nunitosans-bold-white-32px`}
-                > 
-                <button
-                  onClick={(e) => {
-                    handleLogin(email, password, navigate,e);
-                  }}
-                  className={`nunitosans-bold-white-32px`}
-                >{`Log in`}</button>
-              </h1>)}
+                >
+                  <button
+                    onClick={(e) => {
+                      handleLogin(email, password, navigate, e);
+                    }}
+                    className={`nunitosans-bold-white-32px`}
+                  >{`Log in`}</button>
+                </h1>
+              )}
             </div>
             <div className={loginPageStyles["overlap-group"]}>
               <div className={loginPageStyles["button-master-2"]}>
@@ -118,9 +123,7 @@ const LoginPagePage = () => {
         </div>
       </div>
     </div>
-  );  
+  );
 };
-
-
 
 export default LoginPagePage;

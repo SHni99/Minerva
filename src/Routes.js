@@ -5,6 +5,7 @@ import AboutusPage from "pages/AboutusPage/aboutUsPage";
 import RegisterPage from "pages/RegisterPage";
 import LoginPage from "pages/LoginPage";
 import LandingPage from "pages/LandingPage";
+import PasswordPage from "pages/PasswordReset/password";
 import CreateListingPage from "pages/CreateListingPage/createListingPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "pages/Home";
@@ -23,6 +24,7 @@ const ProjectRoutes = () => {
         <Route path="/profilepage" element={<ProfilePage />} />
         <Route path="/dhiwise-dashboard" element={<Home />} />
         <Route path="/create-listing" element={<CreateListingPage />} />
+        <Route path="/passwordpage" element={<PasswordPage />} />
       </Routes>
     </Router>
   );

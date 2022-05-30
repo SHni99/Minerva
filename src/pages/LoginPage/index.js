@@ -9,8 +9,26 @@ const LoginPagePage = () => {
   const navigate = useNavigate();
   const handleNavigate20 = () => navigate("/");
   const handleNavigate19 = () => navigate("/profilepage");
+  const handleNavigate18 = () => navigate("/passwordpage" );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (email, password, navigate, e) => {
+    e.preventDefault();
+  
+    try {
+      setLoading(true)
+      const { error } = await supabaseClient.auth.signIn({ email, password });
+      if (error) throw error;
+      alert("Logged in");
+      navigate("/profilepage");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false)
+    }
+  };
 
   return (
     <div className={loginPageStyles["container-center-horizontal"]}>
@@ -29,11 +47,12 @@ const LoginPagePage = () => {
               onClick={handleNavigate20}
             />
             <div className={loginPageStyles["username-input"]}>
+              
               <div
                 className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
               >
                 <Text
-                  className={`nunitosans-normal-mirage-28px`}
+                  className={`poppins-semi-bold-black-24px`}
                 >{`Username or email`}</Text>
                 <Input
                   type="email"
@@ -47,7 +66,7 @@ const LoginPagePage = () => {
                 className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
               >
                 <Text
-                  className={`nunitosans-normal-mirage-28px`}
+                  className={`poppins-semi-bold-black-24px`}
                 >{`Password`}</Text>
                 <Input
                   type="password"
@@ -59,25 +78,26 @@ const LoginPagePage = () => {
               <h1
                 className={`${loginPageStyles["text-1"]} nunitosans-bold-endeavour-24px`}
               >
-                <a
-                  href="https://www.w3schools.com/html/html_links.asp"
+                <span
+                  onClick={handleNavigate18} 
                   className={`nunitosans-bold-endeavour-24px`}
-                >{`Forgot password?`}</a>
+                >{`Forgot password?`}</span>
               </h1>
             </div>
 
             <div className={loginPageStyles["button-master-1"]}>
-              <h1
-                className={`${loginPageStyles["text-1"]} nunitosans-bold-white-32px`}
-              >
+              
+              { loading? <text className={`${loginPageStyles["align-left"]} nunitosans-bold-white-32px`}>Logging..</text>:
+                (<h1
+                  className={`${loginPageStyles["text-1"]} nunitosans-bold-white-32px`}
+                > 
                 <button
                   onClick={(e) => {
-                    e.preventDefault();
-                    handleLogin(email, password, navigate);
+                    handleLogin(email, password, navigate,e);
                   }}
                   className={`nunitosans-bold-white-32px`}
                 >{`Log in`}</button>
-              </h1>
+              </h1>)}
             </div>
             <div className={loginPageStyles["overlap-group"]}>
               <div className={loginPageStyles["button-master-2"]}>
@@ -98,18 +118,9 @@ const LoginPagePage = () => {
         </div>
       </div>
     </div>
-  );
+  );  
 };
 
-const handleLogin = async (email, password, navigate) => {
-  try {
-    const { error } = await supabaseClient.auth.signIn({ email, password });
-    if (error) throw error;
-    alert("Logged in");
-    navigate("/profilepage");
-  } catch (error) {
-    alert(error.message);
-  }
-};
+
 
 export default LoginPagePage;

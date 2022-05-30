@@ -116,6 +116,11 @@
   width: 203px;
 }
 
+.align-left {
+  text-align: left;
+  left: -15px;
+}
+
 .text {
   letter-spacing: 0;
   line-height: 32px;

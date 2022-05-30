@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Text } from "components/Text";
 import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import loginPageStyles from "./login.module.css";
 
-const LoginPagePage = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const handleNavigate20 = () => navigate("/");
   const handleNavigate19 = () => navigate("/registerpage");
@@ -22,13 +22,18 @@ const LoginPagePage = () => {
       const { error } = await supabaseClient.auth.signIn({ email, password });
       if (error) throw error;
       alert("Logged in");
-      navigate("/profilepage");
+      navigate("/listingspage");
     } catch (error) {
       alert(error.message);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (supabaseClient.auth.user())
+      navigate("/listingspage");
+  });
 
   return (
     <div className={loginPageStyles["container-center-horizontal"]}>
@@ -126,4 +131,4 @@ const LoginPagePage = () => {
   );
 };
 
-export default LoginPagePage;
+export default LoginPage;

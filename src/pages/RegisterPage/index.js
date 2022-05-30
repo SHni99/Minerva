@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Input } from "components/Input";
@@ -14,6 +14,11 @@ const RegisterPagePage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
   const [country, setCountry] = useState("");
+
+  useEffect(() => {
+    if (supabaseClient.auth.user())
+      navigate("/listingspage");
+  });
 
   return (
     <div className={registerPageStyles["parent"]}>

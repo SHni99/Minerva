@@ -38,7 +38,6 @@ const CreateListingPage = () => {
         
         try {
             setSubmitting(true);
-            console.log("submitting");
 
             const data = {
                 creator_id: supabase.auth.user().id,
@@ -57,7 +56,6 @@ const CreateListingPage = () => {
         } catch (error) {
             alert(error.message);
         } finally {
-            console.log("submitted");
             navigate("/listingspage");
         }
 
@@ -180,8 +178,9 @@ const SelectionField = props => {
         const fieldDropdown = e.target;
         const fieldInput = e.target.parentElement.children[1].firstChild;
         setSFieldInputs([
-            ...sFieldInputs,
+            ...(sFieldInputs.filter(sField => sField.id !== id)),
             {
+                id,
                 requirement: fieldDropdown.value,
                 getInput: () => fieldInput.value
             }
@@ -202,7 +201,7 @@ const SelectionField = props => {
 
                         for (let field in fieldParams) {
                             fields.push(
-                                <option value={field}> {fieldParams[field]} </option>
+                                <option key={field} value={field}> {fieldParams[field]} </option>
                             );
                         }
 

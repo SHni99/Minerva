@@ -27,6 +27,7 @@
 .title {
   letter-spacing: 0;
   color: var(--black);
+  text-align: center;
   line-height: 40px;
   margin-left: 1px;
   min-height: 40px;

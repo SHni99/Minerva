@@ -145,7 +145,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
   return (
     <div className={listingsPageStyles["listings"]} >
       {loading ? 
-      <Spinner animation="border" role="status" style={{marginLeft:"50%", marginTop:"10%"}} /> 
+      <Spinner animation="border" role="status"/> 
       :
       <React.Fragment>
         {listingData

@@ -267,6 +267,13 @@
   font-weight: 500;
   font-style: normal;
 }
+.nunito-medium-black-24px {
+  color: var(--black);
+  font-family: var(--font-family-nunito);
+  font-size: 24px;
+  font-weight: 500;
+  font-style: normal;
+}
 .nunitosans-bold-black-32px {
   color: var(--black);
   font-family: var(--font-family-nunito_sans);
@@ -292,6 +299,13 @@
   color: var(--sapphire);
   font-family: var(--font-family-inter);
   font-size: 48px;
+  font-weight: 500;
+  font-style: normal;
+}
+.inter-medium-sapphire-24px {
+  color: var(--sapphire);
+  font-family: var(--font-family-inter);
+  font-size: 24px;
   font-weight: 500;
   font-style: normal;
 }

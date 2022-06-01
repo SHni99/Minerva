@@ -1,49 +1,40 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import CloseButton from "react-bootstrap/CloseButton";
 import FooterBar from 'components/FooterBar/footerBar';
 import NavBar from 'components/NavBar/navBar';
 import createListingPageStyles from "./createListingPage.module.css";
 
-class CreateListingPage extends Component {
-    state = {
-        selectionFields: [1,2,3].map(id => { return { id } }),
-        nextSFieldId: 4
+const CreateListingPage = () => {
+    const [sFields, setSFields] = useState( [0, 1, 2].map(id => { return { id } }) );
+
+    const onSFieldAdd = () => {
+        const newSFields = [ ...sFields, { id: sFields.length }];
+        setSFields(newSFields);
     }
 
-    onSFieldAdd = () => {
-        this.setState({ 
-            selectionFields: [ ...this.state.selectionFields, { id: this.state.nextSFieldId }],
-            nextSFieldId: this.state.nextSFieldId + 1
-         });
+    const onSFieldDelete = (id) => {
+        const newSFields = sFields.filter(sField => sField.id !== id);
+        setSFields(newSFields);
     }
 
-    onSFieldDelete = (id) => {
-        const newSFields = [ ...this.state.selectionFields ].filter(sField => sField.id !== id);
-        this.setState({
-            selectionFields: newSFields,
-            nextSFieldId: this.state.nextSFieldId
-        });
-    }
-
-    render() { 
-        return (
-            <div>
-                <NavBar />
-                <CreateListingBody 
-                selectionFields={this.state.selectionFields}
-                onSFieldAdd={this.onSFieldAdd}
-                onSFieldDelete={this.onSFieldDelete}
-                />
-                <FooterBar />
-            </div>
-        );
-    }
+    return (
+        <div>
+            <NavBar />
+            <CreateListingBody 
+            selectionFields={sFields}
+            onSFieldAdd={onSFieldAdd}
+            onSFieldDelete={onSFieldDelete}
+            />
+            <FooterBar />
+        </div>
+    );
 }
 
 export default CreateListingPage;
 
-function CreateListingBody(props) {
+const CreateListingBody = props => {
     const { selectionFields, onSFieldAdd, onSFieldDelete } = props;
+
     return (
         <div className={createListingPageStyles["body"]}>
 

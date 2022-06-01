@@ -5,6 +5,7 @@ import FooterBar from 'components/FooterBar/footerBar';
 import NavBar from 'components/NavBar/navBar';
 import createListingPageStyles from "./createListingPage.module.css";
 import { supabaseClient as supabase } from 'config/supabase-client';
+import { Spinner } from 'react-bootstrap';
 
 const CreateListingPage = () => {
     const [submitting, setSubmitting] = useState(false);
@@ -72,6 +73,7 @@ const CreateListingPage = () => {
             tutorTutee={tutorTutee}
             setTutorTutee={setTutorTutee}
             handleSubmit={handleSubmit}
+            submitting={submitting}
             />
             <FooterBar />
         </div>
@@ -88,11 +90,17 @@ const CreateListingBody = props => {
         onSFieldDelete,
         tutorTutee,
         setTutorTutee,
-        handleSubmit
+        handleSubmit,
+        submitting
     } = props;
 
     return (
-        <div className={createListingPageStyles["body"]}>
+        submitting?
+        (<div className={createListingPageStyles["body"]}>
+            <h1 className="nunito-medium-black-48px">Submitting...</h1>
+            <Spinner animation="border" />
+        </div>) :
+        (<div className={createListingPageStyles["body"]}>
 
             <input className={`\
             ${createListingPageStyles["input-composition-master"]} \
@@ -148,7 +156,7 @@ const CreateListingBody = props => {
             <div className={createListingPageStyles["submit-button"]} onClick={handleSubmit}>
                 <div className={createListingPageStyles["text-2"]}>Let's Go!</div>
             </div>
-        </div>
+        </div>)
     );
 }
 

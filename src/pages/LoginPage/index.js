@@ -30,10 +30,7 @@ const LoginPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (supabaseClient.auth.user())
-      navigate("/listingspage");
-  });
+  
 
   return (
     <div className={loginPageStyles["container-center-horizontal"]}>

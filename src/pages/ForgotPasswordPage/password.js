@@ -10,18 +10,17 @@ const PasswordPage = () => {
   const handleNavigate20 = () => navigate("/");
   const handleNavigate19 = () => navigate("/loginpage");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (email, password, navigate, e) => {
+  const forgotPassword = async (email, e) => {
     e.preventDefault();
 
     try {
       setLoading(true);
-      const { error } = await supabaseClient.auth.signIn({ email, password });
+      const { error } = await supabaseClient.auth.api.resetPasswordForEmail( email );
       if (error) throw error;
       alert("Sent");
-      navigate("/loginpage");
+      navigate("/resetpage");
     } catch (error) {
       alert(error.message);
     } finally {
@@ -78,7 +77,7 @@ const PasswordPage = () => {
                 >
                   <button
                     onClick={(e) => {
-                      handleLogin(email, password, navigate, e);
+                      forgotPassword(email, e);
                     }}
                     className={`${PwdStyles["text-1"]} nunitosans-bold-white-32px`}
                   >{`Reset password`}</button>

@@ -4,7 +4,7 @@ import ProfilePage from "pages/ProfilePage/profile";
 import AboutusPage from "pages/AboutusPage/aboutUsPage";
 import RegisterPage from "pages/RegisterPage";
 import LoginPage from "pages/LoginPage";
-import LandingPage from "pages/LandingPage";
+import LandingPage from "pages/LandingPage/landingPage"
 import PasswordPage from "pages/PasswordReset/password";
 import CreateListingPage from "pages/CreateListingPage/createListingPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";

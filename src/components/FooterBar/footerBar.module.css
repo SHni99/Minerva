@@ -10,7 +10,7 @@
   flex-direction: column;
   min-height: 121px;
   position: relative;
-  min-width: 100%;
+  width: 100%;
 }
 
 .divider {
@@ -19,14 +19,13 @@
   height: 2px;
   margin-left: 1px;
   margin-top: 29px;
-  min-width: 1200px;
+  width: 80%;
   position: relative;
 }
 
 .divider-master {
   background-color: var(--gray300---e4e7ec);
   height: 2px;
-  width: 1200px;
 }
 
 .bar {

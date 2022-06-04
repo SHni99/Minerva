@@ -14,7 +14,7 @@ const LandingPagePage = () => {
 
   const handleNavigate23 = () => navigate("/listingspage");
   const handleNavigate17 = () => navigate("/listingspage");
-  const handleNavigate18 = () => navigate("/loginpage");
+  const handleNavigate18 = () => navigate("/loginmainpage");
   const handleNavigate24 = () => navigate("/registerpage");
   const handleNavigate7 = () => navigate("/aboutuspage");
   const handleNavigate9 = () => navigate("/registerpage");

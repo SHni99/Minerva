@@ -19,8 +19,7 @@ const ResetPage = () => {
     try {
       setLoading(true);
       const { error } = await supabaseClient.auth.update({
-        password: newPassword,
-      });
+        password: newPassword});
       if (error) throw error;
       alert("Sent");
       navigate("/loginpage");
@@ -88,7 +87,7 @@ const ResetPage = () => {
                 <h1 className={`nunitosans-bold-white-32px`}>
                   <button
                     onClick={(e) => {
-                      handleReset(newPassword, confirmPassword, e);
+                      handleReset(newPassword, confirmPassword, e)
                     }}
                     className={`${ResetStyles["text-1"]} nunitosans-bold-white-32px`}
                   >{`Reset password`}</button>

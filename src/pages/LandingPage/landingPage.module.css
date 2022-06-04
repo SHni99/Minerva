@@ -1,0 +1,12 @@
+.intro-header {
+    color: var(--deep-blue);
+    font-family: var(--font-family-nunito_sans);
+    font-weight: 700;
+    font-size: 40px;
+    padding-bottom: 8px;
+}
+
+.intro-text {
+    color: var(--deep-blue);
+    font-size: 20px;
+}

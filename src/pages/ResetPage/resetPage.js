@@ -16,18 +16,25 @@ const ResetPage = () => {
   const handleReset = async (newPassword, confirmPassword, e) => {
     e.preventDefault();
 
+    if (newPassword === confirmPassword){
     try {
       setLoading(true);
+
       const { error } = await supabaseClient.auth.update({
-        password: newPassword});
+        password: newPassword,
+      });
       if (error) throw error;
-      alert("Sent");
+
+      alert("Successfully updated!");
       navigate("/loginpage");
     } catch (error) {
-      alert(error.message);
+      alert("Please check your email inbox");
     } finally {
       setLoading(false);
     }
+  } else{
+    alert("Password does not match. Re-try");
+  }
   };
 
   return (
@@ -79,7 +86,7 @@ const ResetPage = () => {
             </div>
 
             <div className={ResetStyles["button-master-1"]}>
-              { loading ? (
+              {loading ? (
                 <text className={` nunitosans-bold-white-32px`}>
                   Sending...
                 </text>
@@ -87,7 +94,7 @@ const ResetPage = () => {
                 <h1 className={`nunitosans-bold-white-32px`}>
                   <button
                     onClick={(e) => {
-                      handleReset(newPassword, confirmPassword, e)
+                      handleReset(newPassword, confirmPassword, e);
                     }}
                     className={`${ResetStyles["text-1"]} nunitosans-bold-white-32px`}
                   >{`Reset password`}</button>

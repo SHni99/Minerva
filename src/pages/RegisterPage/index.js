@@ -14,6 +14,32 @@ const RegisterPagePage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
   const [country, setCountry] = useState("");
+  const [loading, setLoading] = useState(false);
+
+
+  const handleSignUp = async (email, password, username, country, navigate) => {
+  
+    try {
+      setLoading(true);
+      const { error } = await supabaseClient.auth.signUp(
+        { email, password },
+        {
+          data: {
+            username,
+            country,
+          },
+        }
+      );
+      if (error) throw error;
+  
+      alert("Signed up");
+      navigate("/listingspage");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={registerPageStyles["parent"]}>
@@ -110,12 +136,16 @@ const RegisterPagePage = () => {
             e.preventDefault();
             handleSignUp(email, password, username, country, navigate);
           }}
+        > { loading? ( <h1
+          className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
         >
+          {`Signing up`}
+        </h1> ) : (
           <h1
             className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
           >
             {`Sign up`}
-          </h1>
+          </h1>)}
         </button>
 
         <div className={registerPageStyles["login-referral"]}>
@@ -180,26 +210,6 @@ const UserInput = (props) => {
       <span className={`nunitosans-normal-mirage-28px`}>{input1}</span>
     </div>
   );
-};
-
-const handleSignUp = async (email, password, username, country, navigate) => {
-  try {
-    const { error } = await supabaseClient.auth.signUp(
-      { email, password },
-      {
-        data: {
-          username,
-          country,
-        },
-      }
-    );
-    if (error) throw error;
-
-    alert("Signed up");
-    navigate("/listingspage");
-  } catch (error) {
-    alert(error.message);
-  }
 };
 
 export default RegisterPagePage;

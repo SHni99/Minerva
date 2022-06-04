@@ -15,7 +15,7 @@ export default function LoginMainPage() {
   }, []);
 
   return (
-    <div className="container"
+    <div
     style={{padding: '50px 0 100px 0'}}>
       {!session ? < Login /> : 
       <Profile key={session.user.id} session={session} />}

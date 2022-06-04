@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@chakra-ui/react": "^2.1.2",
     "@supabase/supabase-js": "^1.35.3",
     "@tailwindcss/forms": "0.4.0",
     "@testing-library/jest-dom": "^5.15.1",

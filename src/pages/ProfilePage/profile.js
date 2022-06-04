@@ -4,6 +4,7 @@ import { supabaseClient } from "../../config/supabase-client";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import profileStyles from "./profile.module.css";
+import PersonalAvatar from "components/Avatar/avatar";
 
 const ProfilePage = ({ session }) => {
   const navigate = useNavigate();
@@ -41,9 +42,7 @@ const ProfilePage = ({ session }) => {
     }
   };
 
-  const updateProfile = async (e) => {
-    e.preventDefault();
-
+  async function updateProfile({ username, avatar_url }) {
     try {
       setLoading(true);
       const user = supabaseClient.auth.user();
@@ -59,15 +58,13 @@ const ProfilePage = ({ session }) => {
         returning: "minimal", // Don't return the value after inserting
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
     } catch (error) {
       alert(error.message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleLogout = async (navigate, e) => {
     e.preventDefault();
@@ -89,96 +86,97 @@ const ProfilePage = ({ session }) => {
     <div>
       <NavBar />
       <ProfilePageBody
-      session={session}
-      username={username}
-      setUsername={setUsername}
-      navigate={navigate}
-      handleLogout={handleLogout}
-       />
+        session={session}
+        username={username}
+        avatar_url={avatar_url}
+        setUsername={setUsername}
+        navigate={navigate}
+        handleLogout={handleLogout}
+        updateProfile={updateProfile}
+        setAvatarUrl={setAvatarUrl}
+      />
       <FooterBar />
-      </div>
+    </div>
   );
 };
 
 export default ProfilePage;
 
-const ProfilePageBody = props => {
-
-  const {session, username, setUsername, 
-    navigate, handleLogout
+const ProfilePageBody = (props) => {
+  const {
+    session,
+    username,
+    setUsername,
+    navigate,
+    handleLogout,
+    avatar_url,
+    updateProfile,
+    setAvatarUrl,
   } = props;
 
   return (
     <div className={profileStyles["container-center-horizontal"]}>
-        <div
-          className={`${profileStyles["frame-6"]} ${profileStyles["screen"]}`}
-        >
-          <div className={profileStyles["frame-7"]}>
+      <div className={`${profileStyles["frame-6"]} ${profileStyles["screen"]}`}>
+        <div className={profileStyles["frame-7"]}>
+          <PersonalAvatar
+            url={avatar_url}
+            onUpload={(url) => {
+              setAvatarUrl(url);
+              updateProfile({ username, avatar_url: url });
+            }}
+          />
+          <div
+            className={`${profileStyles["emailcom"]} inter-medium-concord-16px`}
+          >
+            <span>Email: {session.user.email} </span>
             <div
-              className={profileStyles["avatarmaster"]}
-              style={{
-                backgroundImage: `url(${"/images/img_avatarmaster.png"})`,
-              }}
-            ></div>
-            <div
-              className={`${profileStyles["button-master"]} border-1px-santas-gray`}
+              className={`${profileStyles["overlap-group"]} inter-normal-eerie-black-24px`}
             >
-              <div
-                className={`${profileStyles["text"]} inter-normal-licorice-20px`}
-              >
-                <button className={`inter-normal-licorice-20px`}>Upload</button>
-              </div>
+              <h1 className={profileStyles["overlap-group-item"]}>
+                <span className={`inter-normal-eerie-black-24px`}>
+                  Username
+                </span>
+              </h1>
             </div>
+          </div>
+
+          <input
+            type="text"
+            value={username || ""}
+            onChange={(e) => setUsername(e.target.value)}
+            className={`${profileStyles["input-text"]} border-1px-santas-gray`}
+          ></input>
+          <div className={profileStyles["buttonmaster-container"]}>
             <div
-              className={`${profileStyles["emailcom"]} inter-medium-concord-16px`}
+              className={`${profileStyles["button-master-1"]} border-1px-santas-gray`}
             >
-              <span>Email: {session.user.email} </span>
-              <div
-                className={`${profileStyles["overlap-group"]} inter-normal-eerie-black-24px`}
+              <button
+                onClick={(e) => {
+                  handleLogout(navigate, e);
+                }}
+                className={`${profileStyles["text-1"]} inter-bold-licorice-20px`}
               >
-                <h1 className={profileStyles["overlap-group-item"]}>
-                  <span className={`inter-normal-eerie-black-24px`}>
-                    Username
-                  </span>
-                </h1>
-              </div>
+                Log out
+              </button>
             </div>
 
-            <input
-              type="text"
-              value={username || ""}
-              onChange={(e) => setUsername(e.target.value)}
-              className={`${profileStyles["input-text"]} border-1px-santas-gray`}
-            ></input>
-            <div className={profileStyles["buttonmaster-container"]}>
-              <div
-                className={`${profileStyles["button-master-1"]} border-1px-santas-gray`}
+            <div
+              className={`${profileStyles["button-master-2"]} border-1px-santas-gray`}
+            >
+              <button
+                onClick={() => {
+                  updateProfile({ username, avatar_url });
+                  alert("updated");
+                  navigate("/listingspage");
+                }}
+                className={`${profileStyles["text-2"]} inter-bold-romance-20px`}
               >
-                <button
-                  onClick={(e) => {
-                    handleLogout(navigate, e);
-                  }}
-                  className={`${profileStyles["text-1"]} inter-bold-licorice-20px`}
-                >
-                  Log out
-                </button>
-              </div>
-
-              <div
-                className={`${profileStyles["button-master-2"]} border-1px-santas-gray`}
-              >
-                <button
-                  className={`${profileStyles["text-2"]} inter-bold-romance-20px`}
-                >
-                  Update
-                </button>
-              </div>
+                Update
+              </button>
             </div>
           </div>
         </div>
       </div>
+    </div>
   );
-}
-
-
-
+};

@@ -2,11 +2,38 @@
     color: var(--deep-blue);
     font-family: var(--font-family-nunito_sans);
     font-weight: 700;
-    font-size: 40px;
+    font-size: 250%;
     padding-bottom: 8px;
 }
 
 .intro-text {
     color: var(--deep-blue);
-    font-size: 20px;
+    font-size: 100%;
+}
+
+.whyMinerva-heading {
+    font-family: var(--font-family-nunito_sans);
+    font-weight: 1000;
+    font-size: 4vw;
+}
+
+.whyMinerva-sub1 {
+    color: white;
+    margin: 0px 0px;
+    font-style: var(--font-family-nunito_sans);
+    font-weight: 1000;
+    font-size: 100%;
+}
+
+.whyMinerva-1 {
+    color: white;
+    font-style: var(--font-family-nunito_sans);
+    font-weight: 1000;
+    font-size: 200%;
+}
+
+.whyMinerva-text1 {
+    color: white;
+    font-style: var(--font-family-nunito_sans);
+    font-size: 80%;
 }

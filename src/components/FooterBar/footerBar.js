@@ -37,10 +37,9 @@ const Bar = (props) => {
   return (
     <Row
       className={`${footerBarStyles["bar"]} p-2 d-flex flex-column-reverse flex-md-row`}
-      fluid
     >
       {/* Copyright Text */}
-      <Col className="d-flex justify-center align-center text-center py-2">
+      <Col className="d-flex justify-center align-center text-center text-md-start py-2">
         <p className="p-0 m-0">{copyrightText}</p>
       </Col>
 
@@ -53,11 +52,13 @@ const Bar = (props) => {
 
 function Links() {
   return (
-    <Col className={`${footerBarStyles.links} justify-center py-2`}>
-      <FooterLink label="Home" referTo="/" minWidth="40px" />
-      <FooterLink label="Privacy Policy" referTo="/" minWidth="100px" />
-      <FooterLink label="Terms of Service" referTo="/" minWidth="120px" />
-      <FooterLink label="About Us" referTo="/aboutuspage" minWidth="80px" />
+    <Col
+      className={`${footerBarStyles.links} justify-center py-2 d-flex flex-wrap`}
+    >
+      <FooterLink label="Home" referTo="/" />
+      <FooterLink label="Terms of Service" referTo="/" />
+      <FooterLink label="About Us" referTo="/aboutuspage" />
+      <FooterLink label="Privacy Policy" referTo="/" />
     </Col>
   );
 }

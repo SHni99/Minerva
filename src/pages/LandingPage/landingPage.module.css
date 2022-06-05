@@ -14,7 +14,7 @@
 .whyMinerva-heading {
     font-family: var(--font-family-nunito_sans);
     font-weight: 1000;
-    font-size: 4vw;
+    font-size: 200%;
 }
 
 .whyMinerva-sub1 {
@@ -29,7 +29,7 @@
     color: white;
     font-style: var(--font-family-nunito_sans);
     font-weight: 1000;
-    font-size: 300%;
+    font-size: 250%;
 }
 
 .whyMinerva-text1 {

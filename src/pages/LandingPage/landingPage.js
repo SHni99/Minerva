@@ -117,7 +117,7 @@ const IntroSection = () => {
 
 const WhyMinervaSection = () => {
   return (
-    <Container className="bg-dark px-5" fluid>
+    <Container className="bg-dark px-2 px-sm-5" fluid>
       {/* << Why Minerva >> Header */}
       <Row className="py-5">
         <h1
@@ -135,7 +135,7 @@ const WhyMinervaSection = () => {
             alt="Two individuals communicating directly"
           />
         </Col>
-        <Col xs={8} md={5} className="d-flex flex-column justify-center">
+        <Col xs={10} md={5} className="d-flex flex-column justify-center">
           <Row>
             <p
               className={`${landingPageStyles["whyMinerva-sub1"]} text-center text-md-start`}
@@ -170,7 +170,7 @@ const WhyMinervaSection = () => {
             alt="Happy Sunshine"
           />
         </Col>
-        <Col xs={8} md={7} className="d-flex flex-column justify-center">
+        <Col xs={10} md={7} className="d-flex flex-column justify-center">
           <Row>
             <p
               className={`${landingPageStyles["whyMinerva-sub1"]} text-center text-md-end`}
@@ -209,7 +209,7 @@ const WhyMinervaSection = () => {
             alt="Happy Sunshine"
           />
         </Col>
-        <Col xs={8} md={7} className="d-flex flex-column justify-center">
+        <Col xs={12} md={7} className="d-flex flex-column justify-center">
           <Row>
             <p
               className={`${landingPageStyles["whyMinerva-sub1"]} text-center text-md-start`}
@@ -221,7 +221,7 @@ const WhyMinervaSection = () => {
             <h2
               className={`${landingPageStyles["whyMinerva-1"]} text-center text-md-start`}
             >
-              HIGHLY CUSTOMISABLE
+              CUSTOMISED LISTINGS
             </h2>
           </Row>
           <Row>
@@ -254,7 +254,7 @@ const GetStartedSection = () => {
     >
       {/* White overlay  */}
       <Row
-        className="mx-5 p-4 bg-light shadow"
+        className="mx-2 mx-sm-5 p-4 bg-light shadow"
         style={{ borderRadius: "20px" }}
       >
         {/* Left side */}

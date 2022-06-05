@@ -4,6 +4,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import FooterBar from "components/FooterBar/footerBar";
+import { JournalCheck, Funnel, ChatLeftText } from "react-bootstrap-icons";
 
 import landingPageStyles from "./landingPage.module.css";
 
@@ -12,6 +13,7 @@ const LandingPage = () => {
     <Container fluid className="p-0 gx-0">
       <IntroSection />
       <WhyMinervaSection />
+      <GetStartedSection />
       <FooterBar />
     </Container>
   );
@@ -53,7 +55,7 @@ const IntroSection = () => {
           md={6}
           className="d-flex align-items-center justify-content-center justify-content-md-end"
         >
-          <Button className="px-3 py-2 m-2" href="/listingspage">
+          <Button className="px-3 py-2 m-2 rounded-pill" href="/listingspage">
             View Listings
           </Button>
           <Button variant="outline-light border-0 m-2" href="/loginpage">
@@ -66,8 +68,17 @@ const IntroSection = () => {
       </Row>
 
       {/* Text portion + two buttons */}
-      <Row className="px-5 py-8 justify-center justify-content-md-start">
-        <Col xs={12} sm={7} md={5} lg={4} className="ps-sm-3 ps-lg-4">
+      <Row
+        className="px-5 py-8 justify-center justify-content-md-start"
+        style={{ minHeight: "40vw" }}
+      >
+        <Col
+          xs={12}
+          sm={7}
+          md={5}
+          lg={4}
+          className="ps-sm-3 ps-lg-4 ps-xxl-5 pb-5 d-flex flex-column justify-center justify-content-xl-start pt-xl-3 pt-xxl-5"
+        >
           <Row>
             <h1 className={landingPageStyles["intro-header"]}>
               Can't find suitable tutors/tutees?
@@ -124,7 +135,7 @@ const WhyMinervaSection = () => {
             alt="Two individuals communicating directly"
           />
         </Col>
-        <Col xs={7} md={5} className="d-flex flex-column justify-center">
+        <Col xs={8} md={5} className="d-flex flex-column justify-center">
           <Row>
             <p
               className={`${landingPageStyles["whyMinerva-sub1"]} text-center text-md-start`}
@@ -159,7 +170,7 @@ const WhyMinervaSection = () => {
             alt="Happy Sunshine"
           />
         </Col>
-        <Col xs={7} className="d-flex flex-column justify-center">
+        <Col xs={8} md={7} className="d-flex flex-column justify-center">
           <Row>
             <p
               className={`${landingPageStyles["whyMinerva-sub1"]} text-center text-md-end`}
@@ -198,7 +209,7 @@ const WhyMinervaSection = () => {
             alt="Happy Sunshine"
           />
         </Col>
-        <Col xs={7} className="d-flex flex-column justify-center">
+        <Col xs={8} md={7} className="d-flex flex-column justify-center">
           <Row>
             <p
               className={`${landingPageStyles["whyMinerva-sub1"]} text-center text-md-start`}
@@ -222,6 +233,94 @@ const WhyMinervaSection = () => {
               <br />
               Fret not! Minerva can handle all these requests. Simply add more
               fields and let Minerva do the rest.
+            </p>
+          </Row>
+        </Col>
+      </Row>
+    </Container>
+  );
+};
+
+const GetStartedSection = () => {
+  return (
+    // Background image with colour pencils
+    <Container
+      fluid
+      style={{
+        backgroundImage: srcImgLink("img_getStartedbg.jpg"),
+        backgroundSize: "cover",
+      }}
+      className="px-5 py-5"
+    >
+      {/* White overlay  */}
+      <Row
+        className="mx-5 px-4 py-4 bg-light shadow"
+        style={{ borderRadius: "20px" }}
+      >
+        {/* Left side */}
+        <Col xs={12} md={6} className="p-2 pb-5">
+          <Row>
+            <img
+              src={require("assets/images/img_getStartedWoman.jpg")}
+              alt="A working adult"
+            />
+          </Row>
+          <Row xs={7}>
+            <h2 className={landingPageStyles["getStarted-leftTitle"]}>
+              Get started with Minerva today
+            </h2>
+            <p className={landingPageStyles["getStarted-leftText"]}>
+              Minerva provides a quick and easy solution to find tutors and
+              tutees through our online platform.
+            </p>
+            <Button variant="warning" href="/registerpage">
+              Sign up now
+            </Button>
+          </Row>
+        </Col>
+
+        {/* Right side */}
+        <Col xs={12} md={6} className="p-2 d-flex flex-column justify-evenly">
+          <Row className="py-2 px-md-5 d-flex flex-column">
+            <JournalCheck style={{ height: "6vw" }} />
+            <h2
+              className={`${landingPageStyles["getStarted-stepHeader"]} text-center`}
+            >
+              Step 1
+            </h2>
+            <p
+              className={`${landingPageStyles["getStarted-stepText"]} text-center`}
+            >
+              Create a member account or log in as guest to view listings
+            </p>
+          </Row>
+
+          <Row xs={12} className="py-2 px-md-5 d-flex flex-column">
+            <Funnel style={{ height: "6vw" }} />
+            <h2
+              className={`${landingPageStyles["getStarted-stepHeader"]} text-center`}
+            >
+              Step 2
+            </h2>
+            <p
+              className={`${landingPageStyles["getStarted-stepText"]} text-center`}
+            >
+              Search and filter listings based on your preferences
+            </p>
+          </Row>
+
+          <Row xs={12} className="py-2 px-md-5 d-flex flex-column">
+            <i className="bi-journal-check" />
+            <ChatLeftText style={{ height: "6vw" }} />
+            <h2
+              className={`${landingPageStyles["getStarted-stepHeader"]} text-center`}
+            >
+              Step 3
+            </h2>
+            <p
+              className={`${landingPageStyles["getStarted-stepText"]} text-center`}
+            >
+              Communicate with tutors/tutees through private chat
             </p>
           </Row>
         </Col>

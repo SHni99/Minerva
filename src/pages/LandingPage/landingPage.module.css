@@ -29,11 +29,34 @@
     color: white;
     font-style: var(--font-family-nunito_sans);
     font-weight: 1000;
-    font-size: 200%;
+    font-size: 300%;
 }
 
 .whyMinerva-text1 {
     color: white;
     font-style: var(--font-family-nunito_sans);
-    font-size: 80%;
+    font-size: 120%;
+}
+
+.getStarted-leftTitle {
+    font-style: var(--font-family-nunito_sans);
+    font-size: 200%;
+    font-weight: bold;
+    text-align: center;
+    padding: 5%;
+}
+
+.getStarted-leftText {
+    font-style: var(--font-family-nunito_sans);
+    font-size: 100%;
+    text-align: center;
+    padding: 0% 5% 5% 5%;
+}
+
+.getStarted-stepHeader {
+    font-size: 200%;
+}
+
+.getStarted-stepText {
+    font-size: 100%;
 }

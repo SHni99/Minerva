@@ -1,95 +1,107 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import footerBarStyles from "./footerBar.module.css";
 
-class FooterBar extends Component {
-    render() { 
-        return (
-            <div className={footerBarStyles.footer}>
-                <Divider />
-                <Bar 
-                    copyrightText={
-                        <React.Fragment>
-                            2022 © Minerva
-                            <br />
-                            All rights reserved.
-                        </React.Fragment>
-                    }
-                    iconInstagram="/images/img_instagram1.png"
-                    iconTwitter="/images/img_twitter1.png"
-                    iconFacebook="/images/img_facebook1.png"
-                />
-            </div>
-        );
-    }
-}
- 
+const FooterBar = () => {
+  return (
+    <Container className={`${footerBarStyles.footer}`} fluid>
+      <Divider />
+      <Bar
+        copyrightText={
+          <React.Fragment>
+            2022 © Minerva
+            <br />
+            All rights reserved.
+          </React.Fragment>
+        }
+        iconInstagram="/images/img_instagram1.png"
+        iconTwitter="/images/img_twitter1.png"
+        iconFacebook="/images/img_facebook1.png"
+      />
+    </Container>
+  );
+};
+
 export default FooterBar;
 
-function Divider() {
-  return (
-    <div className={`${footerBarStyles.divider} ${footerBarStyles["divider-master"]}`}>
-    </div>
-  );
-}
+const Divider = () => {
+  return <div className={footerBarStyles.divider}></div>;
+};
 
-function Bar(props) {
+const Bar = (props) => {
   const { copyrightText, iconInstagram, iconTwitter, iconFacebook } = props;
 
   return (
-    <div className={footerBarStyles.bar}>
-      <p className={`${footerBarStyles["copyrightText"]} ${footerBarStyles["valign-text-middle"]} text-smregular`}>
-        {copyrightText}
-      </p>
+    <Row
+      className={`${footerBarStyles["bar"]} p-2 d-flex flex-column-reverse flex-md-row`}
+      fluid
+    >
+      {/* Copyright Text */}
+      <Col className="d-flex justify-center align-center text-center py-2">
+        <p className="p-0 m-0">{copyrightText}</p>
+      </Col>
 
       <Links />
 
-      <SocialMedia icons={{iconInstagram, iconTwitter, iconFacebook}}/>
+      <SocialMedia icons={{ iconInstagram, iconTwitter, iconFacebook }} />
+    </Row>
+  );
+};
 
-    </div>
+function Links() {
+  return (
+    <Col className={`${footerBarStyles.links} justify-center py-2`}>
+      <FooterLink label="Home" referTo="/" minWidth="40px" />
+      <FooterLink label="Privacy Policy" referTo="/" minWidth="100px" />
+      <FooterLink label="Terms of Service" referTo="/" minWidth="120px" />
+      <FooterLink label="About Us" referTo="/aboutuspage" minWidth="80px" />
+    </Col>
   );
 }
 
-function Links() {
-    return (
-        <div className={footerBarStyles.links}>
-            <FooterLink label="Home" referTo='/' minWidth="40px"/>
-            <FooterLink label="Privacy Policy" referTo='/' minWidth="100px"/>
-            <FooterLink label="Terms of Service" referTo='/' minWidth="120px" />
-            <FooterLink label="About Us" referTo="/aboutuspage" minWidth="80px" />
-        </div>
-    )
-}
-
 function FooterLink(props) {
-    const { label, referTo, minWidth } = props;
-    return (
-        <Link 
-            className={`${footerBarStyles["footer-link"]} ${footerBarStyles["button-variant-set-master"]} ${footerBarStyles["button-master"]}`}
-            style={{ minWidth }}
-         to={referTo}>
-            <div className={`${footerBarStyles["text"]} text-smmedium`}>{label}</div>
-        </Link>
-    )
+  const { label, referTo, minWidth } = props;
+  return (
+    <Link
+      className={`${footerBarStyles["footer-link"]}`}
+      style={{ minWidth }}
+      to={referTo}
+    >
+      <div className={`${footerBarStyles["text"]} text-smmedium`}>{label}</div>
+    </Link>
+  );
 }
 
 function SocialMedia(props) {
-    const { iconInstagram, iconTwitter, iconFacebook } = props.icons;
-    return (
-      <div className={footerBarStyles["social-media"]}>
+  const { iconInstagram, iconTwitter, iconFacebook } = props.icons;
+  return (
+    <Col className="d-flex flex-row gap-4 align-center justify-center py-2">
+      <Link to="/">
+        <img
+          className={footerBarStyles["icon-instagram"]}
+          src={iconInstagram}
+          alt="Instagram"
+        />
+      </Link>
 
-        <Link to='/' >
-            <img className={footerBarStyles["icon-instagram"]} src={iconInstagram} alt="Instagram Icon"/>
-        </Link>
+      <Link to="/">
+        <img
+          className={footerBarStyles["icon-twitter"]}
+          src={iconTwitter}
+          alt="Twitter"
+        />
+      </Link>
 
-        <Link to='/' >
-            <img className={footerBarStyles["icon-twitter"]} src={iconTwitter} alt="Twitter Icon"/>
-        </Link>
-
-        <Link to='/'>
-            <img className={footerBarStyles["icon-facebook"]} src={iconFacebook} alt="Facebook Icon"/>
-        </Link>
-
-      </div>
-    );
+      <Link to="/">
+        <img
+          className={footerBarStyles["icon-facebook"]}
+          src={iconFacebook}
+          alt="Facebook"
+        />
+      </Link>
+    </Col>
+  );
 }

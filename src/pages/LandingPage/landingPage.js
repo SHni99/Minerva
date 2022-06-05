@@ -250,11 +250,11 @@ const GetStartedSection = () => {
         backgroundImage: srcImgLink("img_getStartedbg.jpg"),
         backgroundSize: "cover",
       }}
-      className="px-5 py-5"
+      className="p-5"
     >
       {/* White overlay  */}
       <Row
-        className="mx-5 px-4 py-4 bg-light shadow"
+        className="mx-5 p-4 bg-light shadow"
         style={{ borderRadius: "20px" }}
       >
         {/* Left side */}

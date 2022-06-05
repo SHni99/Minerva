@@ -1,5 +1,5 @@
 {
-  "name": "figma-react-boilerplate",
+  "name": "minerva",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,11 +10,13 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "bootstrap": "^5.1.3",
-    "react": "17.0.2",
+    "bootstrap-icons": "^1.8.3",
+    "react": "^17.0.2",
     "react-bootstrap": "^2.4.0",
+    "react-bootstrap-icons": "^1.8.2",
     "react-circular-progressbar": "^2.0.4",
     "react-datepicker": "^4.5.0",
-    "react-dom": "17.0.2",
+    "react-dom": "^17.0.2",
     "react-router-dom": "^6.0.2",
     "react-router-hash-link": "^2.4.3",
     "react-scripts": "5.0.0",

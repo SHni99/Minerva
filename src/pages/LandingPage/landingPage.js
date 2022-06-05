@@ -40,7 +40,7 @@ const IntroSection = () => {
       <Row className="justify-between g-0 py-3">
         {/* Minerva Logo */}
         <Col xs={12} md={6} lg={4}>
-          <a href="/" className="d-flex justify-center align-center">
+          <a href="/" className="d-flex justify-start align-center">
             <img
               src="images/img_minervaLogo.png"
               alt="Minerva Logo"
@@ -77,7 +77,7 @@ const IntroSection = () => {
           sm={7}
           md={5}
           lg={4}
-          className="ps-sm-3 ps-lg-4 ps-xxl-5 pb-5 d-flex flex-column justify-center justify-content-xl-start pt-xl-3 pt-xxl-5"
+          className="ps-sm-3 ps-lg-4 ps-xxl-5 pb-5 d-flex flex-column justify-center mb-xl-5"
         >
           <Row>
             <h1 className={landingPageStyles["intro-header"]}>

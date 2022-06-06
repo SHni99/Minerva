@@ -214,7 +214,9 @@ const CreateListingBody = (props) => {
               color: "var(--)",
             }}
             onChange={(e) => {
-              const newVal = e.target.value;
+              let newVal = e.target.value;
+              if (/^[0][0-9]+/.test(newVal))
+                newVal = newVal.substring(1, newVal.length);
               if (/^\d{0,3}(\.\d{0,2})?$/.test(newVal)) {
                 if (invalidRates) setInvalidRates(null);
                 setRates(newVal);

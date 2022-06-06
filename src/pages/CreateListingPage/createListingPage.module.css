@@ -230,29 +230,6 @@
   position: relative;
 }
 
-.text-2 {
-  color: var(--whitebase---ffffff);
-  font-weight: 500;
-  line-height: 24px;
-  min-height: 24px;
-  white-space: nowrap;
-  font-size: 20px;
-  font-family: var(--font-family-inter);
-}
-
-.submit-button {
-  align-items: center;
-  background-color: var(--primary400---0354a6);
-  border-radius: 35px;
-  display: flex;
-  height: 70px;
-  overflow: hidden;
-  margin-top: 27px;
-  padding: 12px 256px;
-  min-width: 600px;
-  position: relative;
-  cursor: pointer;
-}
 
 .plus-circle {
   align-items: center;

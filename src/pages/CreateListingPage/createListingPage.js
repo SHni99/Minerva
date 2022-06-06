@@ -10,17 +10,19 @@ import NavBar from "components/NavBar/navBar";
 import createListingPageStyles from "./createListingPage.module.css";
 import Button from "react-bootstrap/Button";
 import { PlusCircle } from "react-bootstrap-icons";
+import AutosizeInput from "react-input-autosize";
 
 const CreateListingPage = () => {
   // Hook declarations
   const [submitting, setSubmitting] = useState(false);
+  const [sFieldInputs, setSFieldInputs] = useState([]);
+  const [rates, setRates] = useState(0);
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [sFields, setSFields] = useState(
     [0, 1, 2].map((id) => {
       return { id };
     })
   );
-  const [sFieldInputs, setSFieldInputs] = useState([]);
   const navigate = useNavigate();
   const {
     register,
@@ -115,10 +117,13 @@ const CreateListingPage = () => {
         tutorTutee={tutorTutee}
         setTutorTutee={setTutorTutee}
         handleSubmit={handleSubmit}
+        fieldParams={fieldParams}
         submitting={submitting}
         register={register}
         validateAndSubmit={validateAndSubmit}
         validationErrors={validationErrors}
+        rates={rates}
+        setRates={setRates}
       />
       <FooterBar />
     </div>
@@ -136,11 +141,18 @@ const CreateListingBody = (props) => {
     tutorTutee,
     setTutorTutee,
     handleSubmit,
+    fieldParams,
     submitting,
     register,
     validateAndSubmit,
     validationErrors,
+    rates,
+    setRates,
   } = props;
+
+  // Isolated state for `rates` field.
+  // Used to inform user of invalid input.
+  const [invalidRates, setInvalidRates] = useState(null);
 
   // Check if submission is in progress. Show "Submitting..." if required.
   return submitting ? (
@@ -165,19 +177,6 @@ const CreateListingBody = (props) => {
       />
       <p className="text-danger mt-1">{validationErrors.title?.message}</p>
 
-      {/* Tutor/Tutee toggle. Defaults to Tutor. */}
-      <div className={createListingPageStyles["choose-tutor-tutee"]}>
-        <h1
-          className={`${createListingPageStyles["findMeText"]} nunito-medium-black-24px`}
-        >
-          Find me a
-        </h1>
-        <TutorTuteeToggle
-          tutorTutee={tutorTutee}
-          setTutorTutee={setTutorTutee}
-        />
-      </div>
-
       {/* Add Images section. Capped at 3. */}
       <div
         className={`\
@@ -189,7 +188,52 @@ const CreateListingBody = (props) => {
 
       {/* Input fields. Includes both fixed and dynamic (selection fields) fields. */}
       <div className={createListingPageStyles["listing-fields"]}>
-        {/* Fixed field 1: Listing description
+        {/* Fixed field 1: Tutor/Tutee toggle. Defaults to Tutor. */}
+        <div className={createListingPageStyles["choose-tutor-tutee"]}>
+          <h1
+            className={`${createListingPageStyles["findMeText"]} nunito-medium-black-24px`}
+          >
+            Find me a
+          </h1>
+          <TutorTuteeToggle
+            tutorTutee={tutorTutee}
+            setTutorTutee={setTutorTutee}
+          />
+        </div>
+
+        {/* Fixed field 2: Tutor/Tutee rate. Required field. */}
+        <div className="d-flex flex-row align-items-center">
+          <h1 className="nunito-medium-black-24px m-0 p-0">for $</h1>
+          <AutosizeInput
+            name="rates"
+            value={rates}
+            className="nunito-medium-black-24px ms-1 border-0 px-3 py-1 m-2"
+            style={{
+              borderRadius: "15px",
+              boxShadow: "0px 4px 4px #00000040",
+              color: "var(--)",
+            }}
+            onChange={(e) => {
+              const newVal = e.target.value;
+              if (/^\d{0,3}(\.\d{0,2})?$/.test(newVal)) {
+                if (invalidRates) setInvalidRates(null);
+                setRates(newVal);
+              } else if (/^[^0-9.]/.test(newVal)) {
+                setInvalidRates("Only digits and decimals are allowed.");
+              } else if (/^\d{0,3}(\.\d*)/.test(newVal)) {
+                setInvalidRates("2 decimal places will do!");
+              } else if (/^\d*/.test(newVal)) {
+                setInvalidRates(
+                  "Woah there! Try to keep your rates under $1000!"
+                );
+              }
+            }}
+          />
+          <h1 className="nunito-medium-black-24px m-0">per hour</h1>
+        </div>
+        <p className="text-danger">{invalidRates}</p>
+
+        {/* Fixed field 3: Listing description
           Required field, with a maximum of 100 characters. */}
         <div
           className={`\
@@ -219,15 +263,10 @@ const CreateListingBody = (props) => {
               id={sField.id}
               onSFieldDelete={onSFieldDelete}
               sFieldInputStates={sFieldInputStates}
+              fieldParams={fieldParams}
             />
           ))}
           {/* Button to add selection fields. onClick handler can be found above, under CreateListingPage. */}
-          {/* <div
-            className={`${createListingPageStyles["plus-circle"]} border-1px-mountain-mist`}
-            onClick={onSFieldAdd}
-          >
-            +
-          </div> */}
           <PlusCircle
             size={42}
             className="align-self-center mt-3"

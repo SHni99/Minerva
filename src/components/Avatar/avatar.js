@@ -11,12 +11,13 @@ const PersonalAvatar = ({ url, onUpload }) => {
 
   useEffect(() => {
     if (url) downloadImage(url);
+    console.log(url);
   }, [url]);
 
   const downloadImage = async (path) => {
     try {
       const { data, error } = await supabaseClient.storage
-        .from("avatars")
+        .from("public/avatars")
         .download(path);
       if (error) {
         throw error;
@@ -62,13 +63,13 @@ const PersonalAvatar = ({ url, onUpload }) => {
       {avatarUrl ? (
         <img
           className={avatarStyle["avatarmaster"]}
-          src= {"avatarUrl"}
+          src= {avatarUrl}
           alt="avatar"
         />
       ) : (
         <img
           className={avatarStyle["avatarmaster"]}
-          src={"avatarUrl"}
+          src={avatarUrl}
           alt="avatar"
         />
       )}

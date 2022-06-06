@@ -13,10 +13,18 @@ import { PlusCircle } from "react-bootstrap-icons";
 import AutosizeInput from "react-input-autosize";
 
 const CreateListingPage = () => {
-  // Hook declarations
+  // Options to be shown under the selection field dropdown box. Edit if required!
+  const fieldParams = {
+    qualifications: "Qualifications",
+    timing: "Preferred Times",
+    commitment: "Commitment Period",
+    others: "Others",
+  };
+
+  // Hook declarations to maintain single source of truth
   const [submitting, setSubmitting] = useState(false);
   const [sFieldInputs, setSFieldInputs] = useState([]);
-  const [rates, setRates] = useState(0);
+  const [rates, setRates] = useState(10);
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [sFields, setSFields] = useState(
     [0, 1, 2].map((id) => {
@@ -29,15 +37,7 @@ const CreateListingPage = () => {
     handleSubmit: validateAndSubmit,
     formState: { errors: validationErrors },
   } = useForm();
-
-  // Options to be shown under the selection field dropdown box.
-  // Edit this if required!
-  const fieldParams = {
-    qualifications: "Qualifications",
-    timing: "Preferred Times",
-    commitment: "Commitment Period",
-    others: "Others",
-  };
+  const [invalidRates, setInvalidRates] = useState(null);
 
   // ------------------ End of const declarations ----------------------
 
@@ -124,6 +124,8 @@ const CreateListingPage = () => {
         validationErrors={validationErrors}
         rates={rates}
         setRates={setRates}
+        invalidRates={invalidRates}
+        setInvalidRates={setInvalidRates}
       />
       <FooterBar />
     </div>
@@ -148,11 +150,9 @@ const CreateListingBody = (props) => {
     validationErrors,
     rates,
     setRates,
+    invalidRates,
+    setInvalidRates,
   } = props;
-
-  // Isolated state for `rates` field.
-  // Used to inform user of invalid input.
-  const [invalidRates, setInvalidRates] = useState(null);
 
   // Check if submission is in progress. Show "Submitting..." if required.
   return submitting ? (
@@ -235,7 +235,29 @@ const CreateListingBody = (props) => {
         </div>
         <p className="text-danger">{invalidRates}</p>
 
-        {/* Fixed field 3: Listing description
+        {/* Fixed field 3: Subject. Required Field.*/}
+        <div
+          className={`${createListingPageStyles["choose-tutor-tutee"]} p-2 mb-2`}
+        >
+          <h1 className="nunito-medium-black-24px mx-2 my-0 p-0">to teach</h1>
+          <input
+            className="nunito-medium-black-24px ms-1 border-0 px-3 py-1 mx-2"
+            style={{
+              width: "250px",
+              borderRadius: "15px",
+              boxShadow: "0px 4px 4px #00000040",
+              color: "var(--)",
+              overflow: "scroll",
+            }}
+            {...register("subject", {
+              required: "This is a required field.",
+              maxLength: { value: 30, message: "That's a little too long!" },
+            })}
+          />
+        </div>
+        <p className="text-danger">{validationErrors.subject?.message}</p>
+
+        {/* Fixed field 4: Listing description
           Required field, with a maximum of 100 characters. */}
         <div
           className={`\
@@ -244,7 +266,7 @@ const CreateListingBody = (props) => {
         >
           <input
             className={createListingPageStyles["describe-listing-text"]}
-            placeholder="Describe your listing in one sentence!"
+            placeholder="Describe your listing in one short sentence!"
             id="description"
             {...register("describeListing", {
               required: "This is a required field.",
@@ -257,6 +279,9 @@ const CreateListingBody = (props) => {
 
         {/* Start of dynamic fields/selection fields */}
         <div className={createListingPageStyles["selection-fields"]}>
+          <h1 className="nunito-medium-black-24px mx-2 my-0 pt-2 align-self-center">
+            Additionally, ... (Optional)
+          </h1>
           {/* Creates a SelectionField for each object present in the selectionFields state.
             SelectionField implementation can be found below. */}
           {selectionFields.map((sField) => (

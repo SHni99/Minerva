@@ -230,22 +230,6 @@
   position: relative;
 }
 
-
-.plus-circle {
-  align-items: center;
-  justify-content: center;
-  align-self: center;
-  height: 48px;
-  width: 48px;
-  font-size: 48px;
-  color: grey;
-  cursor: pointer;
-  border-radius: 24px;
-  display: flex;
-  overflow: hidden;
-  margin-top: 20px;
-}
-
 .border-1px-gray700---101828 {
   border-width: 1px;
   border-style: solid;

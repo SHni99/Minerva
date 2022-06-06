@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabaseClient as supabase } from "config/supabase-client";
+import { Spinner } from "react-bootstrap";
+import { useForm } from "react-hook-form";
+
 import CloseButton from "react-bootstrap/CloseButton";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import createListingPageStyles from "./createListingPage.module.css";
-import { supabaseClient as supabase } from "config/supabase-client";
-import { Spinner } from "react-bootstrap";
-import { useForm } from "react-hook-form";
 import Button from "react-bootstrap/Button";
+import { PlusCircle } from "react-bootstrap-icons";
 
 const CreateListingPage = () => {
   // Hook declarations
@@ -220,12 +222,18 @@ const CreateListingBody = (props) => {
             />
           ))}
           {/* Button to add selection fields. onClick handler can be found above, under CreateListingPage. */}
-          <div
+          {/* <div
             className={`${createListingPageStyles["plus-circle"]} border-1px-mountain-mist`}
             onClick={onSFieldAdd}
           >
             +
-          </div>
+          </div> */}
+          <PlusCircle
+            size={42}
+            className="align-self-center mt-3"
+            style={{ color: "gray", cursor: "pointer" }}
+            onClick={onSFieldAdd}
+          />
         </div>
       </div>
 

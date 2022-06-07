@@ -16,25 +16,25 @@ const ResetPage = () => {
   const handleReset = async (newPassword, confirmPassword, e) => {
     e.preventDefault();
 
-    if (newPassword === confirmPassword){
-    try {
-      setLoading(true);
+    if (newPassword === confirmPassword) {
+      try {
+        setLoading(true);
 
-      const { error } = await supabaseClient.auth.update({
-        password: newPassword,
-      });
-      if (error) throw error;
+        const { error } = await supabaseClient.auth.update({
+          password: newPassword,
+        });
+        if (error) throw error;
 
-      alert("Successfully updated!");
-      navigate("/loginpage");
-    } catch (error) {
-      alert("Please check your email inbox");
-    } finally {
-      setLoading(false);
+        alert("Successfully updated!");
+        navigate("/loginpage");
+      } catch (error) {
+        alert("Please check your email inbox");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      alert("Password does not match. Re-try");
     }
-  } else{
-    alert("Password does not match. Re-try");
-  }
   };
 
   return (
@@ -44,7 +44,12 @@ const ResetPage = () => {
           style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
           className={ResetStyles["overlap-group1"]}
         >
-          <div className={ResetStyles["login-overlay"]}>
+          <form
+            onSubmit={(e) => {
+              handleReset(newPassword, confirmPassword, e);
+            }}
+            className={ResetStyles["login-overlay"]}
+          >
             <img
               onClick={handleNavigate19}
               src={"/images/cross.png"}
@@ -70,7 +75,7 @@ const ResetPage = () => {
                   placeholder="Enter password"
                 ></Input>
               </div>
-
+              <br></br>
               <div
                 className={`${ResetStyles["label"]} nunitosans-normal-mirage-28px`}
               >
@@ -93,15 +98,13 @@ const ResetPage = () => {
               ) : (
                 <h1 className={`nunitosans-bold-white-32px`}>
                   <button
-                    onClick={(e) => {
-                      handleReset(newPassword, confirmPassword, e);
-                    }}
+                    type="submit"
                     className={`${ResetStyles["text-1"]} nunitosans-bold-white-32px`}
                   >{`Reset password`}</button>
                 </h1>
               )}
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

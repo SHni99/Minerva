@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Text } from "components/Text";
 import { Input } from "components/Input";
@@ -30,8 +30,6 @@ const LoginPage = () => {
     }
   };
 
-
-
   return (
     <div className={loginPageStyles["container-center-horizontal"]}>
       <div
@@ -41,9 +39,12 @@ const LoginPage = () => {
           style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
           className={loginPageStyles["overlap-group1"]}
         >
-          <form onSubmit={(e) => {
-            handleLogin(email, password, navigate, e);
-          }} className={loginPageStyles["login-overlay"]}>
+          <form
+            onSubmit={(e) => {
+              handleLogin(email, password, navigate, e);
+            }}
+            className={loginPageStyles["login-overlay"]}
+          >
             <img
               className={loginPageStyles["minerva_logo_1-removebg-preview_1-3"]}
               src={"/images/img_minervaLogo.png"}
@@ -124,7 +125,7 @@ const LoginPage = () => {
           </form>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

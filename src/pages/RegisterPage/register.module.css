@@ -51,6 +51,7 @@
   margin-bottom: 20px;
   object-fit: cover;
   width: 256px;
+  cursor: pointer;
 }
 
 .button-master {
@@ -95,17 +96,6 @@
   white-space: nowrap;
 }
 
-.button-master-1 {
-  align-items: center;
-  border-radius: 4px;
-  display: flex;
-  height: 60px;
-  margin-bottom: -9px;
-  margin-left: 10px;
-  overflow: hidden;
-  width: 144px;
-}
-
 .text-5 {
   letter-spacing: 0;
   line-height: 36px;
@@ -113,12 +103,12 @@
   min-width: 144px;
   padding-left: 10px;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .form {
   align-items: center;
-  background-color: 
-#d6d6d6;
+  background-color: #d6d6d6;
   display: flex;
   flex-direction: column;
   min-height: 853px;
@@ -126,7 +116,6 @@
   position: relative;
   width: 823px;
 }
-
 
 .side-panel {
   align-items: flex-start;

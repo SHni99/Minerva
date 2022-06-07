@@ -67,15 +67,13 @@ const PersonalAvatar = ({ url, onUpload }) => {
       />
       
       <div>
-        <div
+        <button
           className={`${avatarStyle["button-master"]} border-1px-santas-gray`}
         >
           <div className={`${avatarStyle["text"]} inter-normal-licorice-20px`}>
-            <button className={`inter-normal-licorice-20px`}>
-            <label className="button primary block" htmlFor="single">
+            <label style={{cursor: 'pointer'}} htmlFor="single">
             {uploading ? 'Uploading ...' : 'Upload'}
           </label>
-            </button>
             <input
               style={{
                 visibility: "hidden",
@@ -88,7 +86,7 @@ const PersonalAvatar = ({ url, onUpload }) => {
               disabled={uploading}
             />
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );

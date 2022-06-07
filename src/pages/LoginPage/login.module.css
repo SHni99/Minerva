@@ -140,6 +140,7 @@
   overflow: hidden;
   padding: 0 406px;
   width: 900px;
+  cursor: pointer;
 }
 
 .text-1 {

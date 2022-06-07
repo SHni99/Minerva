@@ -16,9 +16,7 @@ const RegisterPagePage = () => {
   const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
 
-
   const handleSignUp = async (email, password, username, country, navigate) => {
-  
     try {
       setLoading(true);
       const { error } = await supabaseClient.auth.signUp(
@@ -31,7 +29,7 @@ const RegisterPagePage = () => {
         }
       );
       if (error) throw error;
-  
+
       alert("Signed up");
       navigate("/listingspage");
     } catch (error) {
@@ -43,7 +41,13 @@ const RegisterPagePage = () => {
 
   return (
     <div className={registerPageStyles["parent"]}>
-      <div className={registerPageStyles["form"]}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSignUp(email, password, username, country, navigate);
+        }}
+        className={registerPageStyles["form"]}
+      >
         <img
           src={"/images/img_minervaLogo.png"}
           className={registerPageStyles["minerva_logo_1-removebg-preview_1-2"]}
@@ -130,22 +134,20 @@ const RegisterPagePage = () => {
           </div>
         </div>
 
-        <button
-          className={registerPageStyles["button-master"]}
-          onClick={(e) => {
-            e.preventDefault();
-            handleSignUp(email, password, username, country, navigate);
-          }}
-        > { loading? ( <h1
-          className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
-        >
-          {`Signing up`}
-        </h1> ) : (
-          <h1
-            className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
-          >
-            {`Sign up`}
-          </h1>)}
+        <button className={registerPageStyles["button-master"]} type="submit">
+          {loading ? (
+            <h1
+              className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
+            >
+              {`Signing up`}
+            </h1>
+          ) : (
+            <h1
+              className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
+            >
+              {`Sign up`}
+            </h1>
+          )}
         </button>
 
         <div className={registerPageStyles["login-referral"]}>
@@ -161,7 +163,7 @@ const RegisterPagePage = () => {
             {`Log in now`}
           </div>
         </div>
-      </div>
+      </form>
 
       <div
         style={{ backgroundImage: `url(${"/images/img_image5.png"})` }}

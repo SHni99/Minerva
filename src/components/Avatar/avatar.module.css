@@ -17,6 +17,7 @@
     overflow: hidden;
     padding: 0 24px;
     width: 118px;
+    cursor: pointer;
   }
 
   .text {
@@ -25,4 +26,5 @@
     min-height: 24px;
     min-width: 70px;
     white-space: nowrap;
+    cursor: pointer;
   }

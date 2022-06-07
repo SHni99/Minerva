@@ -134,20 +134,22 @@ const RegisterPagePage = () => {
           </div>
         </div>
 
-        <button className={registerPageStyles["button-master"]} type="submit">
-          {loading ? (
-            <h1
-              className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
-            >
-              {`Signing up`}
-            </h1>
-          ) : (
-            <h1
-              className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
-            >
-              {`Sign up`}
-            </h1>
-          )}
+        <button type="submit">
+          <div className={registerPageStyles["button-master"]}>
+            {loading ? (
+              <h1
+                className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
+              >
+                {`Signing up`}
+              </h1>
+            ) : (
+              <h1
+                className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
+              >
+                {`Sign up`}
+              </h1>
+            )}
+          </div>
         </button>
 
         <div className={registerPageStyles["login-referral"]}>

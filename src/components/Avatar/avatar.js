@@ -11,7 +11,6 @@ const PersonalAvatar = ({ url, onUpload }) => {
 
   useEffect(() => {
     if (url) downloadImage(url);
-    console.log(url);
   }, [url]);
 
   const downloadImage = async (path) => {
@@ -59,20 +58,14 @@ const PersonalAvatar = ({ url, onUpload }) => {
   };
 
   return (
-    <div>
-      {avatarUrl ? (
-        <img
-          className={avatarStyle["avatarmaster"]}
-          src= {avatarUrl}
-          alt="avatar"
-        />
-      ) : (
-        <img
-          className={avatarStyle["avatarmaster"]}
-          src={avatarUrl}
-          alt="default_avatar"
-        />
-      )}
+    <div className="d-flex flex-column align-center">
+
+      <img
+        className={`${avatarStyle["avatarmaster"]} border border-dark`}
+        src= {avatarUrl || "/images/img_avatarDefault.jpg"}
+        alt={"avatar" || "default_avatar"}
+      />
+      
       <div>
         <div
           className={`${avatarStyle["button-master"]} border-1px-santas-gray`}

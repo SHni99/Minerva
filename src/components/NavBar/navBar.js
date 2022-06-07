@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import navBarStyles from "./navBar.module.css";
+import { useNavigate } from 'react-router-dom';
 import { supabaseClient as supabase } from "../../config/supabase-client"
-import { Button } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Spinner from 'react-bootstrap/Spinner';
+
 
 const NavBar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const minervaLogoSrc = "/images/img_minervaLogo.png";
+    const navigate = useNavigate();
+
+    // Try to fetch user profile pic
+    useEffect(() => {getAvatarUrl()}, []);
 
     const getUser = async () => {
         try {
+            setLoading(true);
             const user = supabase.auth.user();
 
             if (!user) return;
@@ -29,7 +38,30 @@ const NavBar = () => {
             }
         } catch (error) {
             alert(error.message);
-        } 
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const getAvatarUrl = async () => {
+        try {
+            const { data , error: avatarUrlError } = await supabase
+                .from("profiles")
+                .select("avatar_url")
+                .eq("id", supabase.auth.user().id)
+                .single();
+            if (avatarUrlError) throw avatarUrlError;
+
+            const { publicURL , error: publicUrlError } = supabase.storage
+                .from("avatars")
+                .getPublicUrl(data.avatar_url);
+
+            if (publicUrlError) throw publicUrlError;
+
+            if (publicURL) setAvatarUrl(publicURL);
+        } catch (error) {
+            alert(error.message);
+        }
     }
 
     const generateNavBarLinks = () => {
@@ -56,7 +88,7 @@ const NavBar = () => {
         <div className={navBarStyles.navBar}>
             <Link to="/"> <img className={navBarStyles.minerva_logo} src={minervaLogoSrc} alt="Minerva Logo" /> </Link>
             <div className={navBarStyles.links}>{ generateNavBarLinks() }</div>
-            <CredentialsCorner isLoggedIn={isLoggedIn} avatarUrl={avatarUrl}/> 
+            <CredentialsCorner isLoggedIn={isLoggedIn} avatarUrl={avatarUrl} navigate={navigate} loading={loading}/> 
         </div>
     );
 }
@@ -64,7 +96,7 @@ const NavBar = () => {
 export default NavBar;
 
 function CredentialsCorner(props) {
-    const { isLoggedIn, avatarUrl } = props;
+    const { isLoggedIn, avatarUrl, navigate, loading } = props;
 
     if (isLoggedIn) {
         return (
@@ -72,11 +104,18 @@ function CredentialsCorner(props) {
                 
                 <Button href="create-listing" active>Create Listing</Button>
                 
-                <div 
-                className={navBarStyles["avatar"]} 
-                style={{
-                    backgroundImage: ( avatarUrl || `url("/images/img_avatarDefault.jpg")`)
-                }} /> 
+                {
+                    loading ? <Spinner animation="border" 
+                    className={navBarStyles["avatar"]} 
+                    /> :
+                    <div 
+                    className={navBarStyles["avatar"]} 
+                    onClick={() => navigate("/loginmainpage")}
+                    style={{
+                        backgroundImage: ( `url(${avatarUrl})` || `url("/images/img_avatarDefault.jpg")`),
+                        cursor:"pointer"
+                    }} /> 
+                }
 
             </div>
         );

@@ -11,6 +11,7 @@ import createListingPageStyles from "./createListingPage.module.css";
 import Button from "react-bootstrap/Button";
 import { PlusCircle } from "react-bootstrap-icons";
 import AutosizeInput from "react-input-autosize";
+import LoadingOverlay from "react-loading-overlay-ts";
 
 const CreateListingPage = () => {
   // Options to be shown under the selection field dropdown box. Edit if required!
@@ -21,11 +22,13 @@ const CreateListingPage = () => {
     others: "Others",
   };
 
-  // Hook declarations to maintain single source of truth
+  // Hook declarations in root element to maintain single source of truth
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [sFieldInputs, setSFieldInputs] = useState([]);
-  const [rates, setRates] = useState(10);
+  const [rates, setRates] = useState(null);
   const [tutorTutee, setTutorTutee] = useState("tutor");
+  const [imageURLs, setImageURLs] = useState([]);
   const [sFields, setSFields] = useState(
     [0, 1, 2].map((id) => {
       return { id };
@@ -39,7 +42,7 @@ const CreateListingPage = () => {
   } = useForm();
   const [invalidRates, setInvalidRates] = useState(null);
 
-  // ------------------ End of const declarations ----------------------
+  // ------------------ End of variable declarations ----------------------
 
   // Redirect user to login page if not logged in
   useEffect(() => {
@@ -51,6 +54,63 @@ const CreateListingPage = () => {
 
     // eslint-disable-next-line
   }, []);
+
+  // ------------------ Start of method declarations ----------------------
+
+  // Handles uploading of images to Supabase
+  const onImgUpload = async (event) => {
+    try {
+      setUploading(true);
+
+      if (!event.target.files || event.target.files.length == 0) {
+        throw new Error("Please select an image to upload.");
+      }
+
+      const file = event.target.files[0];
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${supabase.auth.user().id}/${Math.random()}.${fileExt}`;
+
+      let { error: uploadError } = await supabase.storage
+        .from("listing-images")
+        .upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      let { publicURL, downloadError } = supabase.storage
+        .from("listing-images")
+        .getPublicUrl(filePath);
+      if (downloadError) throw downloadError;
+
+      setImageURLs([...imageURLs, { filePath, publicURL }]);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Handles deletion of images from Supabase by URL
+  const onImgDelete = async (imgURL) => {
+    try {
+      // Attempt to delete specified image from Supabase first
+      setUploading(true);
+      const imgObj_delete = imageURLs.find(
+        (imgObj) => imgObj.publicURL === imgURL
+      );
+
+      let { error } = await supabase.storage
+        .from(`listing-images`)
+        .remove([imgObj_delete.filePath]);
+
+      if (error) throw error;
+
+      // Finally, remove specified image from imgURLs.
+      setImageURLs(imageURLs.filter((imgObj) => imgObj.publicURL !== imgURL));
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   // Handles adding of selection fields
   const onSFieldAdd = () => {
@@ -69,6 +129,8 @@ const CreateListingPage = () => {
     // Get all relevant details from input fields
     const title = document.getElementById("title").value;
     const description = document.getElementById("description").value;
+    const rates = document.getElementById("rates").value;
+    const subject = document.getElementById("subject").value;
     const fields = sFieldInputs.map((sFieldInput) => {
       return {
         category: sFieldInput.requirement,
@@ -87,6 +149,8 @@ const CreateListingPage = () => {
         title,
         description,
         fields,
+        rates,
+        subject,
         seeking_for: tutorTutee,
       };
 
@@ -106,12 +170,17 @@ const CreateListingPage = () => {
     }
   };
 
+  // ------------------ End of method declarations ----------------------
+
   return (
     <div>
       <NavBar />
       <CreateListingBody
         selectionFields={sFields}
         sFieldInputStates={[sFieldInputs, setSFieldInputs]}
+        onImgUpload={onImgUpload}
+        onImgDelete={onImgDelete}
+        uploading={uploading}
         onSFieldAdd={onSFieldAdd}
         onSFieldDelete={onSFieldDelete}
         tutorTutee={tutorTutee}
@@ -126,6 +195,7 @@ const CreateListingPage = () => {
         setRates={setRates}
         invalidRates={invalidRates}
         setInvalidRates={setInvalidRates}
+        imageURLs={imageURLs}
       />
       <FooterBar />
     </div>
@@ -140,6 +210,9 @@ const CreateListingBody = (props) => {
     sFieldInputStates,
     onSFieldAdd,
     onSFieldDelete,
+    onImgUpload,
+    onImgDelete,
+    uploading,
     tutorTutee,
     setTutorTutee,
     handleSubmit,
@@ -152,6 +225,7 @@ const CreateListingBody = (props) => {
     setRates,
     invalidRates,
     setInvalidRates,
+    imageURLs,
   } = props;
 
   // Check if submission is in progress. Show "Submitting..." if required.
@@ -175,16 +249,36 @@ const CreateListingBody = (props) => {
         id="title"
         {...register("title", { required: "This is a required field." })}
       />
-      <p className="text-danger mt-1">{validationErrors.title?.message}</p>
+      <p className="text-danger mt-1 mb-5">{validationErrors.title?.message}</p>
 
       {/* Add Images section. Capped at 3. */}
-      <div
-        className={`\
-            ${createListingPageStyles["listing-images"]} \
-            ${createListingPageStyles["border-1px-gray700---101828"]}`}
-      >
-        <ListingImage />
-      </div>
+      <LoadingOverlay active={uploading} spinner text="Loading...">
+        <div
+          className={`\
+              ${createListingPageStyles["listing-images"]} \
+              ${createListingPageStyles["border-1px-gray700---101828"]}`}
+        >
+          {/* Map each element in imageURLs into a ListingImage to display the image. */}
+          {imageURLs.map((imgObj) => (
+            <ListingImage
+              imgUrl={imgObj.publicURL}
+              onImgDelete={onImgDelete}
+              uploading={uploading}
+              numPics={imageURLs.length}
+            />
+          ))}
+
+          {/* If there are less than 3 imageURL elements, then add a 
+          placeholder ListingImage for user to add new images */}
+          {imageURLs.length < 3 && (
+            <ListingImage
+              onImgUpload={onImgUpload}
+              uploading={uploading}
+              numPics={imageURLs.length}
+            />
+          )}
+        </div>
+      </LoadingOverlay>
 
       {/* Input fields. Includes both fixed and dynamic (selection fields) fields. */}
       <div className={createListingPageStyles["listing-fields"]}>
@@ -206,12 +300,15 @@ const CreateListingBody = (props) => {
           <h1 className="nunito-medium-black-24px m-0 p-0">for $</h1>
           <AutosizeInput
             name="rates"
+            id="rates"
             value={rates}
             className="nunito-medium-black-24px ms-1 border-0 px-3 py-1 m-2"
+            placeholder="..."
             style={{
               borderRadius: "15px",
               boxShadow: "0px 4px 4px #00000040",
-              color: "var(--)",
+              color: "var(--sapphire)",
+              fontWeight: "bold",
             }}
             onChange={(e) => {
               let newVal = e.target.value;
@@ -236,18 +333,19 @@ const CreateListingBody = (props) => {
         <p className="text-danger">{invalidRates}</p>
 
         {/* Fixed field 3: Subject. Required Field.*/}
-        <div
-          className={`${createListingPageStyles["choose-tutor-tutee"]} p-2 mb-2`}
-        >
+        <div className="d-flex flex-row align-items-center mb-1">
           <h1 className="nunito-medium-black-24px mx-2 my-0 p-0">to teach</h1>
           <input
-            className="nunito-medium-black-24px ms-1 border-0 px-3 py-1 mx-2"
+            id="subject"
+            className="nunito-medium-black-24px ms-1 border-0 px-3 py-1 mx-2 text-center"
+            placeholder="Enter a subject!"
             style={{
               width: "250px",
               borderRadius: "15px",
               boxShadow: "0px 4px 4px #00000040",
-              color: "var(--)",
               overflow: "scroll",
+              color: "var(--sapphire)",
+              fontWeight: "bold",
             }}
             {...register("subject", {
               required: "This is a required field.",
@@ -266,7 +364,7 @@ const CreateListingBody = (props) => {
         >
           <input
             className={createListingPageStyles["describe-listing-text"]}
-            placeholder="Describe your listing in one short sentence!"
+            placeholder="Describe your listing in one short sentence."
             id="description"
             {...register("describeListing", {
               required: "This is a required field.",
@@ -407,12 +505,62 @@ const SelectionField = (props) => {
   );
 };
 
-const ListingImage = (props) => {
+const ListingImage = ({
+  imgUrl,
+  onImgUpload,
+  onImgDelete,
+  uploading,
+  numPics,
+}) => {
   return (
     <div
       className={`${createListingPageStyles["add-image-placeholder"]} border-1px-mountain-mist`}
     >
-      +
+      {imgUrl ? (
+        <React.Fragment>
+          <CloseButton
+            className="border border-2 rounded-circle bg-light"
+            onClick={() => onImgDelete(imgUrl)}
+            style={{
+              position: "absolute",
+              right: "0px",
+              top: "0px",
+              fontSize: "20px",
+            }}
+          />
+          <img
+            src={imgUrl}
+            alt="Selected preview"
+            style={{ objectFit: "contain" }}
+          />
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <label
+            htmlFor={`fileUpload-${numPics || 0}`}
+            style={{
+              width: "100%",
+              height: "100%",
+              cursor: "pointer",
+              textAlign: "center",
+              lineHeight: "256px",
+            }}
+          >
+            +
+          </label>
+          <input
+            type="file"
+            id={`fileUpload-${numPics || 0}`}
+            accept="image/*"
+            value=""
+            onChange={onImgUpload}
+            disabled={uploading}
+            style={{
+              display: "none",
+            }}
+          ></input>
+        </React.Fragment>
+      )}
     </div>
   );
 };

@@ -32,7 +32,6 @@
   display: flex;
   margin-left: 10px;
   margin-bottom: 8px;
-  padding: 4px 10px;
   background-color: white;
   position: relative;
   cursor: pointer;
@@ -42,13 +41,12 @@
 }
 
 .listing-images {
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   border-radius: 6px;
   display: flex;
-  height: 306px;
-  margin-top: 50px;
-  overflow: hidden;
-  padding: 17px 360px;
+  overflow-x: scroll;
+  padding: 17px;
   width: 912px;
 }
 
@@ -60,9 +58,11 @@
   cursor: pointer;
   border-radius: 15px;
   display: flex;
-  height: 267px;
+  height: 256px;
   overflow: hidden;
-  width: 190px;
+  min-width: 190px;
+  margin: 0px 12px;
+  position: relative;
 }
 
 .icon-plus {

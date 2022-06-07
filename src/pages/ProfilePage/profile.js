@@ -8,7 +8,7 @@ import PersonalAvatar from "components/Avatar/avatar";
 
 const ProfilePage = ({ session }) => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(null);
   const [avatar_url, setAvatarUrl] = useState(null);
 
@@ -94,6 +94,7 @@ const ProfilePage = ({ session }) => {
         handleLogout={handleLogout}
         updateProfile={updateProfile}
         setAvatarUrl={setAvatarUrl}
+        loading={loading}
       />
       <FooterBar />
     </div>
@@ -112,6 +113,7 @@ const ProfilePageBody = (props) => {
     avatar_url,
     updateProfile,
     setAvatarUrl,
+    loading
   } = props;
 
   return (
@@ -171,7 +173,9 @@ const ProfilePageBody = (props) => {
                 }}
                 className={`${profileStyles["text-2"]} inter-bold-romance-20px`}
               >
-                Update
+                <label className={`${profileStyles["text-2"]} inter-bold-romance-20px`}
+                >{loading ? 'Updating' : 'Update'}
+                </label>
               </button>
             </div>
           </div>

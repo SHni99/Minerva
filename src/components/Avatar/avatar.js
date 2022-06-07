@@ -70,7 +70,7 @@ const PersonalAvatar = ({ url, onUpload }) => {
         <img
           className={avatarStyle["avatarmaster"]}
           src={avatarUrl}
-          alt="avatar"
+          alt="default_avatar"
         />
       )}
       <div>

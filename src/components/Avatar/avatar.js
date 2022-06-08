@@ -1,6 +1,5 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { fontWeight } from "tailwindcss/defaultTheme";
 import { supabaseClient } from "../../config/supabase-client";
 import avatarStyle from "./avatar.module.css";
 

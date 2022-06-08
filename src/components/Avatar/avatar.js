@@ -68,7 +68,10 @@ const PersonalAvatar = ({ url, onUpload }) => {
         className={`${avatarStyle["button-master"]} border-1px-santas-gray`}
       >
         <div className={`${avatarStyle["text"]} inter-normal-licorice-20px`}>
-          <label style={{ cursor: "pointer", fontWeight: "bold"}} htmlFor="single">
+          <label
+            style={{ cursor: "pointer", fontWeight: "bold" }}
+            htmlFor="single"
+          >
             {uploading ? "Uploading ..." : "Upload"}
           </label>
           <input

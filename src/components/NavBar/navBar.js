@@ -21,6 +21,7 @@ const NavBar = () => {
 
   const getAvatarUrl = async () => {
     try {
+      setLoading(true);
       const user = supabase.auth.user();
 
       if (!user) return;
@@ -42,6 +43,8 @@ const NavBar = () => {
       if (data) setAvatarUrl(publicURL);
     } catch (error) {
       alert(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 

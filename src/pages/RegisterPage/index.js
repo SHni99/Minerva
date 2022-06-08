@@ -13,7 +13,8 @@ const RegisterPagePage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [country, setCountry] = useState("");
+  // Country field not implemented yet
+  // const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Redirect user to Listings page if logged in
@@ -27,7 +28,7 @@ const RegisterPagePage = () => {
     // eslint-disable-next-line
   }, []);
 
-  const handleSignUp = async (email, password, username, country, navigate) => {
+  const handleSignUp = async (email, password, username, navigate) => {
     try {
       setLoading(true);
       const { error } = await supabaseClient.auth.signUp(
@@ -35,7 +36,6 @@ const RegisterPagePage = () => {
         {
           data: {
             username,
-            country,
           },
         }
       );
@@ -55,7 +55,7 @@ const RegisterPagePage = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleSignUp(email, password, username, country, navigate);
+          handleSignUp(email, password, username, navigate);
         }}
         className={registerPageStyles["form"]}
       >

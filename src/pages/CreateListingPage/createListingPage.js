@@ -62,7 +62,7 @@ const CreateListingPage = () => {
     try {
       setUploading(true);
 
-      if (!event.target.files || event.target.files.length == 0) {
+      if (!event.target.files || event.target.files.length === 0) {
         throw new Error("Please select an image to upload.");
       }
 

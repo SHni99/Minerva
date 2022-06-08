@@ -1,13 +1,7 @@
-.screen a {
-  display: contents;
-  text-decoration: none;
-}
-
 .container-center-horizontal {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
   width: 100%;
 }
 
@@ -16,35 +10,24 @@
   pointer-events: auto;
 }
 
-.frame-6 {
-  align-items: flex-start;
-  background-color: var(--white);
-  display: flex;
-  height: 1479px;
-  padding: 0 328px;
-  width: 1440px;
-}
-
 .frame-7 {
   align-items: center;
-  background-color: var(--white);
+  background-color: #FAEBD7;
   box-shadow: 0px 4px 4px #00000040;
   display: flex;
   flex-direction: column;
-  height: 865px;
-  margin-top: 307px;
-  padding: 37px 67px;
-  width: 784px;
+  height: 800px;
+  text-align: center;
 }
 
-.avatarmaster {
-  background-position: 50% 50%;
-  background-size: cover;
-  border-radius: 200px;
-  height: 237px;
-  margin-right: 1px;
-  width: 251px;
+.home-inner{
+  padding: 150px 0px 100px 0px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 150px;
+  align-self: center;
 }
+
 
 .button-master {
   align-items: center;
@@ -58,60 +41,17 @@
   width: 118px;
 }
 
-.text {
-  letter-spacing: 0;
-  line-height: 24px;
-  min-height: 24px;
-  min-width: 70px;
-  white-space: nowrap;
-}
-
-.emailcom {
-  letter-spacing: 0;
-  line-height: 24px;
-  margin-left: 10px;
-  margin-top: 22px;
-  min-height: 35px;
-  width: 318px;
-}
-
-.overlap-group {
-  align-self: flex-start;
-  height: 35px;
-  margin-top: 42px;
-  position: relative;
-  width: 159px;
-}
-
-.overlap-group-item {
-  right: 120px;
-  letter-spacing: 0;
-  line-height: 24px;
-  position: absolute;
-  top: 0;
-  width: 159px;
-}
-
-.input-text {
-  background-color: var(--white);
-  border-radius: 28px;
-  height: 60px;
-  margin-right: 1px;
-  padding-left: 20px;
-  width: 583px;
-}
-
 .buttonmaster-container {
   align-items: flex-start;
   align-self: flex-start;
   display: flex;
-  margin-top: 126px;
-  min-width: 648px;
+  margin-top: 80px;
+  min-width: 500px;
 }
 
 .button-master-1 {
   align-items: center;
-  background-color: var(--mystic);
+  background-color: #D5DED9;
   border-radius: 24px;
   display: flex;
   height: 70px;
@@ -121,13 +61,6 @@
   cursor: pointer;
 }
 
-.text-1 {
-  letter-spacing: 0;
-  line-height: 24px;
-  min-height: 24px;
-  min-width: 77px;
-  white-space: nowrap;
-}
 
 .button-master-2 {
   align-items: center;
@@ -142,11 +75,3 @@
   cursor: pointer;
 }
 
-.text-2 {
-  letter-spacing: 0;
-  line-height: 24px;
-  min-height: 24px;
-  min-width: 72px;
-  white-space: nowrap;
-  cursor: pointer;
-}

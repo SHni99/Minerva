@@ -5,6 +5,8 @@ import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import profileStyles from "./profile.module.css";
 import PersonalAvatar from "components/Avatar/avatar";
+import Button from "react-bootstrap/Button";
+
 
 const ProfilePage = ({ session }) => {
   const navigate = useNavigate();
@@ -86,6 +88,7 @@ const ProfilePage = ({ session }) => {
     <div>
       <NavBar />
       <ProfilePageBody
+
         session={session}
         username={username}
         avatar_url={avatar_url}
@@ -117,70 +120,76 @@ const ProfilePageBody = (props) => {
   } = props;
 
   return (
-    <div className={profileStyles["container-center-horizontal"]}>
-      <div className={`${profileStyles["frame-6"]} ${profileStyles["screen"]}`}>
-        <div className={profileStyles["frame-7"]}>
-          <PersonalAvatar
-            url={avatar_url}
-            onUpload={(url) => {
-              setAvatarUrl(url);
-              updateProfile({ username, avatar_url: url });
-            }}
-          />
-          <div
-            className={`${profileStyles["emailcom"]} inter-medium-concord-16px`}
-          >
-            <span>Email: {session.user.email} </span>
-            <div
-              className={`${profileStyles["overlap-group"]} inter-normal-eerie-black-24px`}
-            >
-              <h1 className={profileStyles["overlap-group-item"]}>
-                <span className={`inter-normal-eerie-black-24px`}>
-                  Username
-                </span>
-              </h1>
-            </div>
-          </div>
-
-          <input
-            type="text"
-            value={username || ""}
-            onChange={(e) => setUsername(e.target.value)}
-            className={`${profileStyles["input-text"]} border-1px-santas-gray`}
-          ></input>
-          <div className={profileStyles["buttonmaster-container"]}>
-            <div
-              className={`${profileStyles["button-master-1"]} border-1px-santas-gray`}
-            >
-              <button
-                onClick={(e) => {
-                  handleLogout(navigate, e);
+    <div className={profileStyles["container-center-horizontal"]}
+      style={{
+        backgroundImage: `url(${"/images/nice2.jpg"})`
+      }}
+    >
+      <div className={`${profileStyles["home-inner"]} container`}>
+        <div className="row">
+          <div className={`${profileStyles["frame-7"]} rounded-3`}>
+            <div className="card-body mt-4">
+              <PersonalAvatar
+                className="align-self"
+                url={avatar_url}
+                onUpload={(url) => {
+                  setAvatarUrl(url);
+                  updateProfile({ username, avatar_url: url });
                 }}
-                className={`${profileStyles["text-1"]} inter-bold-licorice-20px`}
-              >
-                Log out
-              </button>
-            </div>
+              />
+              <div className="mt-4">
+                <h4>Email: {session.user.email} </h4>
+                <div className="mt-8">
+                  <h1 >
+                    Username
+                  </h1>
+                </div>
+              </div>
+              <form>
+                <input
+                  type="text"
+                  value={username || ""}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="form-control form-control-lg mt-4"
+                ></input>
+                <div className={profileStyles["buttonmaster-container"]}>
+                  <Button
+                    className={`rounded-pill p-4 w-50 border-dark text-dark`}
+                    style={{
+                      fontSize: "25px",
+                      backgroundColor: "#D5DED9",
+                      marginRight: "30px"
+                    }}
+                    onClick={(e) => {
+                      handleLogout(navigate, e);
+                    }}
+                  ><strong>
+                      Log out
+                    </strong>
+                  </Button>
 
-            <div
-              className={`${profileStyles["button-master-2"]} border-1px-santas-gray`}
-            >
-              <button
-                onClick={() => {
-                  updateProfile({ username, avatar_url });
-                  alert("updated");
-                  navigate("/listingspage");
-                }}
-                className={`${profileStyles["text-2"]} inter-bold-romance-20px`}
-              >
-                <label className={`${profileStyles["text-2"]} inter-bold-romance-20px`}
-                >{loading ? 'Updating' : 'Update'}
-                </label>
-              </button>
+                  <Button
+                    className={`rounded-pill p-4 w-50 border-dark text-dark`}
+                    style={{
+                      fontSize: "25px",
+                      backgroundColor: "#42d38b",
+                      marginLeft: "30px"
+                    }}
+                    onClick={() => {
+                      updateProfile({ username, avatar_url });
+                      alert("updated");
+                      navigate("/listingspage");
+                    }}
+                  ><strong>
+                      {loading ? 'Updating' : 'Update'}
+                    </strong>
+                  </Button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };

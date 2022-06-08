@@ -1,5 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import { fontWeight } from "tailwindcss/defaultTheme";
 import { supabaseClient } from "../../config/supabase-client";
 import avatarStyle from "./avatar.module.css";
 
@@ -56,7 +57,7 @@ const PersonalAvatar = ({ url, onUpload }) => {
   };
 
   return (
-    <div className="d-flex flex-column align-center justify-center">
+    <div className="d-flex flex-column align-center ">
       <img
         className={`${avatarStyle["avatarmaster"]} border border-dark`}
         src={avatarUrl || "/images/img_avatarDefault.jpg"}
@@ -67,7 +68,7 @@ const PersonalAvatar = ({ url, onUpload }) => {
         className={`${avatarStyle["button-master"]} border-1px-santas-gray`}
       >
         <div className={`${avatarStyle["text"]} inter-normal-licorice-20px`}>
-          <label style={{ cursor: "pointer" }} htmlFor="single">
+          <label style={{ cursor: "pointer", fontWeight: "bold"}} htmlFor="single">
             {uploading ? "Uploading ..." : "Upload"}
           </label>
           <input

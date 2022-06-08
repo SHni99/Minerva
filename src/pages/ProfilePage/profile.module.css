@@ -118,6 +118,7 @@
   overflow: hidden;
   padding: 0 106.5px;
   width: 290px;
+  cursor: pointer;
 }
 
 .text-1 {
@@ -138,6 +139,7 @@
   overflow: hidden;
   padding: 0 109px;
   width: 290px;
+  cursor: pointer;
 }
 
 .text-2 {
@@ -146,4 +148,5 @@
   min-height: 24px;
   min-width: 72px;
   white-space: nowrap;
+  cursor: pointer;
 }

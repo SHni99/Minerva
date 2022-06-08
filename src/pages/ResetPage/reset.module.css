@@ -54,13 +54,15 @@
     border-width: 8px;
     margin-right: 80px;
     display: flex;
-    align-self: flex-end;  
+    align-self: flex-end; 
+    cursor: pointer; 
   }
   
   .minerva_logo_1-removebg-preview_1-3 {
     height: 135px;
     object-fit: cover;
     width: 464px;
+    cursor: pointer;
   }
   
   
@@ -84,7 +86,7 @@
     width: 850px;
   }
   
-  .email-input {
+  .password-input {
     align-items: flex-start;
     display: flex;
     flex-direction: column;
@@ -139,10 +141,11 @@
     border-radius: 12px;
     display: flex;
     height: 103px;
-    margin-top: 80px;
+    margin-top: 50px;
     overflow: hidden;
     padding: 0 35%;
     width: 900px;
+    cursor: pointer;
   }
   
   .text-1 {

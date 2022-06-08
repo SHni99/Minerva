@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Input } from "components/Input";
@@ -14,170 +14,204 @@ const RegisterPagePage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
   const [country, setCountry] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  // Redirect user to Listings page if logged in
   useEffect(() => {
-    if (supabaseClient.auth.user())
+    if (supabaseClient.auth.user()) navigate("/listingspage");
+
+    // We are disabling the following warning as there is
+    // no point in including the navigate method into the
+    // dependency array.
+
+    // eslint-disable-next-line
+  }, []);
+
+  const handleSignUp = async (email, password, username, country, navigate) => {
+    try {
+      setLoading(true);
+      const { error } = await supabaseClient.auth.signUp(
+        { email, password },
+        {
+          data: {
+            username,
+            country,
+          },
+        }
+      );
+      if (error) throw error;
+
+      alert("Signed up");
       navigate("/listingspage");
-  });
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={registerPageStyles["parent"]}>
-      
-        <div className={registerPageStyles["form"]}>
-          <img
-            src={"/images/img_minervaLogo.png"}
-            className={
-              registerPageStyles["minerva_logo_1-removebg-preview_1-2"]
-            }
-            onClick={handleNavigate21}
-            alt="minerva"
-          />
-          <div className={`${registerPageStyles["username-input"]}`}>
-            <UserInput input1="Username" />
-            <div
-              className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
-            >
-              <div className={registerPageStyles["input-text"]}>
-                <div
-                  className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
-                >
-                  <Input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter username"
-                  ></Input>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={`${registerPageStyles["username-input"]}`}>
-            <UserInput input1="Email" />
-            <div
-              className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
-            >
-              <div className={registerPageStyles["input-text"]}>
-                <div
-                  className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
-                >
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter email"
-                  ></Input>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={`${registerPageStyles["username-input"]}`}>
-            <UserInput input1="Password" />
-            <div
-              className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
-            >
-              <div className={registerPageStyles["input-text"]}>
-                <div
-                  className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
-                >
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                  ></Input>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className={`${registerPageStyles["username-input"]}`}>
-            <UserInput input1="Confirm password" />
-            <div
-              className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
-            >
-              <div className={registerPageStyles["input-text"]}>
-                <div
-                  className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
-                >
-                  <Input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Enter confirmed password"
-                  ></Input>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button
-            className={registerPageStyles["button-master"]}
-            onClick={(e) => {
-              e.preventDefault();
-              handleSignUp(email, password, username, country, navigate);
-            }}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSignUp(email, password, username, country, navigate);
+        }}
+        className={registerPageStyles["form"]}
+      >
+        <img
+          src={"/images/img_minervaLogo.png"}
+          className={registerPageStyles["minerva_logo_1-removebg-preview_1-2"]}
+          onClick={handleNavigate21}
+          alt="minerva"
+        />
+        <div className={`${registerPageStyles["username-input"]}`}>
+          <UserInput input1="Username" />
+          <div
+            className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
           >
-            <h1
-              className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
-            >
-              {`Sign up`}
-            </h1>
-          </button>
-
-          <div className={registerPageStyles["login-referral"]}>
-            <div
-              className={`${registerPageStyles["have-an-account"]} nunitosans-normal-black-28px`}
-            >
-              {`Have an account?`}
-            </div>
-            <div
-              className={`${registerPageStyles["text-5"]} nunitosans-bold-licorice-28px`}
-              onClick={handleNavigate16}
-            >
-              {`Log in now`}
+            <div className={registerPageStyles["input-text"]}>
+              <div
+                className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
+              >
+                <Input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter username"
+                ></Input>
+              </div>
             </div>
           </div>
         </div>
-     
 
-      
-        <div
-          style={{ backgroundImage: `url(${"/images/img_image5.png"})` }}
-          className={registerPageStyles["side-panel"]}
+        <div className={`${registerPageStyles["username-input"]}`}>
+          <UserInput input1="Email" />
+          <div
+            className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
+          >
+            <div className={registerPageStyles["input-text"]}>
+              <div
+                className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
+              >
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email"
+                ></Input>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={`${registerPageStyles["username-input"]}`}>
+          <UserInput input1="Password" />
+          <div
+            className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
+          >
+            <div className={registerPageStyles["input-text"]}>
+              <div
+                className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
+              >
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                ></Input>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={`${registerPageStyles["username-input"]}`}>
+          <UserInput input1="Confirm password" />
+          <div
+            className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
+          >
+            <div className={registerPageStyles["input-text"]}>
+              <div
+                className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
+              >
+                <Input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Enter confirmed password"
+                ></Input>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit">
+          <div className={registerPageStyles["button-master"]}>
+            {loading ? (
+              <h1
+                className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
+              >
+                {`Signing up`}
+              </h1>
+            ) : (
+              <h1
+                className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
+              >
+                {`Sign up`}
+              </h1>
+            )}
+          </div>
+        </button>
+
+        <div className={registerPageStyles["login-referral"]}>
+          <div
+            className={`${registerPageStyles["have-an-account"]} nunitosans-normal-black-28px`}
+          >
+            {`Have an account?`}
+          </div>
+          <div
+            className={`${registerPageStyles["text-5"]} nunitosans-bold-licorice-28px`}
+            onClick={handleNavigate16}
+          >
+            {`Log in now`}
+          </div>
+        </div>
+      </form>
+
+      <div
+        style={{ backgroundImage: `url(${"/images/img_image5.png"})` }}
+        className={registerPageStyles["side-panel"]}
+      >
+        <img
+          src="/images/img_image2.png"
+          className={registerPageStyles["image-2"]}
+          alt="image2"
+        />
+        <img
+          src="/images/img_image3.png"
+          className={registerPageStyles["image-3"]}
+          alt="image3"
+        />
+        <img
+          src="/images/img_image4.png"
+          className={registerPageStyles["image-4"]}
+          alt="image4"
+        />
+
+        <h1
+          align="left"
+          className={`${registerPageStyles["anytime-anywhere-with-minerva"]} merriweather-bold-black-60px`}
         >
-          <img
-            src="/images/img_image2.png"
-            className={registerPageStyles["image-2"]}
-            alt="image2"
-          />
-          <img
-            src="/images/img_image3.png"
-            className={registerPageStyles["image-3"]}
-            alt="image3"
-          />
-          <img
-            src="/images/img_image4.png"
-            className={registerPageStyles["image-4"]}
-            alt="image4"
-          />
-
-          <h1
-            align="left"
-            className={`${registerPageStyles["anytime-anywhere-with-minerva"]} merriweather-bold-black-60px`}
-          >
-            Anytime
-            <br />
-            <br />
-            Anywhere
-            <br />
-            <br />
-            with Minerva
-          </h1>
-        </div>
+          Anytime
+          <br />
+          <br />
+          Anywhere
+          <br />
+          <br />
+          with Minerva
+        </h1>
       </div>
-    
+    </div>
   );
 };
 
@@ -191,26 +225,6 @@ const UserInput = (props) => {
       <span className={`nunitosans-normal-mirage-28px`}>{input1}</span>
     </div>
   );
-};
-
-const handleSignUp = async (email, password, username, country, navigate) => {
-  try {
-    const { error } = await supabaseClient.auth.signUp(
-      { email, password },
-      {
-        data: {
-          username,
-          country,
-        },
-      }
-    );
-    if (error) throw error;
-
-    alert("Signed up");
-    navigate("/listingspage");
-  } catch (error) {
-    alert(error.message);
-  }
 };
 
 export default RegisterPagePage;

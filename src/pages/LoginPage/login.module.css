@@ -50,6 +50,7 @@
   height: 135px;
   object-fit: cover;
   width: 464px;
+  cursor: pointer;
 }
 
 .username-input {
@@ -139,6 +140,7 @@
   overflow: hidden;
   padding: 0 406px;
   width: 900px;
+  cursor: pointer;
 }
 
 .text-1 {
@@ -148,6 +150,7 @@
   min-width: 88px;
   text-align: center;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .overlap-group {

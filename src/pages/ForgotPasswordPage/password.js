@@ -10,18 +10,19 @@ const PasswordPage = () => {
   const handleNavigate20 = () => navigate("/");
   const handleNavigate19 = () => navigate("/loginpage");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (email, password, navigate, e) => {
+  const forgotPassword = async (email, e) => {
     e.preventDefault();
 
     try {
       setLoading(true);
-      const { error } = await supabaseClient.auth.signIn({ email, password });
+      const { error } = await supabaseClient.auth.api.resetPasswordForEmail(
+        email
+      );
       if (error) throw error;
       alert("Sent");
-      navigate("/loginpage");
+      navigate("/resetpage");
     } catch (error) {
       alert(error.message);
     } finally {
@@ -36,7 +37,12 @@ const PasswordPage = () => {
           style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
           className={PwdStyles["overlap-group1"]}
         >
-          <div className={PwdStyles["login-overlay"]}>
+          <form
+            onSubmit={(e) => {
+              forgotPassword(email, e);
+            }}
+            className={PwdStyles["reset-overlay"]}
+          >
             <img
               onClick={handleNavigate19}
               src={"/images/cross.png"}
@@ -67,25 +73,19 @@ const PasswordPage = () => {
 
             <div className={PwdStyles["button-master-1"]}>
               {loading ? (
-                <text
-                  className={` nunitosans-bold-white-32px`}
-                >
+                <text className={` nunitosans-bold-white-32px`}>
                   Sending...
                 </text>
               ) : (
-                <h1
-                  className={`nunitosans-bold-white-32px`}
-                >
+                <h1 className={`nunitosans-bold-white-32px`}>
                   <button
-                    onClick={(e) => {
-                      handleLogin(email, password, navigate, e);
-                    }}
+                    type="submit"
                     className={`${PwdStyles["text-1"]} nunitosans-bold-white-32px`}
                   >{`Reset password`}</button>
                 </h1>
               )}
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Text } from "components/Text";
 import { Input } from "components/Input";
@@ -30,11 +30,6 @@ const LoginPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (supabaseClient.auth.user())
-      navigate("/listingspage");
-  });
-
   return (
     <div className={loginPageStyles["container-center-horizontal"]}>
       <div
@@ -44,7 +39,12 @@ const LoginPage = () => {
           style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
           className={loginPageStyles["overlap-group1"]}
         >
-          <div className={loginPageStyles["login-overlay"]}>
+          <form
+            onSubmit={(e) => {
+              handleLogin(email, password, navigate, e);
+            }}
+            className={loginPageStyles["login-overlay"]}
+          >
             <img
               className={loginPageStyles["minerva_logo_1-removebg-preview_1-3"]}
               src={"/images/img_minervaLogo.png"}
@@ -101,9 +101,7 @@ const LoginPage = () => {
                   className={`${loginPageStyles["text-1"]} nunitosans-bold-white-32px`}
                 >
                   <button
-                    onClick={(e) => {
-                      handleLogin(email, password, navigate, e);
-                    }}
+                    type="submit"
                     className={`nunitosans-bold-white-32px`}
                   >{`Log in`}</button>
                 </h1>
@@ -124,7 +122,7 @@ const LoginPage = () => {
                 >{`Don’t have an account?`}</span>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

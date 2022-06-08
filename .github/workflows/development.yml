@@ -16,9 +16,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Super-Linter
-        uses: github/super-linter@v4.9.4
-
       - name: Use Node.js v17.x
         uses: actions/setup-node@v3
         with:

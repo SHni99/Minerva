@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Input } from "components/Input";
@@ -15,6 +15,17 @@ const RegisterPagePage = () => {
   const [username, setUsername] = useState("");
   const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect user to Listings page if logged in
+  useEffect(() => {
+    if (supabaseClient.auth.user()) navigate("/listingspage");
+
+    // We are disabling the following warning as there is
+    // no point in including the navigate method into the
+    // dependency array.
+
+    // eslint-disable-next-line
+  }, []);
 
   const handleSignUp = async (email, password, username, country, navigate) => {
     try {

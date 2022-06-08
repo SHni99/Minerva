@@ -20,6 +20,7 @@
     "react-hook-form": "^7.31.3",
     "react-input-autosize": "^3.0.0",
     "react-loading-overlay-ts": "^1.0.5",
+    "react-password-checklist": "^1.3.3",
     "react-router-dom": "^6.0.2",
     "react-router-hash-link": "^2.4.3",
     "react-scripts": "5.0.0",

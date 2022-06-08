@@ -130,6 +130,14 @@
   font-style: normal;
 }
 
+.nunitosans-bold-endeavour-32px {
+  color: #315f97;
+  font-family: var(--font-family-nunito_sans);
+  font-size: 80;
+  font-weight: 700;
+  font-style: normal;
+}
+
 .nunitosans-normal-black-28px {
   color: var(--black);
   font-family: var(--font-family-nunito_sans);

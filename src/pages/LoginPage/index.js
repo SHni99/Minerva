@@ -33,97 +33,108 @@ const LoginPage = () => {
   return (
     <div className={loginPageStyles["container-center-horizontal"]}>
       <div
-        className={`${loginPageStyles["login-page"]} ${loginPageStyles["screen"]}`}
+        style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
+        className={loginPageStyles["overlap-group1"]}
       >
-        <div
-          style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
-          className={loginPageStyles["overlap-group1"]}
+        <form
+          onSubmit={(e) => {
+            handleLogin(email, password, navigate, e);
+          }}
+          className={`${loginPageStyles["home-inner"]} container`}
         >
-          <form
-            onSubmit={(e) => {
-              handleLogin(email, password, navigate, e);
-            }}
-            className={loginPageStyles["login-overlay"]}
-          >
-            <img
-              className={loginPageStyles["minerva_logo_1-removebg-preview_1-3"]}
-              src={"/images/img_minervaLogo.png"}
-              alt="minerva"
-              onClick={handleNavigate20}
-            />
-            <div className={loginPageStyles["username-input"]}>
-              <div
-                className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
-              >
-                <Text
-                  className={`poppins-semi-bold-black-24px`}
-                >{`Email`}</Text>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter username or email"
-                ></Input>
-              </div>
-              <br></br>
-              <div
-                className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
-              >
-                <Text
-                  className={`poppins-semi-bold-black-24px`}
-                >{`Password`}</Text>
-                <Input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                ></Input>
-              </div>
-              <h1
-                className={`${loginPageStyles["text-1"]} nunitosans-bold-endeavour-24px`}
-              >
-                <span
-                  onClick={handleNavigate18}
-                  className={`nunitosans-bold-endeavour-24px`}
-                >{`Forgot password?`}</span>
-              </h1>
-            </div>
+          <div class="row">
+            <div class="col-lg-18">
+              <div className={`${loginPageStyles["login-overlay"]}`}>
+                <div className="card-body">
+                  <img
+                    className={
+                      loginPageStyles["minerva_logo_1-removebg-preview_1-3"]
+                    }
+                    src={"/images/img_minervaLogo.png"}
+                    alt="minerva"
+                    onClick={handleNavigate20}
+                  />
 
-            <div className={loginPageStyles["button-master-1"]}>
-              {loading ? (
-                <text
-                  className={`${loginPageStyles["align-left"]} nunitosans-bold-white-32px`}
-                >
-                  Logging..
-                </text>
-              ) : (
-                <h1
-                  className={`${loginPageStyles["text-1"]} nunitosans-bold-white-32px`}
-                >
-                  <button
-                    type="submit"
-                    className={`nunitosans-bold-white-32px`}
-                  >{`Log in`}</button>
-                </h1>
-              )}
-            </div>
-            <div className={loginPageStyles["overlap-group"]}>
-              <div className={loginPageStyles["button-master-2"]}>
-                <button
-                  className={`${loginPageStyles["text-3"]} nunitosans-bold-licorice-28px`}
-                  onClick={handleNavigate19}
-                >{`Sign up`}</button>
+                  <div className={`${loginPageStyles["username-input"]}`}>
+                    <div
+                      className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
+                    >
+                      <h3
+                        className={`poppins-semi-bold-black-24px text-left`}
+                      >{`Email`}</h3>
+                      <div class="form-group">
+                        <Input
+                          className="form-control form-control-lg"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="Enter username or email"
+                        ></Input>
+                      </div>
+                    </div>
+                    <br></br>
+                    <div
+                      className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
+                    >
+                      <h3
+                        className={`poppins-semi-bold-black-24px text-left mt-3`}
+                      >{`Password`}</h3>
+                      <Input
+                        className="form-control form-control-lg"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter password"
+                      ></Input>
+                    </div>
+                    <h1
+                      className={`${loginPageStyles["text-1"]} nunitosans-bold-endeavour-24px`}
+                    >
+                      <span
+                        onClick={handleNavigate18}
+                        className={`nunitosans-bold-endeavour-32px`}
+                      >{`Forgot password?`}</span>
+                    </h1>
+                  </div>
+
+                  <div className={loginPageStyles["button-master-1"]}>
+                    {loading  ? (
+                      <text
+                        className={`${loginPageStyles["align-left"]} nunitosans-bold-white-32px`}
+                      >
+                        Logging..
+                      </text>
+                    ) : (
+                      <h1
+                        className={`${loginPageStyles["text-1"]} nunitosans-bold-white-32px`}
+                      >
+                        <button
+                          type="submit"
+                          className={`nunitogit sans-bold-white-32px`}
+                        >{`Log in`}</button>
+                      </h1>
+                    )}
+                  </div>
+                  <div className={loginPageStyles["overlap-group"]}>
+                    <div className={loginPageStyles["button-master-2"]}>
+                      <button
+                        className={`${loginPageStyles["text-3"]} nunitosans-bold-licorice-28px`}
+                        onClick={handleNavigate19}
+                      >{`Sign up`}</button>
+                    </div>
+                    <div
+                      className={`${loginPageStyles["dontt-have-an-account"]} nunitosans-normal-black-28px`}
+                    >
+                      <span
+                        className={`nunitosans-normal-black-28px`}
+                      >{`Don’t have an account?`}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div
-                className={`${loginPageStyles["dontt-have-an-account"]} nunitosans-normal-black-28px`}
-              >
-                <span
-                  className={`nunitosans-normal-black-28px`}
-                >{`Don’t have an account?`}</span>
-              </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

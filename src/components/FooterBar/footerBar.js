@@ -7,7 +7,7 @@ import footerBarStyles from "./footerBar.module.css";
 
 const FooterBar = () => {
   return (
-    <Container className={`${footerBarStyles.footer}`} fluid>
+    <Container className={`${footerBarStyles.footer} p-0`} fluid>
       <Divider />
       <Bar
         copyrightText={

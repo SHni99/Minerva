@@ -13,7 +13,6 @@ export const Input = React.forwardRef(
             display: "flex",
             height: "73px",
             overflow: "hidden",
-            padding: "0 16px",
             position: "relative",
             width: "850px",
             borderWidth: "1px",

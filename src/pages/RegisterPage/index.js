@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import registerPageStyles from "./register.module.css";
+import PasswordChecklist from "react-password-checklist";
 
 const RegisterPagePage = () => {
   const navigate = useNavigate();
@@ -29,24 +30,28 @@ const RegisterPagePage = () => {
   }, []);
 
   const handleSignUp = async (email, password, username, navigate) => {
-    try {
-      setLoading(true);
-      const { error } = await supabaseClient.auth.signUp(
-        { email, password },
-        {
-          data: {
-            username,
-          },
-        }
-      );
-      if (error) throw error;
+    if (password === confirmPassword) {
+      try {
+        setLoading(true);
+        const { error } = await supabaseClient.auth.signUp(
+          { email, password },
+          {
+            data: {
+              username,
+            },
+          }
+        );
+        if (error) throw error;
 
-      alert("Signed up");
-      navigate("/listingspage");
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
+        alert("Signed up");
+        navigate("/listingspage");
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      alert("Please enter same passwords!");
     }
   };
 
@@ -84,7 +89,6 @@ const RegisterPagePage = () => {
             </div>
           </div>
         </div>
-
         <div className={`${registerPageStyles["username-input"]}`}>
           <UserInput input1="Email" />
           <div
@@ -104,7 +108,6 @@ const RegisterPagePage = () => {
             </div>
           </div>
         </div>
-
         <div className={`${registerPageStyles["username-input"]}`}>
           <UserInput input1="Password" />
           <div
@@ -124,7 +127,6 @@ const RegisterPagePage = () => {
             </div>
           </div>
         </div>
-
         <div className={`${registerPageStyles["username-input"]}`}>
           <UserInput input1="Confirm password" />
           <div
@@ -144,6 +146,14 @@ const RegisterPagePage = () => {
             </div>
           </div>
         </div>
+
+        <PasswordChecklist
+          rules={["minLength", "specialChar", "number", "capital", "match"]}
+          minLength={8}
+          value={password}
+          valueAgain={confirmPassword}
+         
+        />
 
         <button type="submit">
           <div className={registerPageStyles["button-master"]}>

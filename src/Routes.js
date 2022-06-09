@@ -14,24 +14,24 @@ import Home from "pages/Home";
 import NotFound from "pages/NotFound";
 
 const ProjectRoutes = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/loginpage" element={<LoginPage />} />
-        <Route path="/registerpage" element={<RegisterPage />} />
-        <Route path="/aboutuspage" element={<AboutusPage />} />
-        <Route path="/listingspage" element={<ListingsPage />} />
-        <Route path="/profilepage" element={<ProfilePage />} />
-        <Route path="/dhiwise-dashboard" element={<Home />} />
-        <Route path="/create-listing" element={<CreateListingPage />} />
-        <Route path="/passwordpage" element={<PasswordPage />} />
-        <Route path="/resetpage" element={<ResetPage />} />
-        <Route path="/loginmainpage" element={<LoginMainPage />} />
-      </Routes>
-    </Router>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="*" element={<NotFound />} />
+                <Route path="/loginpage" element={<LoginPage />} />
+                <Route path="/registerpage" element={<RegisterPage />} />
+                <Route path="/aboutuspage" element={<AboutusPage />} />
+                <Route path="/listingspage" element={<ListingsPage />} />
+                <Route path="/profilepage" element={<ProfilePage />} />
+                <Route path="/dhiwise-dashboard" element={<Home />} />
+                <Route path="/create-listing" element={<CreateListingPage />} />
+                <Route path="/passwordpage" element={<PasswordPage />} />
+                <Route path="/resetpage" element={<ResetPage />} />
+                <Route path="/loginmainpage" element={<LoginMainPage />} />
+            </Routes>
+        </Router>
+    );
 };
 
 export default ProjectRoutes;

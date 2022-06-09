@@ -129,7 +129,7 @@ const LoginPage = () => {
                       
                     }}>
                     <div
-                      className=" col-lg-8 nunitosans-normal-black-28px"
+                      className=" col-lg-8 nunitosans-normal-black-28px  text-right"
                       
                     >
                       {`Don’t have an account?`}

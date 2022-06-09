@@ -6,7 +6,7 @@ import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 
 const NavBar = ({ _userLoggedIn }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(_userLoggedIn === true);
+    const [isLoggedIn, setIsLoggedIn] = useState(_userLoggedIn || false);
     const [avatarUrl, setAvatarUrl] = useState(null);
     const [loading, setLoading] = useState(false);
 

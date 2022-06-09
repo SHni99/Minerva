@@ -82,6 +82,7 @@ describe("Log In and Sign Up buttons", () => {
 
 describe("Profile Picture", () => {
     const queryProfilePic = () => screen.queryByTestId("profilePic");
+
     it("is absent when user is not logged in", () => {
         wrapNavBar();
         expect(queryProfilePic()).not.toBeInTheDocument();
@@ -96,5 +97,25 @@ describe("Profile Picture", () => {
         const history = wrapNavBar(true);
         fireEvent.click(queryProfilePic());
         expect(history.location.pathname).toBe("/loginmainpage");
+    });
+});
+
+describe("Create Listing Button", () => {
+    const queryCreateButton = () =>
+        screen.queryByRole("button", { name: /create listing/i });
+
+    it("is absent when user is not logged in", () => {
+        wrapNavBar();
+        expect(queryCreateButton()).not.toBeInTheDocument();
+    });
+
+    it("is present when user is logged in", () => {
+        wrapNavBar(true);
+        expect(queryCreateButton()).toBeInTheDocument();
+    });
+
+    it("redirects to Create Listing Page on click", () => {
+        wrapNavBar(true);
+        expect(queryCreateButton()).toHaveAttribute("href", "create-listing");
     });
 });

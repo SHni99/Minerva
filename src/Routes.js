@@ -25,7 +25,10 @@ const ProjectRoutes = () => {
                 <Route path="/listingspage" element={<ListingsPage />} />
                 <Route path="/profilepage" element={<ProfilePage />} />
                 <Route path="/dhiwise-dashboard" element={<Home />} />
-                <Route path="/create-listing" element={<CreateListingPage />} />
+                <Route
+                    path="/create-listing"
+                    element={<CreateListingPage _userLoggedIn={true} />}
+                />
                 <Route path="/passwordpage" element={<PasswordPage />} />
                 <Route path="/resetpage" element={<ResetPage />} />
                 <Route path="/loginmainpage" element={<LoginMainPage />} />

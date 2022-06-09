@@ -1,43 +1,44 @@
 name: Production
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    buildAndTest:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
 
-      - name: Use Node.js v17.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 17.x
-          cache: "npm"
+            - name: Use Node.js v17.x
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 17.x
+                  cache: "npm"
 
-      - run: npm ci
-      - run: npm run build --if-present
+            - run: npm ci
+            - run: npm run build --if-present
+            - run: npm test
 
-  deploy:
-    needs: build
+    deploy:
+        needs: build
 
-    runs-on: ubuntu-latest
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
 
-      - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          docker_build_args: deploy --dir=build --prod
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "orbital-minerva"
-          heroku_email: "e0726676@u.nus.edu"
+            - name: Deploy to Heroku
+              uses: akhileshns/heroku-deploy@v3.12.12
+              with:
+                  docker_build_args: deploy --dir=build --prod
+                  heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+                  heroku_app_name: "orbital-minerva"
+                  heroku_email: "e0726676@u.nus.edu"

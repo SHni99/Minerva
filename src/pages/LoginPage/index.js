@@ -6,9 +6,9 @@ import loginPageStyles from "./login.module.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const handleNavigate20 = () => navigate("/");
-  const handleNavigate19 = () => navigate("/registerpage");
-  const handleNavigate18 = () => navigate("/passwordpage");
+  const home= () => navigate("/");
+  const registerPage = () => navigate("/registerpage");
+  const passwordPage = () => navigate("/passwordpage");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,7 +55,7 @@ const LoginPage = () => {
                   style={{ cursor: "pointer" }}
                   src={"/images/img_minervaLogo.png"}
                   alt="minerva"
-                  onClick={handleNavigate20}
+                  onClick={home}
                 />
 
                 <div className="col-md-12">
@@ -99,7 +99,7 @@ const LoginPage = () => {
                     </div>
                     <h4
                       className={`nunitosans-bold-endeavour-24px mt-3 text-left`}
-                      onClick={handleNavigate18}
+                      onClick={passwordPage}
                       style={{
                         cursor: "pointer",
                       }}
@@ -138,7 +138,7 @@ const LoginPage = () => {
                       <button
                       
                         className={"col-lg-4 nunitosans-bold-licorice-28px text-left"}
-                        onClick={handleNavigate19}
+                        onClick={registerPage}
                       >{`Sign up`}</button>
                   </div>
                 </div>

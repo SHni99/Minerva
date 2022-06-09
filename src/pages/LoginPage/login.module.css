@@ -16,14 +16,12 @@
   pointer-events: auto;
 }
 
-.login-page {
-  align-items: flex-start;
-  background-color: var(--white);
-  display: flex;
-  height: 1080px;
-  overflow: hidden;
-  width: 1440px;
+.home-inner{
+  padding-top: 60px;
+  align-items: center;
+
 }
+
 
 .overlap-group1 {
   align-items: flex-start;
@@ -31,24 +29,27 @@
   background-size: cover;
   display: flex;
   height: 100%;
-  margin: 0;
-  padding: 50px 225px;
+  padding: 50px 225px 170px;
 }
 
 .login-overlay {
   align-items: center;
   background-color: #abc1c5;
-  border-radius: 40px;
+  box-shadow: 0px 4px 4px #00000040;
   display: flex;
   flex-direction: column;
-  min-height: 954px;
-  padding: 89px 0;
-  width: 990px;
+  height: 800px;
+  text-align: center;
+  border-radius: 3em;
+  padding: 20px 20px 20px 20px;
 }
 
+
+
 .minerva_logo_1-removebg-preview_1-3 {
+  margin-left: 30%;
+  background-size: cover;
   height: 135px;
-  object-fit: cover;
   width: 464px;
   cursor: pointer;
 }
@@ -59,7 +60,9 @@
   flex-direction: column;
   margin-top: 59px;
   min-height: 115px;
-  width: 850px;
+  margin-left: 3%;
+  align-self: flex-start;
+  min-width: 500px;
 }
 
 .label {
@@ -67,6 +70,7 @@
   line-height: 36px;
   min-height: 36px;
   white-space: nowrap;
+  
 }
 
 .input-box-set-master {
@@ -88,19 +92,6 @@
   flex-direction: column;
   margin-top: 23px;
   min-height: 112px;
-  width: 850px;
-}
-
-.input-box-set-master-1 {
-  align-items: center;
-  background-color: "#E7E4DE";
-  border-radius: 12px;
-  display: flex;
-  height: 70px;
-  margin-top: 6px;
-  overflow: hidden;
-  padding: 0 16px;
-  position: relative;
   width: 850px;
 }
 
@@ -136,7 +127,7 @@
   border-radius: 12px;
   display: flex;
   height: 103px;
-  margin-top: 70px;
+  margin-top: 50px;
   overflow: hidden;
   padding: 0 406px;
   width: 900px;
@@ -156,9 +147,10 @@
 .overlap-group {
   height: 39px;
   margin-right: 107px;
-  margin-top: 56px;
+  margin-top: 30px;
   position: relative;
   width: 443px;
+  margin-left: 22%;
 }
 
 .button-master-2 {

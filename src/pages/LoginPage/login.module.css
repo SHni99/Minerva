@@ -19,8 +19,6 @@
 .home-inner{
   padding-top: 60px;
   align-items: center;
-  margin-left: auto;
-  margin-right: auto;
 
 }
 
@@ -49,12 +47,11 @@
 
 
 .minerva_logo_1-removebg-preview_1-3 {
-  margin-left: 22%;
+  margin-left: 30%;
   background-size: cover;
   height: 135px;
   width: 464px;
   cursor: pointer;
-  align-self: center;
 }
 
 .username-input {
@@ -63,8 +60,9 @@
   flex-direction: column;
   margin-top: 59px;
   min-height: 115px;
-  width: 850px;
   margin-left: 3%;
+  align-self: flex-start;
+  min-width: 500px;
 }
 
 .label {

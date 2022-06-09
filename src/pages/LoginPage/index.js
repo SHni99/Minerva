@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Text } from "components/Text";
 import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import loginPageStyles from "./login.module.css";
+import Button from "react-bootstrap/Button";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -42,101 +42,113 @@ const LoginPage = () => {
           }}
           className={`${loginPageStyles["home-inner"]} container`}
         >
-          <div class="row">
-            <div class="col-lg-18">
-              <div className={`${loginPageStyles["login-overlay"]}`}>
-                <div className="card-body">
-                  <img
-                    className={
-                      loginPageStyles["minerva_logo_1-removebg-preview_1-3"]
-                    }
-                    src={"/images/img_minervaLogo.png"}
-                    alt="minerva"
-                    onClick={handleNavigate20}
-                  />
 
-                  <div className={`${loginPageStyles["username-input"]}`}>
+          <div class="col-lg-18 w-150">
+            <div className={"card text-center rounded-5"} style={{
+              backgroundColor: "#abc1c5",
+              boxShadow: "0px 6px 4px #00000040"
+            }} >
+              <div className="card-body p-5">
+                <img
+                  className={
+                    "col-sm-6  h-20"
+                  }
+                  style={{ cursor: "pointer" }}
+                  src={"/images/img_minervaLogo.png"}
+                  alt="minerva"
+                  onClick={handleNavigate20}
+                />
+
+                <div className="col-md-12">
+                  <div className={`row-lg-8`}>
                     <div
-                      className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
+                      className={` nunitosans-normal-mirage-28px`}
                     >
                       <h3
-                        className={`poppins-semi-bold-black-24px text-left`}
+                        className={`poppins-semi-bold-black-24px text-left pt-5`}
                       >{`Email`}</h3>
-                      <div class="form-group">
-                        <Input
-                          className="form-control form-control-lg"
+                      <div class="form-group" >
+                        <input
+                          className="form-control form-control-lg h-20"
+                          style={{
+                            backgroundColor: "#E7E4DE",
+                          }}
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Enter username or email"
-                        ></Input>
+                        ></input>
                       </div>
                     </div>
-                    <br></br>
+
                     <div
-                      className={`${loginPageStyles["label"]} nunitosans-normal-mirage-28px`}
+                      className={`nunitosans-normal-mirage-28px`}
                     >
                       <h3
-                        className={`poppins-semi-bold-black-24px text-left mt-3`}
+                        className={`poppins-semi-bold-black-24px text-left pt-5`}
                       >{`Password`}</h3>
-                      <Input
-                        className="form-control form-control-lg"
+                      <input
+                        className="form-control form-control-lg h-20"
+                        style={{
+                          backgroundColor: "#E7E4DE",
+                        }}
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter password"
-                      ></Input>
+                      ></input>
                     </div>
-                    <h1
-                      className={`${loginPageStyles["text-1"]} nunitosans-bold-endeavour-24px`}
+                    <h4
+                      className={`nunitosans-bold-endeavour-24px mt-3 text-left`}
+                      onClick={handleNavigate18}
+                      style={{
+                        cursor: "pointer",
+                      }}
                     >
-                      <span
-                        onClick={handleNavigate18}
-                        className={`nunitosans-bold-endeavour-32px`}
-                      >{`Forgot password?`}</span>
-                    </h1>
+                      {`Forgot password?`}
+                    </h4>
                   </div>
 
-                  <div className={loginPageStyles["button-master-1"]}>
-                    {loading  ? (
-                      <text
-                        className={`${loginPageStyles["align-left"]} nunitosans-bold-white-32px`}
-                      >
-                        Logging..
-                      </text>
+
+                  <div className=" btn btn-lg btn-outline-primary mt-5"
+                    style={{
+                      backgroundColor: "#4169e1",
+                      width: "100%"
+                    }}>
+                    {loading ? (
+                      <h2 className={`nunitosans-bold-white-26px p-2`}>
+                        {"Logging in"}</h2>
                     ) : (
-                      <h1
-                        className={`${loginPageStyles["text-1"]} nunitosans-bold-white-32px`}
-                      >
-                        <button
-                          type="submit"
-                          className={`nunitogit sans-bold-white-32px`}
-                        >{`Log in`}</button>
-                      </h1>
+                      <button className={`nunitosans-bold-white-26px p-2`}
+                        type="submit">
+                        {"Log in"}</button>
                     )}
                   </div>
-                  <div className={loginPageStyles["overlap-group"]}>
-                    <div className={loginPageStyles["button-master-2"]}>
+                  <div className=" row m-3"
+                    style={{
+                      width: "600px"
+                      
+                    }}>
+                    <div
+                      className=" col-lg-8 nunitosans-normal-black-28px"
+                      
+                    >
+                      {`Don’t have an account?`}
+                      </div>
+
                       <button
-                        className={`${loginPageStyles["text-3"]} nunitosans-bold-licorice-28px`}
+                      
+                        className={"col-lg-4 nunitosans-bold-licorice-28px text-left"}
                         onClick={handleNavigate19}
                       >{`Sign up`}</button>
-                    </div>
-                    <div
-                      className={`${loginPageStyles["dontt-have-an-account"]} nunitosans-normal-black-28px`}
-                    >
-                      <span
-                        className={`nunitosans-normal-black-28px`}
-                      >{`Don’t have an account?`}</span>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

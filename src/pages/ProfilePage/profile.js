@@ -126,8 +126,8 @@ const ProfilePageBody = (props) => {
       }}
     >
       <div className={`${profileStyles["home-inner"]} container`}>
-        <div className="row">
-          <div className={`${profileStyles["frame-7"]} rounded-3`}>
+        <div className="col-lg-4">
+          <div className={`card text-center rounded-5 w-auto`}>
             <div className="card-body mt-4">
               <PersonalAvatar
                 className="align-self"

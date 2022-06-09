@@ -6,8 +6,8 @@ import { supabaseClient as supabase } from "../../config/supabase-client";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 
-const NavBar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+const NavBar = (_userLoggedIn) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(_userLoggedIn === true);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -55,9 +55,11 @@ const NavBar = () => {
           className={`${navBarStyles["home-link"]} ${navBarStyles["button-variant-set-master"]} ${navBarStyles["button-master"]}`}
           to="/"
         >
-          <div className={`${navBarStyles["text"]} inter-medium-black-20px`}>
-            {" "}
-            Home{" "}
+          <div
+            className={`${navBarStyles["text"]} inter-medium-black-20px`}
+            data-testid="navBar-home"
+          >
+            Home
           </div>
         </Link>
 
@@ -73,6 +75,7 @@ const NavBar = () => {
         <Link
           className={`${navBarStyles["aboutus-link"]} ${navBarStyles["button-variant-set-master"]} ${navBarStyles["button-master"]}`}
           to="/aboutuspage"
+          data-testid="navBar-about"
         >
           <div className={`${navBarStyles["text"]} inter-medium-black-20px`}>
             {" "}

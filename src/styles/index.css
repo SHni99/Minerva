@@ -2,10 +2,9 @@
   box-sizing: border-box;
 }
 body {
-  font-family: "Roboto", sans-serif !important;
+  font-family: "Inter", sans-serif !important;
   margin: 0;
   padding: 0;
-  height: 100vh;
 }
 .dhiwise-code,
 .dhiwise-navigation {

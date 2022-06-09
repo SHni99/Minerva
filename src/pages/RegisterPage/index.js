@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import registerPageStyles from "./register.module.css";
+import PasswordChecklist from "react-password-checklist";
 
 const RegisterPagePage = () => {
   const navigate = useNavigate();
@@ -13,29 +14,44 @@ const RegisterPagePage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [country, setCountry] = useState("");
+  // Country field not implemented yet
+  // const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignUp = async (email, password, username, country, navigate) => {
-    try {
-      setLoading(true);
-      const { error } = await supabaseClient.auth.signUp(
-        { email, password },
-        {
-          data: {
-            username,
-            country,
-          },
-        }
-      );
-      if (error) throw error;
+  // Redirect user to Listings page if logged in
+  useEffect(() => {
+    if (supabaseClient.auth.user()) navigate("/listingspage");
 
-      alert("Signed up");
-      navigate("/listingspage");
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
+    // We are disabling the following warning as there is
+    // no point in including the navigate method into the
+    // dependency array.
+
+    // eslint-disable-next-line
+  }, []);
+
+  const handleSignUp = async (email, password, username, navigate) => {
+    if (password === confirmPassword) {
+      try {
+        setLoading(true);
+        const { error } = await supabaseClient.auth.signUp(
+          { email, password },
+          {
+            data: {
+              username,
+            },
+          }
+        );
+        if (error) throw error;
+
+        alert("Signed up");
+        navigate("/listingspage");
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      alert("Please enter same passwords!");
     }
   };
 
@@ -44,7 +60,7 @@ const RegisterPagePage = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleSignUp(email, password, username, country, navigate);
+          handleSignUp(email, password, username, navigate);
         }}
         className={registerPageStyles["form"]}
       >
@@ -73,7 +89,6 @@ const RegisterPagePage = () => {
             </div>
           </div>
         </div>
-
         <div className={`${registerPageStyles["username-input"]}`}>
           <UserInput input1="Email" />
           <div
@@ -93,7 +108,6 @@ const RegisterPagePage = () => {
             </div>
           </div>
         </div>
-
         <div className={`${registerPageStyles["username-input"]}`}>
           <UserInput input1="Password" />
           <div
@@ -113,7 +127,6 @@ const RegisterPagePage = () => {
             </div>
           </div>
         </div>
-
         <div className={`${registerPageStyles["username-input"]}`}>
           <UserInput input1="Confirm password" />
           <div
@@ -133,6 +146,14 @@ const RegisterPagePage = () => {
             </div>
           </div>
         </div>
+
+        <PasswordChecklist
+          rules={["minLength", "specialChar", "number", "capital", "match"]}
+          minLength={8}
+          value={password}
+          valueAgain={confirmPassword}
+         
+        />
 
         <button type="submit">
           <div className={registerPageStyles["button-master"]}>

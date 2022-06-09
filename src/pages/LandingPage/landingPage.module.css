@@ -1,0 +1,62 @@
+.intro-header {
+    color: var(--deep-blue);
+    font-family: var(--font-family-nunito_sans);
+    font-weight: 700;
+    font-size: 250%;
+    padding-bottom: 8px;
+}
+
+.intro-text {
+    color: var(--deep-blue);
+    font-size: 100%;
+}
+
+.whyMinerva-heading {
+    font-family: var(--font-family-nunito_sans);
+    font-weight: 1000;
+    font-size: 200%;
+}
+
+.whyMinerva-sub1 {
+    color: white;
+    margin: 0px 0px;
+    font-style: var(--font-family-nunito_sans);
+    font-weight: 1000;
+    font-size: 100%;
+}
+
+.whyMinerva-1 {
+    color: white;
+    font-style: var(--font-family-nunito_sans);
+    font-weight: 1000;
+    font-size: 250%;
+}
+
+.whyMinerva-text1 {
+    color: white;
+    font-style: var(--font-family-nunito_sans);
+    font-size: 120%;
+}
+
+.getStarted-leftTitle {
+    font-style: var(--font-family-nunito_sans);
+    font-size: 200%;
+    font-weight: bold;
+    text-align: center;
+    padding: 5%;
+}
+
+.getStarted-leftText {
+    font-style: var(--font-family-nunito_sans);
+    font-size: 100%;
+    text-align: center;
+    padding: 0% 5% 5% 5%;
+}
+
+.getStarted-stepHeader {
+    font-size: 200%;
+}
+
+.getStarted-stepText {
+    font-size: 100%;
+}

@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { supabaseClient } from "../../config/supabase-client";
 import avatarStyle from "./avatar.module.css";
 
-
-
 const PersonalAvatar = ({ url, onUpload }) => {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -58,36 +56,36 @@ const PersonalAvatar = ({ url, onUpload }) => {
   };
 
   return (
-    <div className="d-flex flex-column align-center">
-
+    <div className="d-flex flex-column align-center ">
       <img
         className={`${avatarStyle["avatarmaster"]} border border-dark`}
-        src= {avatarUrl || "/images/img_avatarDefault.jpg"}
+        src={avatarUrl || "/images/img_avatarDefault.jpg"}
         alt={"avatar" || "default_avatar"}
       />
-      
-      <div>
-        <button
-          className={`${avatarStyle["button-master"]} border-1px-santas-gray`}
-        >
-          <div className={`${avatarStyle["text"]} inter-normal-licorice-20px`}>
-            <label style={{cursor: 'pointer'}} htmlFor="single">
-            {uploading ? 'Uploading ...' : 'Upload'}
+
+      <button
+        className={`${avatarStyle["button-master"]} border-1px-santas-gray`}
+      >
+        <div className={`${avatarStyle["text"]} inter-normal-licorice-20px`}>
+          <label
+            style={{ cursor: "pointer", fontWeight: "bold" }}
+            htmlFor="single"
+          >
+            {uploading ? "Uploading ..." : "Upload"}
           </label>
-            <input
-              style={{
-                visibility: "hidden",
-                position: "absolute",
-              }}
-              type="file"
-              id="single"
-              accept="image/*"
-              onChange={uploadAvatar}
-              disabled={uploading}
-            />
-          </div>
-        </button>
-      </div>
+          <input
+            style={{
+              visibility: "hidden",
+              position: "absolute",
+            }}
+            type="file"
+            id="single"
+            accept="image/*"
+            onChange={uploadAvatar}
+            disabled={uploading}
+          />
+        </div>
+      </button>
     </div>
   );
 };

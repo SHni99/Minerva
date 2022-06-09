@@ -17,7 +17,6 @@
 .choose-tutor-tutee {
   align-items: center;
   display: flex;
-  margin-top: 30px;
   position: relative;
 }
 
@@ -33,7 +32,6 @@
   display: flex;
   margin-left: 10px;
   margin-bottom: 8px;
-  padding: 4px 10px;
   background-color: white;
   position: relative;
   cursor: pointer;
@@ -43,13 +41,12 @@
 }
 
 .listing-images {
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   border-radius: 6px;
   display: flex;
-  height: 306px;
-  margin-top: 6px;
-  overflow: hidden;
-  padding: 17px 360px;
+  overflow-x: scroll;
+  padding: 17px;
   width: 912px;
 }
 
@@ -61,9 +58,11 @@
   cursor: pointer;
   border-radius: 15px;
   display: flex;
-  height: 267px;
+  height: 256px;
   overflow: hidden;
-  width: 190px;
+  min-width: 190px;
+  margin: 0px 12px;
+  position: relative;
 }
 
 .icon-plus {
@@ -228,45 +227,6 @@
   min-width: 508px;
   overflow: hidden;
   position: relative;
-}
-
-.text-2 {
-  color: var(--whitebase---ffffff);
-  font-weight: 500;
-  line-height: 24px;
-  min-height: 24px;
-  white-space: nowrap;
-  font-size: 20px;
-  font-family: var(--font-family-inter);
-}
-
-.submit-button {
-  align-items: center;
-  background-color: var(--primary400---0354a6);
-  border-radius: 35px;
-  display: flex;
-  height: 70px;
-  overflow: hidden;
-  margin-top: 27px;
-  padding: 12px 256px;
-  min-width: 600px;
-  position: relative;
-  cursor: pointer;
-}
-
-.plus-circle {
-  align-items: center;
-  justify-content: center;
-  align-self: center;
-  height: 48px;
-  width: 48px;
-  font-size: 48px;
-  color: grey;
-  cursor: pointer;
-  border-radius: 24px;
-  display: flex;
-  overflow: hidden;
-  margin-top: 20px;
 }
 
 .border-1px-gray700---101828 {

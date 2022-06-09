@@ -7,6 +7,7 @@
   --primary500---064280: rgba(6, 66, 128, 1);
   --gray700---101828: rgba(16, 24, 40, 1);
   --blackbase---121212: rgba(18, 18, 18, 1);
+  --deep-blue: rgb(37, 0, 116);
   --sapphire: rgba(46, 66, 164, 1);
   --primary300---3d90e3: rgba(49, 100, 244, 1);
   --gray600---667085: rgba(102, 112, 133, 1);
@@ -125,6 +126,14 @@
   color: #315f97;
   font-family: var(--font-family-nunito_sans);
   font-size: var(--font-size-xxxl);
+  font-weight: 700;
+  font-style: normal;
+}
+
+.nunitosans-bold-endeavour-32px {
+  color: #315f97;
+  font-family: var(--font-family-nunito_sans);
+  font-size: 80;
   font-weight: 700;
   font-style: normal;
 }

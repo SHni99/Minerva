@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import loginPageStyles from "./login.module.css";
-import Button from "react-bootstrap/Button";
+
 
 const LoginPage = () => {
   const navigate = useNavigate();

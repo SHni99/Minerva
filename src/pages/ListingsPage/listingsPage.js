@@ -31,7 +31,7 @@ const ListingsPage = () => {
 
 export default ListingsPage;
 
-function ListingPageBody({ tutorTuteeState, listingDataState, queryState }) {
+const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
     const [tutorTutee, setTutorTutee] = tutorTuteeState;
     const [query, setQuery] = queryState;
 
@@ -87,7 +87,7 @@ function ListingPageBody({ tutorTuteeState, listingDataState, queryState }) {
             />
         </Container>
     );
-}
+};
 
 const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
     const handleClick = () => {
@@ -98,6 +98,7 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
         <div
             className={listingsPageStyles["tutor-tutee-toggle"]}
             onClick={handleClick}
+            data-testid="tutorTuteeToggle"
         >
             <div className={`${listingsPageStyles["text"]}`}>{tutorTutee}</div>
         </div>

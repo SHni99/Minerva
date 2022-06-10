@@ -3,8 +3,11 @@ import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
-import { Spinner } from "react-bootstrap";
 import { CloseButton } from "react-bootstrap";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Spinner from "react-bootstrap/Spinner";
 
 import listingsPageStyles from "./listingsPage.module.css";
 
@@ -37,27 +40,24 @@ function ListingPageBody({ tutorTuteeState, listingDataState, queryState }) {
     };
 
     return (
-        <div className={listingsPageStyles["body"]}>
-            <div className={listingsPageStyles["filter-tutor-tutee"]}>
-                <h1
-                    className={`${listingsPageStyles["lookingForText"]} nunito-medium-black-48px`}
-                >
-                    I'm looking for a
-                </h1>
-                <TutorTuteeToggle
-                    tutorTutee={tutorTutee}
-                    setTutorTutee={setTutorTutee}
-                />
-            </div>
+        <Container className={`${listingsPageStyles["body"]}`}>
+            <Row className={`${listingsPageStyles["filter-tutor-tutee"]}`}>
+                <Col>
+                    <h1 className={`${listingsPageStyles["lookingForText"]}`}>
+                        I'm looking for a
+                    </h1>
+                </Col>
+
+                <Col>
+                    <TutorTuteeToggle
+                        tutorTutee={tutorTutee}
+                        setTutorTutee={setTutorTutee}
+                    />
+                </Col>
+            </Row>
 
             <div className={listingsPageStyles["search-bar"]}>
-                <div
-                    className={`
-        ${listingsPageStyles["input-text"]} 
-        ${listingsPageStyles["input-composition-master"]} 
-        ${listingsPageStyles["input-box-set-master"]} 
-        ${listingsPageStyles["border-1px-gray500---98a2b3"]}`}
-                >
+                <div className={`${listingsPageStyles["search-box"]}`}>
                     <input
                         className={listingsPageStyles["input-text-1"]}
                         id="search-input"
@@ -74,9 +74,7 @@ function ListingPageBody({ tutorTuteeState, listingDataState, queryState }) {
                     className={listingsPageStyles["button-master-1"]}
                     onClick={searchHandler}
                 >
-                    <div
-                        className={`${listingsPageStyles["text-1"]} text-mdmedium`}
-                    >
+                    <div className={`${listingsPageStyles["text-1"]}`}>
                         Search
                     </div>
                 </div>
@@ -87,7 +85,7 @@ function ListingPageBody({ tutorTuteeState, listingDataState, queryState }) {
                 listingDataState={listingDataState}
                 query={query}
             />
-        </div>
+        </Container>
     );
 }
 
@@ -101,11 +99,7 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
             className={listingsPageStyles["tutor-tutee-toggle"]}
             onClick={handleClick}
         >
-            <div
-                className={`${listingsPageStyles["text"]} inter-medium-sapphire-48px`}
-            >
-                {tutorTutee}
-            </div>
+            <div className={`${listingsPageStyles["text"]}`}>{tutorTutee}</div>
         </div>
     );
 };

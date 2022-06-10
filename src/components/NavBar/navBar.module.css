@@ -23,6 +23,7 @@
 .home-link {
   align-items: flex-start;
   display: flex;
+  margin: 0px 15px;
   min-width: 57px;
   position: relative;
   text-decoration: none;
@@ -31,7 +32,7 @@
 .listings-link {
   align-items: flex-start;
   display: flex;
-  margin-left: 35px;
+  margin: 0px 15px;
   min-width: 75px;
   position: relative;
   text-decoration: none;
@@ -40,8 +41,8 @@
 .aboutus-link {
   align-items: flex-start;
   display: flex;
-  margin-left: 35px;
-  min-width: 120px;
+  margin: 0px 15px;
+  min-width: 88px;
   position: relative;
   text-decoration: none;
 }

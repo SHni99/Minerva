@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
-import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import registerPageStyles from "./register.module.css";
 import PasswordChecklist from "react-password-checklist";
 
 const RegisterPagePage = () => {
     const navigate = useNavigate();
-    const handleNavigate21 = () => navigate("/");
-    const handleNavigate16 = () => navigate("/loginpage");
+    const home = () => navigate("/");
+    const loginpage = () => navigate("/loginpage");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -62,232 +61,194 @@ const RegisterPagePage = () => {
                     e.preventDefault();
                     handleSignUp(email, password, username, navigate);
                 }}
-                className={` ${registerPageStyles["home-inner"]} container-fluid`}
-            > <div className="col-lg-18">
-                    <div
-                        className="card text-center"
-                        style={{ backgroundColor: "#d6d6d6" }}
-                    >
-                        <div className="card-body p-5">
-                            <img
-                                src={"/images/img_minervaLogo.png"}
-                                className={
-                                    registerPageStyles[
-                                    "minerva_logo_1-removebg-preview_1-2"
-                                    ]
-                                }
-                                onClick={handleNavigate21}
-                                alt="minerva"
-                            />
-                            <div className="col-md-12">
-                                <h3 className="text-left">{"Username"}</h3>
-                                <div
-                                    className="form-group"
-                                >
-                                    <input
-                                        className="form-control form-control-lg h-20 m-auto nunitosans-normal-storm-gray-28px"
-                                        style={{
-                                            backgroundColor: "#E7E4DE",
-                                        }}
-                                        type="text"
-                                        value={username}
-                                        onChange={(e) =>
-                                            setUsername(e.target.value)
-                                        }
-                                        placeholder="Enter username"
-                                    >
-                                    </input>
-                                </div>
-
-
-                                <h3 className="text-left"> {"Email"} </h3>
-                                <div
-                                    className={`form-group border-1px-mischka`}
-                                >
-                                    <input
-                                        className="form-control form-control-lg"
-                                        style={{
-                                            backgroundColor: "#E7E4DE",
-                                        }}
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) =>
-                                            setEmail(e.target.value)
-                                        }
-                                        placeholder="Enter email"
-                                    >
-                                    </input>
-                                </div>
-
-                                <div
-                                    className={`${registerPageStyles["username-input"]}`}
-                                >
-                                    <UserInput input1="Password" />
-                                    <div
-                                        className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
-                                    >
-                                        <div
-                                            className={
-                                                registerPageStyles["input-text"]
+                className={` ${registerPageStyles["home-inner"]} container`}
+            >
+                {" "}
+                <div
+                    className="card text-center border-light"
+                    style={{ backgroundColor: "#d6d6d6" }}
+                >
+                    {" "}
+                    <div className="row">
+                        <div className="col-lg-8">
+                            <div className="card-body p-5">
+                                <img
+                                    src={"/images/img_minervaLogo.png"}
+                                    className={"col-sm-6 mb-9 h-20"}
+                                    style={{ cursor: "pointer" }}
+                                    onClick={home}
+                                    alt="minerva"
+                                />
+                                <div className="col-md-12">
+                                    <h3 className="text-left poppins-semi-bold-black-24px">
+                                        {"Username"}
+                                    </h3>
+                                    <div className="form-group">
+                                        <input
+                                            className="form-control form-control-lg h-15 mb-4 nunitosans-normal-storm-gray-28px"
+                                            style={{
+                                                backgroundColor: "#E7E4DE",
+                                            }}
+                                            type="text"
+                                            value={username}
+                                            onChange={(e) =>
+                                                setUsername(e.target.value)
                                             }
-                                        >
-                                            <div
-                                                className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
-                                            >
-                                                <Input
-                                                    type="password"
-                                                    value={password}
-                                                    onChange={(e) =>
-                                                        setPassword(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    placeholder="Enter password"
-                                                ></Input>
-                                            </div>
-                                        </div>
+                                            placeholder="Enter username"
+                                        ></input>
+                                    </div>
+
+                                    <h3 className="text-left poppins-semi-bold-black-24px">
+                                        {"Email"}
+                                    </h3>
+                                    <div className={`form-group`}>
+                                        <input
+                                            className="form-control form-control-lg h-15 mb-4 nunitosans-normal-storm-gray-28px"
+                                            style={{
+                                                backgroundColor: "#E7E4DE",
+                                            }}
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) =>
+                                                setEmail(e.target.value)
+                                            }
+                                            placeholder="Enter email"
+                                        ></input>
+                                    </div>
+
+                                    <h3 className="text-left poppins-semi-bold-black-24px">
+                                        {"Password"}
+                                    </h3>
+                                    <div className={`form-group`}>
+                                        <input
+                                            className="form-control form-control-lg h-15 mb-4 nunitosans-normal-storm-gray-28px"
+                                            style={{
+                                                backgroundColor: "#E7E4DE",
+                                            }}
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) =>
+                                                setPassword(e.target.value)
+                                            }
+                                            placeholder="Enter password"
+                                        ></input>
+                                    </div>
+
+                                    <h3 className="text-left poppins-semi-bold-black-24px">
+                                        {"Confirm password"}
+                                    </h3>
+                                    <div className={`form-group`}>
+                                        <input
+                                            className="form-control form-control-lg h-15 mb-4 nunitosans-normal-storm-gray-28px"
+                                            style={{
+                                                backgroundColor: "#E7E4DE",
+                                            }}
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) =>
+                                                setConfirmPassword(
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Enter password"
+                                        ></input>
                                     </div>
                                 </div>
-                                <div
-                                    className={`${registerPageStyles["username-input"]}`}
-                                >
-                                    <UserInput input1="Confirm password" />
-                                    <div
-                                        className={`${registerPageStyles["input-box-set-master"]} border-1px-mischka`}
-                                    >
-                                        <div
-                                            className={
-                                                registerPageStyles["input-text"]
-                                            }
-                                        >
-                                            <div
-                                                className={`${registerPageStyles["text"]} nunitosans-normal-storm-gray-28px`}
-                                            >
-                                                <Input
-                                                    type="password"
-                                                    value={confirmPassword}
-                                                    onChange={(e) =>
-                                                        setConfirmPassword(
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    placeholder="Enter confirmed password"
-                                                ></Input>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <PasswordChecklist
-                                rules={[
-                                    "minLength",
-                                    "specialChar",
-                                    "number",
-                                    "capital",
-                                    "match",
-                                ]}
-                                minLength={8}
-                                value={password}
-                                valueAgain={confirmPassword}
-                            />
+                                <PasswordChecklist
+                                    rules={[
+                                        "minLength",
+                                        "specialChar",
+                                        "number",
+                                        "capital",
+                                        "match",
+                                    ]}
+                                    minLength={8}
+                                    value={password}
+                                    valueAgain={confirmPassword}
+                                />
 
-                            <button type="submit">
                                 <div
-                                    className={
-                                        registerPageStyles["button-master"]
-                                    }
+                                    className=" btn btn-lg btn-outline-primary my-3"
+                                    style={{
+                                        backgroundColor: "#4169e1",
+                                        width: "100%",
+                                    }}
                                 >
                                     {loading ? (
                                         <h1
-                                            className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
+                                            className={`nunitosans-bold-white-26px`}
                                         >
                                             {`Signing up`}
                                         </h1>
                                     ) : (
                                         <h1
-                                            className={`${registerPageStyles["text-4"]} nunitosans-bold-white-26px`}
+                                            className={`nunitosans-bold-white-26px`}
                                         >
-                                            {`Sign up`}
+                                            <button
+                                                className={`nunitosans-bold-white-26px p-2`}
+                                                type="submit"
+                                            >
+                                                {`Sign up`}
+                                            </button>
                                         </h1>
                                     )}
                                 </div>
-                            </button>
 
+                                <div className=" row m-auto">
+                                    <div className=" col-lg-7 nunitosans-normal-black-28px  text-right">
+                                        {`Have an account?`}
+                                    </div>
 
-
-                            <div
-                                className={
-                                    registerPageStyles["login-referral"]
-                                }
-                            >
-                                <div
-                                    className={`${registerPageStyles["have-an-account"]} nunitosans-normal-black-28px`}
-                                >
-                                    {`Have an account?`}
+                                    <button
+                                        className={
+                                            "col-lg-4 nunitosans-bold-licorice-28px text-left"
+                                        }
+                                        onClick={loginpage}
+                                    >{`Log In`}</button>
                                 </div>
-                                <div
-                                    className={`${registerPageStyles["text-5"]} nunitosans-bold-licorice-28px`}
-                                    onClick={handleNavigate16}
+                            </div>
+                        </div>
+
+                        <div
+                            style={{
+                                backgroundImage: `url(${"/images/img_image5.png"})`,
+                                borderTopRightRadius: "5px",
+                                borderBottomRightRadius: "5px",
+                            }}
+                            className="col-md-4"
+                        >
+                            {" "}
+                            <div className="mt-20">
+                                <img
+                                    src="/images/img_image2.png"
+                                    className={"rounded-4 items-left m-5"}
+                                    style={{ height: "150px" }}
+                                    alt="image2"
+                                />
+                                <img
+                                    src="/images/img_image3.png"
+                                    className={"rounded-4 items-left ml-40"}
+                                    style={{ height: "150px" }}
+                                    alt="image3"
+                                />
+                                <img
+                                    src="/images/img_image4.png"
+                                    className={"rounded-4 items-left m-5"}
+                                    style={{ height: "150px" }}
+                                    alt="image4"
+                                />
+
+                                <h1
+                                    className={`text-left mt-20 merriweather-bold-black-50px`}
                                 >
-                                    {`Log in now`}
-                                </div>
+                                    Anytime Anywhere with Minerva
+                                </h1>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
-
-            <div
-                style={{
-                    backgroundImage: `url(${"/images/img_image5.png"})`,
-                }}
-                className="col-lg-4"
-            >
-                <img
-                    src="/images/img_image2.png"
-                    className={registerPageStyles["image-2"]}
-                    alt="image2"
-                />
-                <img
-                    src="/images/img_image3.png"
-                    className={registerPageStyles["image-3"]}
-                    alt="image3"
-                />
-                <img
-                    src="/images/img_image4.png"
-                    className={registerPageStyles["image-4"]}
-                    alt="image4"
-                />
-
-                <h1
-                    align="left"
-                    className={`${registerPageStyles["anytime-anywhere-with-minerva"]} merriweather-bold-black-60px`}
-                >
-                    Anytime
-                    <br />
-                    <br />
-                    Anywhere
-                    <br />
-                    <br />
-                    with Minerva
-                </h1>
-            </div>
-
-        </div>
-
-
-    );
-};
-
-const UserInput = (props) => {
-    const { input1 } = props;
-
-    return (
-        <div
-            className={`${registerPageStyles["label"]} nunitosans-normal-mirage-28px`}
-        >
-            <span className={`nunitosans-normal-mirage-28px`}>{input1}</span>
         </div>
     );
 };

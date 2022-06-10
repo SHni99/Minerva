@@ -301,11 +301,11 @@
   border-color: "#A2A9B3";
 }
 
-.merriweather-bold-black-60px {
+.merriweather-bold-black-50px {
   color: var(--black);
   font-family: var(--font-family-merriweather);
-  font-size: 60px;
-  font-weight: 700;
+  font-size: 50px;
+  font-weight: 800;
   font-style: normal;
 }
 

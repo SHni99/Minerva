@@ -4,6 +4,9 @@ import navBarStyles from "./navBar.module.css";
 import { supabaseClient as supabase } from "../../config/supabase-client";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 const NavBar = ({ _userLoggedIn }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(_userLoggedIn || false);
@@ -80,8 +83,7 @@ const NavBar = ({ _userLoggedIn }) => {
                     <div
                         className={`${navBarStyles["text"]} inter-medium-black-20px`}
                     >
-                        {" "}
-                        About Us{" "}
+                        About Us
                     </div>
                 </Link>
             </React.Fragment>
@@ -89,22 +91,43 @@ const NavBar = ({ _userLoggedIn }) => {
     };
 
     return (
-        <div className={navBarStyles.navBar}>
-            <Link to="/">
-                {" "}
-                <img
-                    className={navBarStyles.minerva_logo}
-                    src={minervaLogoSrc}
-                    alt="Minerva Logo"
-                />{" "}
-            </Link>
-            <div className={navBarStyles.links}>{generateNavBarLinks()}</div>
-            <CredentialsCorner
-                isLoggedIn={isLoggedIn}
-                avatarUrl={avatarUrl}
-                loading={loading}
-            />
-        </div>
+        <Container className={`${navBarStyles.navBar} g-0`} fluid>
+            <Row>
+                <Col
+                    className="d-flex justify-center justify-content-lg-end"
+                    xs={12}
+                    lg={4}
+                >
+                    <Link to="/" className="d-flex">
+                        <img
+                            className={navBarStyles.minerva_logo}
+                            src={minervaLogoSrc}
+                            alt="Minerva Logo"
+                        />
+                    </Link>
+                </Col>
+                <Col
+                    xs={12}
+                    lg={5}
+                    className="d-flex justify-center justify-content-lg-start align-center"
+                >
+                    <div className={`${navBarStyles.links}`}>
+                        {generateNavBarLinks()}
+                    </div>
+                </Col>
+                <Col
+                    xs={12}
+                    lg={3}
+                    className="d-flex justify-center align-center"
+                >
+                    <CredentialsCorner
+                        isLoggedIn={isLoggedIn}
+                        avatarUrl={avatarUrl}
+                        loading={loading}
+                    />
+                </Col>
+            </Row>
+        </Container>
     );
 };
 

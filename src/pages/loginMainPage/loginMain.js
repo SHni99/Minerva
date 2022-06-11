@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { supabaseClient } from "../../config/supabase-client";
-import Login from 'pages/LoginPage/index';
+import Login from 'pages/LoginPage/login';
 import Profile from 'pages/ProfilePage/profile';
 
 export default function LoginMainPage() {

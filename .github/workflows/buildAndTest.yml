@@ -8,11 +8,6 @@ on:
             - "**"
             - "!main"
 
-    pull_request:
-        types: [opened, reopened]
-        branches:
-            - main
-
 jobs:
     buildAndTest:
         runs-on: ubuntu-latest

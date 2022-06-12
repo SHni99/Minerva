@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { mockWrapSBQuery } from "util/test_utils";
-import { supabaseClient as mockSupabase } from "config/supabase-client";
+//import { supabaseClient as mockSupabase } from "config/supabase-client";
 import ListingsPage from "../listingsPage";
 
 // Mock the alert function as it doesn't exist in the jsdom during testing

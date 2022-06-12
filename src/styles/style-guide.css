@@ -287,6 +287,13 @@
   font-weight: 400;
   font-style: normal;
 }
+.inter-medium-sapphire-24px {
+  color: var(--sapphire);
+  font-family: var(--font-family-inter);
+  font-size: 24px;
+  font-weight: 500;
+  font-style: normal;
+}
 .inter-medium-sapphire-48px {
   color: var(--sapphire);
   font-family: var(--font-family-inter);

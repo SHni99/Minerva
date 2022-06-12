@@ -4,6 +4,7 @@ import { Text } from "components/Text";
 import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import PwdStyles from "./password.module.css";
+import { CloseButton } from "react-bootstrap";
 
 const PasswordPage = () => {
   const navigate = useNavigate();
@@ -43,11 +44,9 @@ const PasswordPage = () => {
             }}
             className={PwdStyles["reset-overlay"]}
           >
-            <img
+            <CloseButton
               onClick={handleNavigate19}
-              src={"/images/cross.png"}
               className={PwdStyles["close-overlay"]}
-              alt="cross"
             />
             <img
               className={PwdStyles["minerva_logo_1-removebg-preview_1-3"]}

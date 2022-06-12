@@ -3,7 +3,7 @@ import ListingsPage from "pages/ListingsPage/listingsPage";
 import ProfilePage from "pages/ProfilePage/profile";
 import AboutusPage from "pages/AboutusPage/aboutUsPage";
 import RegisterPage from "pages/RegisterPage";
-import LoginPage from "pages/LoginPage";
+import LoginPage from "pages/LoginPage/login";
 import LandingPage from "pages/LandingPage/landingPage";
 import PasswordPage from "pages/ForgotPasswordPage/password";
 import ResetPage from "pages/ResetPage/resetPage";

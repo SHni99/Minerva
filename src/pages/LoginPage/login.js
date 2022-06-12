@@ -11,23 +11,28 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error1, setError] = useState("");
 
   const handleLogin = async (email, password, navigate, e) => {
     e.preventDefault();
+    if (password.length < 8) {
+      return setError("Please enter a password more than 5 characters");
+    } else {
+      try {
+        setLoading(true);
 
-    try {
-      setLoading(true);
-      const { error } = await supabaseClient.auth.signIn({
-        email,
-        password,
-      });
-      if (error) throw error;
-      alert("Logged in");
-      navigate("/listingspage");
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
+        const { error } = await supabaseClient.auth.signIn({
+          email,
+          password,
+        });
+        if (error) throw error;
+        alert("Logged in");
+        navigate("/listingspage");
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -43,7 +48,7 @@ const LoginPage = () => {
           }}
           className={`${loginPageStyles["home-inner"]} container`}
         >
-          <div class="col-lg-18 w-150">
+          <div className="col-lg-18 w-150">
             <div
               className={"card text-center rounded-5"}
               style={{
@@ -62,9 +67,7 @@ const LoginPage = () => {
 
                 <div className="col-md-12">
                   <div className={`row-lg-8`}>
-                    <div
-                      className={` nunitosans-normal-mirage-28px`}
-                    >
+                    <div className={` nunitosans-normal-mirage-28px`}>
                       <h3
                         className={`poppins-semi-bold-black-24px text-left pt-5`}
                       >{`Email`}</h3>
@@ -72,22 +75,18 @@ const LoginPage = () => {
                         <input
                           className="form-control form-control-lg h-20"
                           style={{
-                            backgroundColor:
-                              "#E7E4DE",
+                            backgroundColor: "#E7E4DE",
                           }}
                           type="email"
                           value={email}
-                          onChange={(e) =>
-                            setEmail(e.target.value)
-                          }
+                          onChange={(e) => setEmail(e.target.value)}
                           placeholder="Enter username or email"
+                          data-testid="findemail"
                         ></input>
                       </div>
                     </div>
 
-                    <div
-                      className={`nunitosans-normal-mirage-28px`}
-                    >
+                    <div className={`nunitosans-normal-mirage-28px`}>
                       <h3
                         className={`poppins-semi-bold-black-24px text-left pt-5`}
                       >{`Password`}</h3>
@@ -98,10 +97,9 @@ const LoginPage = () => {
                         }}
                         type="password"
                         value={password}
-                        onChange={(e) =>
-                          setPassword(e.target.value)
-                        }
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter password"
+                        data-testid="findpassword"
                       ></input>
                     </div>
                     <h4
@@ -113,6 +111,11 @@ const LoginPage = () => {
                     >
                       {`Forgot password?`}
                     </h4>
+                    {error1 && (
+                      <h5 className="nunitosans-bold-endeavour-24px text-danger">
+                        {error1}
+                      </h5>
+                    )}
                   </div>
 
                   <div
@@ -123,9 +126,7 @@ const LoginPage = () => {
                     }}
                   >
                     {loading ? (
-                      <h2
-                        className={`nunitosans-bold-white-26px p-2`}
-                      >
+                      <h2 className={`nunitosans-bold-white-26px p-2`}>
                         {"Logging in"}
                       </h2>
                     ) : (

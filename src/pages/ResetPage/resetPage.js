@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Text } from "components/Text";
-import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import ResetStyles from "./reset.module.css";
+import { CloseButton } from "react-bootstrap";
 
 const ResetPage = () => {
   const navigate = useNavigate();
-  const handleNavigate20 = () => navigate("/");
-  const handleNavigate19 = () => navigate("/loginpage");
+  const home = () => navigate("/");
+  const login = () => navigate("/loginpage");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,73 +38,88 @@ const ResetPage = () => {
 
   return (
     <div className={ResetStyles["container-center-horizontal"]}>
-      <div className={`${ResetStyles["login-page"]} ${ResetStyles["screen"]}`}>
-        <div
-          style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
-          className={ResetStyles["overlap-group1"]}
+      <div
+        style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
+        className={ResetStyles["overlap-group1"]}
+      >
+        <form
+          onSubmit={(e) => {
+            handleReset(newPassword, confirmPassword, e);
+          }}
+          className={` ${ResetStyles["home-inner"]} container mt-20 `}
         >
-          <form
-            onSubmit={(e) => {
-              handleReset(newPassword, confirmPassword, e);
-            }}
-            className={ResetStyles["login-overlay"]}
-          >
-            <img
-              onClick={handleNavigate19}
-              src={"/images/cross.png"}
-              className={ResetStyles["close-overlay"]}
-              alt="cross"
-            />
-            <img
-              className={ResetStyles["minerva_logo_1-removebg-preview_1-3"]}
-              src={"/images/img_minervaLogo.png"}
-              alt="minerva"
-              onClick={handleNavigate20}
-            />
-            <div className={ResetStyles["password-input"]}>
-              <div
-                className={`${ResetStyles["label"]} nunitosans-normal-mirage-28px`}
-              >
-                <Text
-                  className={`poppins-semi-bold-black-24px`}
-                >{`Enter new password`}</Text>
-                <Input
-                  type="password"
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter password"
-                ></Input>
-              </div>
-              <br></br>
-              <div
-                className={`${ResetStyles["label"]} nunitosans-normal-mirage-28px`}
-              >
-                <Text
-                  className={`poppins-semi-bold-black-24px`}
-                >{`Confirm password`}</Text>
-                <Input
-                  type="password"
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Enter confirm password"
-                ></Input>
-              </div>
-            </div>
+          <div className="col-lg-18 w-100">
+            <div
+              className={"card text-center rounded-5"}
+              style={{
+                backgroundColor: "#abc1c5",
+                boxShadow: "0px 6px 4px #00000040",
+              }}
+            >
+              <div className="card-body p-5">
+                <CloseButton
+                  onClick={login}
+                  className={"ml-6"}
+                  style={{ marginLeft: "800px" }}
+                />
+                <img
+                  className={"m-auto h-20"}
+                  style={{ cursor: "pointer" }}
+                  src={"/images/img_minervaLogo.png"}
+                  alt="minerva"
+                  onClick={home}
+                />
+                <div className={"row-lg-8 my-5"}>
+                  <h3
+                    className={`poppins-semi-bold-black-24px text-left`}
+                  >{`Enter new password`}</h3>
+                  <div className="form-group">
+                    <input
+                      className="form-control form-control-lg h-20 my-3"
+                      style={{
+                        backgroundColor: "#E7E4DE",
+                      }}
+                      type="password"
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter password"
+                    ></input>
 
-            <div className={ResetStyles["button-master-1"]}>
-              {loading ? (
-                <text className={` nunitosans-bold-white-32px`}>
-                  Sending...
-                </text>
-              ) : (
-                <h1 className={`nunitosans-bold-white-32px`}>
-                  <button
-                    type="submit"
-                    className={`${ResetStyles["text-1"]} nunitosans-bold-white-32px`}
-                  >{`Reset password`}</button>
-                </h1>
-              )}
+                    <h3
+                      className={`poppins-semi-bold-black-24px text-left`}
+                    >{`Confirm password`}</h3>
+                    <input
+                      className="form-control form-control-lg h-20 my-3"
+                      style={{
+                        backgroundColor: "#E7E4DE",
+                      }}
+                      type="password"
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Enter confirm password"
+                    ></input>
+                  </div>
+                  <div
+                    className={"btn btn-lg btn-outlinr-primary mt-5"}
+                    style={{
+                      backgroundColor: "#4169e1",
+                      width: "100%",
+                    }}
+                  >
+                    {loading ? (
+                      <text className={` nunitosans-bold-white-32px`}>
+                        Sending...
+                      </text>
+                    ) : (
+                      <button
+                        type="submit"
+                        className={`nunitosans-bold-white-32px`}
+                      >{`Reset password`}</button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

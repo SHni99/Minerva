@@ -46,7 +46,7 @@ const LoginPage = () => {
           onSubmit={(e) => {
             handleLogin(email, password, navigate, e);
           }}
-          className={`${loginPageStyles["home-inner"]} container`}
+          className={`${loginPageStyles["home-inner"]} container mt-20`}
         >
           <div className="col-lg-18 w-150">
             <div
@@ -71,7 +71,7 @@ const LoginPage = () => {
                       <h3
                         className={`poppins-semi-bold-black-24px text-left pt-5`}
                       >{`Email`}</h3>
-                      <div class="form-group">
+                      <div className="form-group">
                         <input
                           className="form-control form-control-lg h-20"
                           style={{

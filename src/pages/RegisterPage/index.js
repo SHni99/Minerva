@@ -228,7 +228,7 @@ const RegisterPagePage = () => {
                                 />
                                 <img
                                     src="/images/img_image3.png"
-                                    className={"rounded-4 items-left ml-40"}
+                                    className={"rounded-4 ml-auto"}
                                     style={{ height: "150px" }}
                                     alt="image3"
                                 />

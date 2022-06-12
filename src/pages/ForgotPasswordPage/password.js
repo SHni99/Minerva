@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Text } from "components/Text";
-import { Input } from "components/Input";
 import { supabaseClient } from "../../config/supabase-client";
 import PwdStyles from "./password.module.css";
 import { CloseButton } from "react-bootstrap";
@@ -33,7 +31,7 @@ const PasswordPage = () => {
 
   return (
     <div className={PwdStyles["container-center-horizontal"]}>
-      <div className={`${PwdStyles["login-page"]} ${PwdStyles["screen"]}`}>
+      
         <div
           style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
           className={PwdStyles["overlap-group1"]}
@@ -42,52 +40,71 @@ const PasswordPage = () => {
             onSubmit={(e) => {
               forgotPassword(email, e);
             }}
-            className={PwdStyles["reset-overlay"]}
+            className={`${PwdStyles["home-inner"]} container mt-20`}
           >
-            <CloseButton
-              onClick={handleNavigate19}
-              className={PwdStyles["close-overlay"]}
-              
-            />
-            <img
-              className={PwdStyles["minerva_logo_1-removebg-preview_1-3"]}
-              src={"/images/img_minervaLogo.png"}
-              alt="minerva"
-              onClick={handleNavigate20}
-            />
-            <div className={PwdStyles["email-input"]}>
+            <div className="col-lg-18 w-100">
               <div
-                className={`${PwdStyles["label"]} nunitosans-normal-mirage-28px`}
+                className={"card text-center rounded-5"}
+                style={{
+                  backgroundColor: "#abc1c5",
+                  boxShadow: "0px 6px 4px #00000040",
+                }}
               >
-                <Text
-                  className={`poppins-semi-bold-black-24px`}
-                >{`Enter your email address`}</Text>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email"
-                ></Input>
+                {" "}
+                <div className="card-body p-5">
+                  <CloseButton
+                    onClick={handleNavigate19}
+                    className={"ml-6"}
+                    style={{ marginLeft: "500px" }}
+                  />
+                  <img
+                    className={"m-auto h-20"}
+                    style={{ cursor: "pointer" }}
+                    src={"/images/img_minervaLogo.png"}
+                    alt="minerva"
+                    onClick={handleNavigate20}
+                  />
+                  <div className={"row-lg-8 my-5"}>
+                    <h3
+                      className={`poppins-semi-bold-black-24px text-left`}
+                    >{`Enter your email address`}</h3>
+                    <div className="form-group">
+                      <input
+                        className="form-control form-control-lg h-20"
+                        style={{
+                          backgroundColor: "#E7E4DE",
+                        }}
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter email"
+                      ></input>
+                    </div>
+                  </div>
+                  <div
+                    className={"btn btn-lg btn-outline-primary"}
+                    style={{
+                      backgroundColor: "#4169e1",
+                      width: "100%",
+                    }}
+                  >
+                    {loading ? (
+                      <text className={` nunitosans-bold-white-26px`}>
+                        Sending...
+                      </text>
+                    ) : (
+                      <button
+                        type="submit"
+                        className={`nunitosans-bold-white-26px`}
+                      >{`Reset password`}</button>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className={PwdStyles["button-master-1"]}>
-              {loading ? (
-                <text className={` nunitosans-bold-white-32px`}>
-                  Sending...
-                </text>
-              ) : (
-                <h1 className={`nunitosans-bold-white-32px`}>
-                  <button
-                    type="submit"
-                    className={`${PwdStyles["text-1"]} nunitosans-bold-white-32px`}
-                  >{`Reset password`}</button>
-                </h1>
-              )}
             </div>
           </form>
         </div>
-      </div>
+      
     </div>
   );
 };

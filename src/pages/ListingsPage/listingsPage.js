@@ -161,7 +161,11 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
     return (
         <div className={listingsPageStyles["listings"]}>
             {loading ? (
-                <Spinner animation="border" role="status" />
+                <Spinner
+                    animation="border"
+                    role="status"
+                    aria-label="Loading"
+                />
             ) : (
                 <React.Fragment>
                     {listingData

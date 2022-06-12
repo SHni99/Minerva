@@ -6,8 +6,8 @@ import { CloseButton } from "react-bootstrap";
 
 const PasswordPage = () => {
   const navigate = useNavigate();
-  const handleNavigate20 = () => navigate("/");
-  const handleNavigate19 = () => navigate("/loginpage");
+  const home= () => navigate("/");
+  const login = () => navigate("/loginpage");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -53,7 +53,7 @@ const PasswordPage = () => {
                 {" "}
                 <div className="card-body p-5">
                   <CloseButton
-                    onClick={handleNavigate19}
+                    onClick={login}
                     className={"ml-6"}
                     style={{ marginLeft: "500px" }}
                   />
@@ -62,7 +62,7 @@ const PasswordPage = () => {
                     style={{ cursor: "pointer" }}
                     src={"/images/img_minervaLogo.png"}
                     alt="minerva"
-                    onClick={handleNavigate20}
+                    onClick={home}
                   />
                   <div className={"row-lg-8 my-5"}>
                     <h3

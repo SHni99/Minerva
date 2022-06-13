@@ -107,6 +107,7 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
 
 const Listings = ({ tutorTutee, listingDataState, query }) => {
   const [loading, setLoading] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
   const [listingData, setListingData] = listingDataState;
 
   useEffect(() => {
@@ -114,33 +115,71 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
       try {
         setLoading(true);
 
-        let { data, error, status } = await supabase
+        let {
+          data: listingDb,
+          listingError,
+          listingStatus,
+        } = await supabase
           .from("listings")
-          .select("creator_id, title, description, listing_id")
+          .select(
+            "creator_id, title, description, subject, rates, fields, listing_id"
+          )
           .eq("seeking_for", tutorTutee);
+        if (listingError && listingStatus !== 406) throw listingError;
 
-        if (error && status !== 406) throw error;
-        if (data) {
-          const newListingData = [];
-          for (let listing of data) {
-            const { creator_id, title, description, listing_id } = listing;
-            let { avatarLink, error, status } = await supabase
-              .from("profiles")
-              .select("avatar_url")
-              .eq("id", creator_id)
-              .single();
+        listingDb = listingDb.filter(
+          ({ title, description, subject, rates, fields }) =>
+            `${title} ${description} ${subject} ${rates} ${fields}`.includes(
+              query
+            )
+        );
+        if (listingDb.length === 0) {
+          setIsEmpty(true);
+          return;
+        }
+        setIsEmpty(false);
 
-            if (error && status !== 406) throw error;
-
-            newListingData.push({
-              avatarLink,
+        const newListingData = await Promise.all(
+          listingDb.map(
+            async ({
+              creator_id,
               title,
               description,
-              listingId: listing_id,
-            });
-          }
-          setListingData(newListingData);
-        }
+              subject,
+              rates,
+              fields,
+              listing_id,
+            }) => {
+              let {
+                data: { avatar_url: avatarTitle },
+                error: avatarError,
+                status: avatarStatus,
+              } = await supabase
+                .from("profiles")
+                .select("avatar_url")
+                .eq("id", creator_id)
+                .single();
+              if (avatarError && avatarStatus !== 406) throw avatarError;
+
+              const { publicURL: avatarUrl, error: urlError } =
+                avatarTitle === ""
+                  ? {}
+                  : supabase.storage.from("avatars").getPublicUrl(avatarTitle);
+              if (urlError) throw urlError;
+
+              return {
+                avatarUrl,
+                title,
+                description,
+                subject,
+                rates,
+                fields,
+                listing_id,
+              };
+            }
+          )
+        );
+        setListingData(newListingData);
       } catch (error) {
         alert(error.error);
       } finally {
@@ -159,7 +198,9 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
 
   return (
     <div className={listingsPageStyles["listings"]}>
-      {loading ? (
+      {isEmpty ? (
+        <h1>Nothing here!</h1>
+      ) : loading ? (
         <Spinner animation="border" role="status" aria-label="Loading" />
       ) : (
         <React.Fragment>
@@ -169,18 +210,31 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                 listing.title.indexOf(query || "") > -1 ||
                 listing.description.indexOf(query || "") > -1
             )
-            .map((listing) => {
-              return (
-                (
-                  <ListingCard
-                    avatarLink={listing.avatarLink}
-                    title={listing.title}
-                    description={listing.description}
-                    key={listing.listingId}
-                  />
-                ) || <h1>Nothing here!</h1>
-              );
-            })}
+            .map(
+              ({
+                avatarUrl,
+                title,
+                description,
+                subject,
+                rates,
+                fields,
+                listing_id,
+              }) => {
+                return (
+                  (
+                    <ListingCard
+                      avatarUrl={avatarUrl}
+                      title={title}
+                      description={description}
+                      key={listing_id}
+                      subject={subject}
+                      rates={rates}
+                      fields={fields}
+                    />
+                  ) || <h1>Nothing here!</h1>
+                );
+              }
+            )}
         </React.Fragment>
       )}
     </div>

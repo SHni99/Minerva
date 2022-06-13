@@ -14,10 +14,28 @@ const LoginPage = () => {
   const [error1, setError] = useState("");
 
   const handleLogin = async (email, password, navigate, e) => {
+
     e.preventDefault();
+    const reload = () => { setTimeout(() => { window.location.reload(); }, 2000) };
+    
     if (password.length < 8) {
-      return setError("Please enter a password more than 5 characters");
-    } else {
+      setError("Please enter a password more than *8* characters");
+      reload();
+    } else if (!/^(?=.*[0-9])/.test(password)){
+      setError("PLease enter a password containing at least one NUMBER");
+      reload();
+    } else if (!/^(?=.*[A-Z])/.test(password)){
+      setError("Please enter a password containing at least one UPPERCASE character");
+      reload();
+    } else if (!/^(?=.*[a-z])/.test(password)){
+      setError("Please enter a password containing at least one LOWERCASE character");
+      reload();
+    } else if (!/^(?=.*[!@#$%^&*])/.test(password)){
+      setError("Please enter a password containing at least one SPECIAL CASE");
+      reload();
+    } 
+    
+    else {
       try {
         setLoading(true);
 
@@ -29,7 +47,7 @@ const LoginPage = () => {
         alert("Logged in");
         navigate("/listingspage");
       } catch (error) {
-        alert(error.message);
+        alert("You have entered an invald email or password");
       } finally {
         setLoading(false);
       }

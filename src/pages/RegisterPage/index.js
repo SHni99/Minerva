@@ -16,6 +16,7 @@ const RegisterPagePage = () => {
     // Country field not implemented yet
     // const [country, setCountry] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error1, setError] = useState("");
 
     // Redirect user to Listings page if logged in
     useEffect(() => {
@@ -29,7 +30,29 @@ const RegisterPagePage = () => {
     }, []);
 
     const handleSignUp = async (email, password, username, navigate) => {
-        if (password === confirmPassword) {
+
+        const reload = () => { setTimeout(() => { window.location.reload(); }, 2000) };
+
+        if (password.length < 8) {
+            setError("Please enter a password more than *8* characters");
+            reload();
+        } else if (!/^(?=.*[0-9])/.test(password)) {
+            setError("PLease enter a password containing at least one NUMBER");
+            reload();
+        } else if (!/^(?=.*[A-Z])/.test(password)) {
+            setError("Please enter a password containing at least one UPPERCASE character");
+            reload();
+        } else if (!/^(?=.*[a-z])/.test(password)) {
+            setError("Please enter a password containing at least one LOWERCASE character");
+            reload();
+        } else if (!/^(?=.*[!@#$%^&*])/.test(password)) {
+            setError("Please enter a password containing at least one SPECIAL CASE");
+            reload();
+        } else if (password !== confirmPassword) {
+            setError("Please enter the SAME passwords!");
+            reload();
+        }
+        else {
             try {
                 setLoading(true);
                 const { error } = await supabaseClient.auth.signUp(
@@ -49,9 +72,9 @@ const RegisterPagePage = () => {
             } finally {
                 setLoading(false);
             }
-        } else {
-            alert("Please enter same passwords!");
+
         }
+
     };
 
     return (
@@ -154,7 +177,7 @@ const RegisterPagePage = () => {
                                         ></input>
                                     </div>
                                 </div>
-
+                                {error1 && <h4 className=" nunitosans-bold-endeavour-24px text-danger text-left">{error1}</h4>}
                                 <PasswordChecklist
                                     rules={[
                                         "minLength",

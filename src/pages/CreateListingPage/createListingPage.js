@@ -173,7 +173,9 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   // ------------------ End of method declarations ----------------------
 
   return (
-    <div>
+    <div
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
       <NavBar />
       <CreateListingBody
         selectionFields={sFields}

@@ -19,7 +19,7 @@ const LoginPage = () => {
     const reload = () => { setTimeout(() => { window.location.reload(); }, 2000) };
     
     if (password.length < 8) {
-      setError("Please enter a password more than *8* characters");
+      setError("Please enter a password more than 8 characters");
       reload();
     } else if (!/^(?=.*[0-9])/.test(password)){
       setError("PLease enter a password containing at least one NUMBER");

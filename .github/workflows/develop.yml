@@ -1,9 +1,9 @@
-name: Deploy Main
+name: Deploy Develop
 
 on:
   push:
     branches:
-      - main
+      - develop
 
 jobs:
   buildAndTest:
@@ -36,5 +36,5 @@ jobs:
         with:
           docker_build_args: deploy --dir=build --prod
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "orbital-minerva"
+          heroku_app_name: "orbital-minerva-develop"
           heroku_email: "e0726676@u.nus.edu"

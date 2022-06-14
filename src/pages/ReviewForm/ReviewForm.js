@@ -3,6 +3,7 @@ import Rating from "components/Rating/Rating";
 import ReviewStyle from "./ReviewForm.module.css";
 import Button from "react-bootstrap/Button";
 
+
 export default function FormComponent() {
     const [reviews, setReviews] = useState("");
     const onChange = (e) => {
@@ -27,27 +28,28 @@ export default function FormComponent() {
                                 className="rounded-pill w-10 h-10"
                                 alt="default"
                             />
-                            <Rating />
-                            <input
-                                className="form-control form-control-lg m-auto"
-                                type="text"
-                                placeholder="enter your review here"
-                            ></input>
-                            <div className="row-lg-2 m-5">
+                            <div> <Rating /> </div>
+                                <input
+                                    className="form-control form-control-lg m-auto"
+                                    value={reviews}
+                                    type="text"
+                                    placeholder="enter your review here"
+                                ></input>
+                                <div className="row-lg-2 m-5">
 
-                                <Button
-                                    className={`col-lg-5 rounded-4 p-2 ml-5  w-1 border-dark text-dark`}
-                                    style={{
-                                        fontSize: "15px",
-                                        backgroundColor: "#42d38b",
-                                    }}
-                                    onChange={onChange}
-                                >{"Submit review"}
-                                </Button>
+                                    <Button
+                                        className={`col-lg-5 rounded-4 p-2 ml-5  w-1 border-dark text-dark`}
+                                        style={{
+                                            fontSize: "15px",
+                                            backgroundColor: "#42d38b",
+                                        }}
+                                        onChange={onChange}
+                                    >{"Submit review"}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
             </form>
 
         </div>

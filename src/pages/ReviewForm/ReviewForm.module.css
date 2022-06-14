@@ -4,15 +4,18 @@
     justify-content: center;
     pointer-events: none;
     width: 100%;
-  }
-  
-  .container-center-horizontal > * {
+}
+
+.container-center-horizontal>* {
     flex-shrink: 0;
     pointer-events: auto;
-  }
+}
 
-  .home-inner{
+.home-inner {
     padding-top: 60px;
     align-items: left;
-  }
-  
+}
+
+.transform {
+    transform: rotate(180deg);
+}

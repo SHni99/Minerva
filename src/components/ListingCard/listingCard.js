@@ -2,7 +2,7 @@ import React from "react";
 import listingCardStyles from "./listingCard.module.css";
 
 const ListingCard = (props) => {
-  const { avatarLink, title, description } = props;
+  const { avatarUrl, title, description } = props;
 
   return (
     <div
@@ -12,7 +12,9 @@ const ListingCard = (props) => {
       <div
         className={listingCardStyles["avatar"]}
         style={{
-          backgroundImage: avatarLink || "url(/images/img_avatarDefault.jpg)",
+          backgroundImage: `url(${
+            avatarUrl || "/images/img_avatarDefault.jpg"
+          })`,
         }}
       ></div>
 

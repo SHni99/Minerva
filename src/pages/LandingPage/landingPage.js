@@ -10,7 +10,11 @@ import landingPageStyles from "./landingPage.module.css";
 
 const LandingPage = () => {
   return (
-    <Container fluid className="p-0 gx-0">
+    <Container
+      fluid
+      className="p-0 gx-0"
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
       <IntroSection />
       <WhyMinervaSection />
       <GetStartedSection />

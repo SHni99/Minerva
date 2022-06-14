@@ -1,18 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import Badge from "react-bootstrap/Badge";
 import Card from "react-bootstrap/Card";
 import Carousel from "react-bootstrap/Carousel";
 import newListingCardStyles from "./newListingCard.module.css";
 
-const ListingCard = ({
-  avatarUrl,
-  title,
-  description,
-  image_urls,
-  subject,
-  rates,
-  fields,
-}) => {
+const ListingCard = ({ avatarUrl, image_urls, subject, rates, fields }) => {
   // Colors to set the relevant field badges to
   // Modify if necessary
   const fieldColors = {

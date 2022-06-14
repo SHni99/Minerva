@@ -17,15 +17,33 @@ const ListingCard = ({
     <Card
       className={newListingCardStyles.card + " mx-sm-3 my-3 py-4 rounded-5"}
     >
-      <Card.Body className="p-0 d-flex justify-center">
-        <Carousel variant="dark" controls={hasMultiImage} indicators={false}>
+      <Card.Body className="d-flex justify-center">
+        <Carousel
+          variant="dark"
+          controls={hasMultiImage}
+          indicators={false}
+          interval={null}
+          style={{
+            paddingLeft: "36px",
+            paddingRight: "36px",
+          }}
+        >
           <Carousel.Item>
             <img
               src={avatarUrl || "/images/img_avatarDefault.jpg"}
               alt="Avatar"
-              className={newListingCardStyles.avatar + " mx-5"}
+              className={newListingCardStyles.avatar}
             />
           </Carousel.Item>
+          {image_urls.map((imgUrl) => (
+            <Carousel.Item key={imgUrl}>
+              <img
+                src={imgUrl}
+                alt="Listing Details"
+                className={newListingCardStyles.listingImg}
+              />
+            </Carousel.Item>
+          ))}
         </Carousel>
       </Card.Body>
       <Card.Body className="d-flex justify-center">

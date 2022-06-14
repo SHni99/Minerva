@@ -19,6 +19,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
     qualifications: "Qualifications",
     timing: "Preferred Times",
     commitment: "Commitment Period",
+    subject: "Subjects",
     others: "Others",
   };
 

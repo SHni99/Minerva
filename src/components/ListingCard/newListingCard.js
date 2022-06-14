@@ -19,6 +19,7 @@ const ListingCard = ({
     qualifications: "success",
     timing: "warning",
     commitment: "info",
+    subject: "primary",
     others: "secondary",
   };
 

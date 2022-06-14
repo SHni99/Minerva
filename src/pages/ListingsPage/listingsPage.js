@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
-import ListingCard from "components/ListingCard/listingCard";
+// Feature Switch: Old vs New ListingCard
+//import ListingCard from "components/ListingCard/listingCard";
+import ListingCard from "components/ListingCard/newListingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
@@ -14,7 +16,7 @@ import listingsPageStyles from "./listingsPage.module.css";
 const ListingsPage = () => {
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [listingData, setListingData] = useState([]);
-  const [query, setQuery] = useState(null);
+  const [query, setQuery] = useState("");
 
   return (
     <div
@@ -122,7 +124,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
         } = await supabase
           .from("listings")
           .select(
-            "creator_id, title, description, subject, rates, fields, listing_id"
+            "creator_id, title, description, subject, rates, fields, image_urls, listing_id"
           )
           .eq("seeking_for", tutorTutee);
         if (listingError && listingStatus !== 406) throw listingError;
@@ -148,6 +150,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
               subject,
               rates,
               fields,
+              image_urls,
               listing_id,
             }) => {
               let {
@@ -174,6 +177,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                 subject,
                 rates,
                 fields,
+                image_urls,
                 listing_id,
               };
             }
@@ -218,6 +222,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                 subject,
                 rates,
                 fields,
+                image_urls,
                 listing_id,
               }) => {
                 return (
@@ -229,6 +234,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                       key={listing_id}
                       subject={subject}
                       rates={rates}
+                      image_urls={image_urls}
                       fields={fields}
                     />
                   ) || <h1>Nothing here!</h1>

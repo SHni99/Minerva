@@ -2,7 +2,7 @@ import React from "react";
 import listingCardStyles from "./listingCard.module.css";
 
 const ListingCard = (props) => {
-  const { avatarUrl, title, description } = props;
+  const { avatarUrl, title, description, subjects, rates, fields } = props;
 
   return (
     <div

@@ -15,26 +15,25 @@ const ResetPage = () => {
 
   const handleReset = async (newPassword, confirmPassword, e) => {
     e.preventDefault();
-    const reload = () => { setTimeout(() => { window.location.reload(); }, 2000) };
 
     if (newPassword.length < 8) {
       setError("Please enter a password more than *8* characters");
-      //reload();
+
     } else if (!/^(?=.*[0-9])/.test(newPassword)) {
       setError("PLease enter a password containing at least one NUMBER");
-      //reload();
+
     } else if (!/^(?=.*[A-Z])/.test(newPassword)) {
       setError("Please enter a password containing at least one UPPERCASE character");
-     // reload();
+
     } else if (!/^(?=.*[a-z])/.test(newPassword)) {
       setError("Please enter a password containing at least one LOWERCASE character");
-      //reload();
+
     } else if (!/^(?=.*[!@#$%^&*])/.test(newPassword)) {
       setError("Please enter a password containing at least one SPECIAL CASE");
-      //reload();
+
     } else if (newPassword !== confirmPassword) {
       setError("Please enter the SAME passwords!");
-      //reload();
+
     }
     else {
       try {

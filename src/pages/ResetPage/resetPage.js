@@ -16,24 +16,29 @@ const ResetPage = () => {
   const handleReset = async (newPassword, confirmPassword, e) => {
     e.preventDefault();
 
+    const reset = () => {
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    
     if (newPassword.length < 8) {
-      setError("Please enter a password more than *8* characters");
-
+      setError("Please enter a password more than 8 characters");
+      reset();
     } else if (!/^(?=.*[0-9])/.test(newPassword)) {
       setError("PLease enter a password containing at least one NUMBER");
-
+      reset();
     } else if (!/^(?=.*[A-Z])/.test(newPassword)) {
       setError("Please enter a password containing at least one UPPERCASE character");
-
+      reset();
     } else if (!/^(?=.*[a-z])/.test(newPassword)) {
       setError("Please enter a password containing at least one LOWERCASE character");
-
+      reset();
     } else if (!/^(?=.*[!@#$%^&*])/.test(newPassword)) {
       setError("Please enter a password containing at least one SPECIAL CASE");
-
+      reset();
     } else if (newPassword !== confirmPassword) {
       setError("Please enter the SAME passwords!");
-
+      reset();
     }
     else {
       try {

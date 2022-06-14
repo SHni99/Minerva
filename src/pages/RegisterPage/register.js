@@ -31,26 +31,29 @@ const RegisterPagePage = () => {
 
     const handleSignUp = async (email, password, username, navigate) => {
 
-        const reload = () => { setTimeout(() => { window.location.reload(); }, 2000) };
+        const reset = () => {
+            setPassword("");
+            setConfirmPassword("");
+        }
 
         if (password.length < 8) {
-            setError("Please enter a password more than *8* characters");
-            reload();
+            setError("Please enter a password more than 8 characters");
+            reset();
         } else if (!/^(?=.*[0-9])/.test(password)) {
             setError("PLease enter a password containing at least one NUMBER");
-            reload();
+            reset();
         } else if (!/^(?=.*[A-Z])/.test(password)) {
             setError("Please enter a password containing at least one UPPERCASE character");
-            reload();
+            reset();
         } else if (!/^(?=.*[a-z])/.test(password)) {
             setError("Please enter a password containing at least one LOWERCASE character");
-            reload();
+            reset();
         } else if (!/^(?=.*[!@#$%^&*])/.test(password)) {
             setError("Please enter a password containing at least one SPECIAL CASE");
-            reload();
+            reset();
         } else if (password !== confirmPassword) {
             setError("Please enter the SAME passwords!");
-            reload();
+            reset();
         }
         else {
             try {
@@ -183,6 +186,7 @@ const RegisterPagePage = () => {
                                         "minLength",
                                         "specialChar",
                                         "number",
+                                        "lowercase",
                                         "capital",
                                         "match",
                                     ]}

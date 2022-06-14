@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Badge from "react-bootstrap/Badge";
 import Card from "react-bootstrap/Card";
 import Carousel from "react-bootstrap/Carousel";
 import newListingCardStyles from "./newListingCard.module.css";
@@ -12,22 +13,33 @@ const ListingCard = ({
   rates,
   fields,
 }) => {
-  const hasMultiImage = image_urls.length > 0;
+  // Colors to set the relevant field badges to
+  // Modify if necessary
+  const fieldColors = {
+    qualifications: "success",
+    timing: "warning",
+    commitment: "info",
+    others: "secondary",
+  };
+
   return (
     <Card
       className={newListingCardStyles.card + " mx-sm-3 my-3 py-4 rounded-5"}
     >
+      {/* Carousel to display avatar image + listing images */}
+      {/* Note: Consider adding a modal image on click to show full image */}
       <Card.Body className="d-flex justify-center">
         <Carousel
           variant="dark"
-          controls={hasMultiImage}
           indicators={false}
           interval={null}
+          wrap={false}
           style={{
             paddingLeft: "36px",
             paddingRight: "36px",
           }}
         >
+          {/* Avatar: Compulsory for every card */}
           <Carousel.Item>
             <img
               src={avatarUrl || "/images/img_avatarDefault.jpg"}
@@ -35,6 +47,8 @@ const ListingCard = ({
               className={newListingCardStyles.avatar}
             />
           </Carousel.Item>
+
+          {/* Add the remaining listing images */}
           {image_urls.map((imgUrl) => (
             <Carousel.Item key={imgUrl}>
               <img
@@ -46,6 +60,9 @@ const ListingCard = ({
           ))}
         </Carousel>
       </Card.Body>
+
+      {/* Given rates, per hour */}
+      {/* Note: consider changing $0/hr to Free or something similar */}
       <Card.Body className="d-flex justify-center">
         <div
           className="d-flex align-items-end"
@@ -55,6 +72,7 @@ const ListingCard = ({
           <p className="m-0">/hr</p>
         </div>
       </Card.Body>
+      {/* Subject to be taught */}
       <Card.Subtitle
         as="h5"
         className="d-flex justify-center px-4 text-center"
@@ -62,6 +80,21 @@ const ListingCard = ({
       >
         {subject}
       </Card.Subtitle>
+
+      {/* Optional fields. Decorated with Bootstrap Badges */}
+      <Card.Body>
+        {fields.map((field) => (
+          <Badge
+            pill
+            bg={fieldColors[field.category]}
+            text={field.category === "warning" ? "dark" : ""}
+            key={field.category + field.value}
+            className="mx-1"
+          >
+            {field.value}
+          </Badge>
+        ))}
+      </Card.Body>
     </Card>
   );
 };

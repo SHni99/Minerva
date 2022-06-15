@@ -92,13 +92,13 @@ describe("Form components", () => {
     const submitBtnElement = screen.getByRole("button", { name: /Log in/i });
     const passwordInputElement = screen.getByTestId("findpassword");
     const passwordErrorElement = screen.queryByText(
-      /Please enter a password more than 5 characters/i
+      /Please enter a password more than 8 characters/i
     );
     expect(passwordErrorElement).not.toBeInTheDocument();
     userEvent.type(passwordInputElement, "123");
     userEvent.click(submitBtnElement);
     const passwordErrorElementAgain = screen.queryByText(
-      /Please enter a password more than 5 characters/i
+      /Please enter a password more than 8 characters/i
     );
     expect(passwordErrorElementAgain).toBeInTheDocument();
   });

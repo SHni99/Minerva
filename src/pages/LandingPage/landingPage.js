@@ -107,7 +107,7 @@ const IntroSection = () => {
                 className="p-3 border"
                 variant="dark"
                 style={{ borderRadius: "10px" }}
-                href="/aboutuspage"
+                href="/formpage"
               >
                 About Us
               </Button>

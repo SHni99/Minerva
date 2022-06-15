@@ -28,6 +28,8 @@
 }
 
 .tutor-tutee-toggle {
+  border-color: var(--gray500---98a2b3);
+  border-width: 1px;
   align-items: center;
   display: flex;
   margin-left: 10px;
@@ -41,7 +43,7 @@
   font-family: inter;
   font-weight: 500;
   color: var(--sapphire);
-  font-size: calc(100% + 1vw)
+  font-size: calc(250% + 0.3vw);
 }
 
 .listing-images {
@@ -197,7 +199,7 @@
   background-color: var(--whitebase---ffffff);
   border-radius: 4px;
   display: flex;
-  padding: 0 16px;
+  padding: 0px 1em 0px 0.5em;
   height: 40px;
   min-width: 190px;
   position: relative;
@@ -243,4 +245,38 @@
   border-width: 1px;
   border-style: solid;
   border-color: var(--gray500---98a2b3);
+}
+
+.level-dropdown {
+  font-family: inter;
+  font-size: calc(250% + 0.3vw);
+  color: var(--sapphire);
+  font-weight: 500;
+  padding-right: 1.5em;
+  border-radius: 15px;
+  box-shadow: 0px 4px 4px #00000040;
+  border-color: var(--gray500---98a2b3);
+  text-align: center;
+}
+
+.level-dropdown option {
+  font-size: calc(50% + 0.1vw);
+}
+
+.rates-input {
+  /* Have to set to important to override tailwind style */
+  font-size: calc(250% + 0.3vw) !important;
+  font-family: inter !important;
+  color: var(--sapphire);
+  font-weight: 500;
+  box-shadow: 0px 4px 4px #00000040;
+  width: 3em;
+  font-weight: "bold";
+  text-align: center;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

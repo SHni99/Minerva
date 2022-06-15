@@ -20,11 +20,8 @@
   position: relative;
 }
 
-.findMeText {
-  letter-spacing: 0;
-  line-height: 40px;
-  min-height: 40px;
-  white-space: nowrap;
+.big-text {
+  font-size: calc(100% + 1vw)
 }
 
 .tutor-tutee-toggle {
@@ -43,7 +40,7 @@
   font-family: inter;
   font-weight: 500;
   color: var(--sapphire);
-  font-size: calc(250% + 0.3vw);
+  font-size: calc(150% + 0.3vw);
 }
 
 .listing-images {
@@ -249,7 +246,7 @@
 
 .level-dropdown {
   font-family: inter;
-  font-size: calc(250% + 0.3vw);
+  font-size: calc(150% + 0.3vw);
   color: var(--sapphire);
   font-weight: 500;
   padding-right: 1.5em;
@@ -265,11 +262,13 @@
 
 .rates-input {
   /* Have to set to important to override tailwind style */
-  font-size: calc(250% + 0.3vw) !important;
+  font-size: calc(150% + 0.3vw) !important;
   font-family: inter !important;
   color: var(--sapphire);
   font-weight: 500;
   box-shadow: 0px 4px 4px #00000040;
+  border-width: 1px;
+  border-color: var(--gray500---98a2b3);
   width: 3em;
   font-weight: "bold";
   text-align: center;

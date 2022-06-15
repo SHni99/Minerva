@@ -246,10 +246,8 @@ const CreateListingBody = (props) => {
       onSubmit={validateAndSubmit(handleSubmit)}
     >
       {/* Fixed field 1: Tutor/Tutee toggle. Defaults to Tutor. */}
-      <div className={`${createListingPageStyles["choose-tutor-tutee"]} my-2`}>
-        <h1
-          className={`${createListingPageStyles["findMeText"]} nunito-medium-black-24px m-0 p-0`}
-        >
+      <div className={`${createListingPageStyles["choose-tutor-tutee"]} my-3`}>
+        <h1 className={`${createListingPageStyles["big-text"]} m-0 p-0`}>
           Find me a
         </h1>
         <TutorTuteeToggle
@@ -260,7 +258,9 @@ const CreateListingBody = (props) => {
 
       {/* Fixed field 2: Teaching level. Defaults to Primary. */}
       <div className="d-flex flex-row my-2 align-items-center">
-        <h1 className={`nunito-medium-black-24px p-0 m-0`}>at the</h1>
+        <h1 className={`${createListingPageStyles["big-text"]} p-0 m-0`}>
+          at the
+        </h1>
         <select
           className={`${createListingPageStyles["level-dropdown"]} mx-3 py-0`}
           id="level"
@@ -279,30 +279,33 @@ const CreateListingBody = (props) => {
             return fields;
           })()}
         </select>
-        <h1 className={`nunito-medium-black-24px p-0 m-0`}>level</h1>
+        <h1 className={`${createListingPageStyles["big-text"]} p-0 m-0`}>
+          level
+        </h1>
       </div>
 
       {/* Fixed field 3: Tutor/Tutee rate. Required field. */}
       <div className="d-flex flex-row align-items-center my-4">
-        <h1 className="nunito-medium-black-24px m-0 p-0">for $</h1>
+        <h1 className={`${createListingPageStyles["big-text"]} m-0 p-0`}>
+          for $
+        </h1>
         <input
           name="rates"
-          type="number"
           id="rates"
           className={`${createListingPageStyles["rates-input"]} rounded-4 me-2`}
           value={rates}
           placeholder="..."
           onChange={(e) => {
             let newVal = e.target.value;
+            // Prevent excessive leading 0s
             if (/^[0][0-9]+/.test(newVal))
               newVal = newVal.substring(1, newVal.length);
-            if (/^\d{0,3}(\.\d{0,2})?$/.test(newVal)) {
-              if (invalidRates) setInvalidRates(null);
+
+            if (/^\d{0,3}$/.test(newVal)) {
+              setInvalidRates(null);
               setRates(newVal);
-            } else if (/^[^0-9.]/.test(newVal)) {
-              setInvalidRates("Only digits and decimals are allowed.");
-            } else if (/^\d{0,3}(\.\d*)/.test(newVal)) {
-              setInvalidRates("2 decimal places will do!");
+            } else if (/[^0-9]/.test(newVal)) {
+              setInvalidRates("Only digits are allowed.");
             } else if (/^\d*/.test(newVal)) {
               setInvalidRates(
                 "Woah there! Try to keep your rates under $1000!"
@@ -310,7 +313,9 @@ const CreateListingBody = (props) => {
             }
           }}
         />
-        <h1 className="nunito-medium-black-24px m-0">per hour</h1>
+        <h1 className={`${createListingPageStyles["big-text"]} m-0`}>
+          per hour
+        </h1>
       </div>
       <p className="text-danger">{invalidRates}</p>
 
@@ -385,7 +390,7 @@ const CreateListingBody = (props) => {
 const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   return (
     <div
-      className={`${createListingPageStyles["tutor-tutee-toggle"]} px-2`}
+      className={`${createListingPageStyles["tutor-tutee-toggle"]} px-2 my-0`}
       onClick={() => setTutorTutee(tutorTutee === "tutor" ? "tutee" : "tutor")}
     >
       <div>{tutorTutee}</div>

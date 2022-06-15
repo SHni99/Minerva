@@ -39,7 +39,11 @@ const Bar = (props) => {
       className={`${footerBarStyles["bar"]} p-2 d-flex flex-column-reverse flex-md-row`}
     >
       {/* Copyright Text */}
-      <Col className="d-flex justify-center align-center text-center text-md-start py-2">
+      <Col
+        className="d-flex justify-center align-center text-center text-md-start py-2"
+        xs={12}
+        md={3}
+      >
         <p className="p-0 m-0">{copyrightText}</p>
       </Col>
 
@@ -54,6 +58,8 @@ function Links() {
   return (
     <Col
       className={`${footerBarStyles.links} justify-center py-2 d-flex flex-wrap`}
+      xs={12}
+      md={6}
     >
       <FooterLink label="Home" referTo="/" />
       <FooterLink label="Terms of Service" referTo="/" />
@@ -79,7 +85,11 @@ function FooterLink(props) {
 function SocialMedia(props) {
   const { iconInstagram, iconTwitter, iconFacebook } = props.icons;
   return (
-    <Col className="d-flex flex-row gap-4 align-center justify-center py-2">
+    <Col
+      className="d-flex flex-row gap-4 align-center justify-center py-2"
+      xs={12}
+      md={3}
+    >
       <Link to="/">
         <img
           className={footerBarStyles["icon-instagram"]}

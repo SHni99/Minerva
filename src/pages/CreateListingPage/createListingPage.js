@@ -19,6 +19,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
     qualifications: "Qualifications",
     timing: "Preferred Times",
     commitment: "Commitment Period",
+    subject: "Subjects",
     others: "Others",
   };
 
@@ -26,7 +27,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [sFieldInputs, setSFieldInputs] = useState([]);
-  const [rates, setRates] = useState(null);
+  const [rates, setRates] = useState("");
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [imageURLs, setImageURLs] = useState([]);
   const [sFields, setSFields] = useState(

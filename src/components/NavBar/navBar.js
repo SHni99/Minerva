@@ -34,6 +34,7 @@ const NavBar = ({ _userLoggedIn }) => {
         .eq("id", user.id)
         .single();
       if (avatarUrlError) throw avatarUrlError;
+      if (data.avatar_url === "") return;
 
       const { publicURL, error: publicUrlError } = supabase.storage
         .from("avatars")
@@ -41,7 +42,7 @@ const NavBar = ({ _userLoggedIn }) => {
 
       if (publicUrlError) throw publicUrlError;
 
-      if (data) setAvatarUrl(publicURL);
+      setAvatarUrl(publicURL);
     } catch (error) {
       alert(error.message);
     } finally {
@@ -144,8 +145,9 @@ function CredentialsCorner(props) {
             className={navBarStyles["avatar"]}
             to="/loginmainpage"
             style={{
-              backgroundImage:
-                `url(${avatarUrl})` || `url("/images/img_avatarDefault.jpg")`,
+              backgroundImage: `url(${
+                avatarUrl || "/images/img_avatarDefault.jpg"
+              })`,
               cursor: "pointer",
             }}
             data-testid="profilePic"

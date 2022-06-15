@@ -106,7 +106,8 @@ const NavBar = ({ _userLoggedIn }) => {
 
         <Col
           xs={12}
-          lg={6}
+          lg={5}
+          xxl={6}
           className="d-flex justify-center justify-content-lg-start align-center g-0"
         >
           <div className={`${navBarStyles.links}`}>{generateNavBarLinks()}</div>

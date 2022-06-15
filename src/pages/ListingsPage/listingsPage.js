@@ -94,8 +94,8 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
         style={{ fontFamily: "Nunito" }}
       >
         <h5 className="text-center">
-          Listing Field Legend:
-          <Badge bg="primary" className="m-1" pill>
+          Tags:
+          <Badge bg="primary" className="m-1 ms-3" pill>
             Subjects
           </Badge>
           <Badge bg="success" className="m-1" pill>

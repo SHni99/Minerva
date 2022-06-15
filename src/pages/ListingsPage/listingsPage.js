@@ -6,7 +6,7 @@ import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from "components/ListingCard/newListingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
-import Badge from "react-bootstrap/Badge";
+import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -94,22 +94,12 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
         style={{ fontFamily: "Nunito" }}
       >
         <h5 className="text-center">
-          Tags:
-          <Badge bg="primary" className="m-1 ms-3" pill>
-            Subjects
-          </Badge>
-          <Badge bg="success" className="m-1" pill>
-            Qualifications
-          </Badge>
-          <Badge bg="warning" text="dark" className="m-1" pill>
-            Preferred Times
-          </Badge>
-          <Badge bg="info" className="m-1" pill>
-            Commitment Period
-          </Badge>
-          <Badge bg="secondary" className="m-1" pill>
-            Others
-          </Badge>
+          Tags: <span></span>
+          <FieldTag category="subject" value="Subject" />
+          <FieldTag category="qualifications" value="Qualifications" />
+          <FieldTag category="timing" value="Preferred Times" />
+          <FieldTag category="commitment" value="Commitment Period" />
+          <FieldTag category="others" value="Others" />
         </h5>
       </div>
       {/* Listings */}

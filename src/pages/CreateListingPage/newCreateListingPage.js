@@ -7,19 +7,29 @@ import { useForm } from "react-hook-form";
 import CloseButton from "react-bootstrap/CloseButton";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
+import FieldTag from "components/FieldTag/fieldTag";
 import createListingPageStyles from "./createListingPage.module.css";
 import Button from "react-bootstrap/Button";
 import { PlusCircle } from "react-bootstrap-icons";
-import AutosizeInput from "react-input-autosize";
 import LoadingOverlay from "react-loading-overlay-ts";
 
 const CreateListingPage = ({ _userLoggedIn }) => {
   // Options to be shown under the selection field dropdown box. Edit if required!
   const fieldParams = {
+    subject: "Subject",
     qualifications: "Qualifications",
     timing: "Preferred Times",
     commitment: "Commitment Period",
-    subject: "Subjects",
+    others: "Others",
+  };
+
+  // Options to be shown under the education level dropdown box. Edit if required!
+  const levelParams = {
+    primary: "Primary",
+    secondary: "Secondary",
+    tertiary: "Tertiary",
+    undergrad: "Undergraduate",
+    grad: "Graduate",
     others: "Others",
   };
 
@@ -30,11 +40,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   const [rates, setRates] = useState("");
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [imageURLs, setImageURLs] = useState([]);
-  const [sFields, setSFields] = useState(
-    [0, 1, 2].map((id) => {
-      return { id };
-    })
-  );
+  const [sFields, setSFields] = useState([{ id: 0 }]);
   const navigate = useNavigate();
   const {
     register,
@@ -193,6 +199,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
         invalidRates={invalidRates}
         setInvalidRates={setInvalidRates}
         imageURLs={imageURLs}
+        levelParams={levelParams}
       />
       <FooterBar />
     </div>
@@ -223,6 +230,7 @@ const CreateListingBody = (props) => {
     invalidRates,
     setInvalidRates,
     imageURLs,
+    levelParams,
   } = props;
 
   // Check if submission is in progress. Show "Submitting..." if required.
@@ -238,9 +246,9 @@ const CreateListingBody = (props) => {
       onSubmit={validateAndSubmit(handleSubmit)}
     >
       {/* Fixed field 1: Tutor/Tutee toggle. Defaults to Tutor. */}
-      <div className={createListingPageStyles["choose-tutor-tutee"]}>
+      <div className={`${createListingPageStyles["choose-tutor-tutee"]} my-2`}>
         <h1
-          className={`${createListingPageStyles["findMeText"]} nunito-medium-black-24px`}
+          className={`${createListingPageStyles["findMeText"]} nunito-medium-black-24px m-0 p-0`}
         >
           Find me a
         </h1>
@@ -250,21 +258,40 @@ const CreateListingBody = (props) => {
         />
       </div>
 
-      {/* Fixed field 2: Tutor/Tutee rate. Required field. */}
-      <div className="d-flex flex-row align-items-center">
+      {/* Fixed field 2: Teaching level. Defaults to Primary. */}
+      <div className="d-flex flex-row my-2 align-items-center">
+        <h1 className={`nunito-medium-black-24px p-0 m-0`}>at the</h1>
+        <select
+          className={`${createListingPageStyles["level-dropdown"]} mx-3 py-0`}
+          id="level"
+        >
+          {(() => {
+            const fields = [];
+
+            for (let field in levelParams) {
+              fields.push(
+                <option key={field} value={field}>
+                  {levelParams[field]}
+                </option>
+              );
+            }
+
+            return fields;
+          })()}
+        </select>
+        <h1 className={`nunito-medium-black-24px p-0 m-0`}>level</h1>
+      </div>
+
+      {/* Fixed field 3: Tutor/Tutee rate. Required field. */}
+      <div className="d-flex flex-row align-items-center my-4">
         <h1 className="nunito-medium-black-24px m-0 p-0">for $</h1>
-        <AutosizeInput
+        <input
           name="rates"
+          type="number"
           id="rates"
+          className={`${createListingPageStyles["rates-input"]} rounded-4 me-2`}
           value={rates}
-          className="nunito-medium-black-24px ms-1 border-0 px-3 py-1 m-2"
           placeholder="..."
-          style={{
-            borderRadius: "15px",
-            boxShadow: "0px 4px 4px #00000040",
-            color: "var(--sapphire)",
-            fontWeight: "bold",
-          }}
           onChange={(e) => {
             let newVal = e.target.value;
             if (/^[0][0-9]+/.test(newVal))
@@ -318,9 +345,6 @@ const CreateListingBody = (props) => {
 
       {/* Start of dynamic fields/selection fields */}
       <div className={createListingPageStyles["selection-fields"]}>
-        <h1 className="nunito-medium-black-24px mx-2 my-0 pt-2 align-self-center">
-          Additionally, ... (Optional)
-        </h1>
         {/* Creates a SelectionField for each object present in the selectionFields state.
         SelectionField implementation can be found below. */}
         {selectionFields.map((sField) => (
@@ -370,16 +394,22 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
 };
 
 // The SelectionField element.
-const SelectionField = (props) => {
-  const { id, onSFieldDelete, sFieldInputStates, fieldParams } = props;
-  const [sFieldInputs, setSFieldInputs] = sFieldInputStates;
-
-  // Called whenever there is a change in the dropdown box selection.
-  // Records the changes into the sFieldInputs state.
-  // The sFieldInputs will contain objects with these three items:
+const SelectionField = ({
+  id,
+  onSFieldDelete,
+  sFieldInputStates,
+  fieldParams,
+}) => {
+  // Array of objects containing these three details:
   // 1. SelectionField id
   // 2. Value of the selected item in the dropdown box
   // 3. A method to get the value of the corresponding input box
+  const [sFieldInputs, setSFieldInputs] = sFieldInputStates;
+  const [previewText, setPreviewText] = useState("Preview");
+  const [previewCategory, setPreviewCategory] = useState("subject");
+
+  // Called whenever there is a change in the dropdown box selection.
+  // Records the changes into the sFieldInputs state.
 
   const handleDropdownChange = (e) => {
     const fieldDropdown = e.target;
@@ -392,6 +422,7 @@ const SelectionField = (props) => {
         getInput: () => fieldInput.value,
       },
     ]);
+    setPreviewCategory(fieldDropdown.value);
   };
 
   return (
@@ -404,20 +435,16 @@ const SelectionField = (props) => {
       */}
       <select
         className={createListingPageStyles["selection-dropdown-box-master"]}
-        defaultValue="DEFAULT"
+        defaultValue="subject"
         onChange={handleDropdownChange}
       >
-        <option disabled value="DEFAULT" hidden>
-          Requirement
-        </option>
         {(() => {
           const fields = [];
 
           for (let field in fieldParams) {
             fields.push(
               <option key={field} value={field}>
-                {" "}
-                {fieldParams[field]}{" "}
+                {fieldParams[field]}
               </option>
             );
           }
@@ -435,8 +462,11 @@ const SelectionField = (props) => {
         <input
           className={createListingPageStyles["input-text-4"]}
           placeholder="Tell us more..."
+          onChange={(e) => setPreviewText(e.target.value)}
         />
       </div>
+
+      <FieldTag category={previewCategory} value={previewText} />
 
       {/* Button to delete this SelectionField. */}
       <CloseButton className="m-1" onClick={() => onSFieldDelete(id)} />

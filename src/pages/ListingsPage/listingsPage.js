@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
-import ListingCard from "components/ListingCard/listingCard";
+// Feature Switch: Old vs New ListingCard
+//import ListingCard from "components/ListingCard/listingCard";
+import ListingCard from "components/ListingCard/newListingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
+import Badge from "react-bootstrap/Badge";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -12,9 +15,10 @@ import Spinner from "react-bootstrap/Spinner";
 import listingsPageStyles from "./listingsPage.module.css";
 
 const ListingsPage = () => {
+  // Hooks
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [listingData, setListingData] = useState([]);
-  const [query, setQuery] = useState(null);
+  const [query, setQuery] = useState("");
 
   return (
     <div
@@ -34,7 +38,9 @@ const ListingsPage = () => {
 export default ListingsPage;
 
 const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
+  // Stores the text of the tutor/tutee toggle
   const [tutorTutee, setTutorTutee] = tutorTuteeState;
+  // Stores the text entered into the search bar
   const [query, setQuery] = queryState;
 
   const searchHandler = () => {
@@ -43,6 +49,7 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
 
   return (
     <Container className={`${listingsPageStyles["body"]}`}>
+      {/* Header containing "I'm looking for a ..." with the Tutor/Tutee toggle */}
       <Row className={`${listingsPageStyles["filter-tutor-tutee"]}`}>
         <Col>
           <h1 className={`${listingsPageStyles["lookingForText"]}`}>
@@ -58,6 +65,7 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
         </Col>
       </Row>
 
+      {/* Search Bar + Search Button */}
       <div className={listingsPageStyles["search-bar"]}>
         <div className={`${listingsPageStyles["search-box"]}`}>
           <input
@@ -80,6 +88,31 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
         </div>
       </div>
 
+      {/* Legend for the listing field badge colors */}
+      <div
+        className="pt-5 pb-2 px-sm-2 d-flex flex-row justify-center"
+        style={{ fontFamily: "Nunito" }}
+      >
+        <h5 className="text-center">
+          Listing Field Legend:
+          <Badge bg="primary" className="m-1" pill>
+            Subjects
+          </Badge>
+          <Badge bg="success" className="m-1" pill>
+            Qualifications
+          </Badge>
+          <Badge bg="warning" text="dark" className="m-1" pill>
+            Preferred Times
+          </Badge>
+          <Badge bg="info" className="m-1" pill>
+            Commitment Period
+          </Badge>
+          <Badge bg="secondary" className="m-1" pill>
+            Others
+          </Badge>
+        </h5>
+      </div>
+      {/* Listings */}
       <Listings
         tutorTutee={tutorTutee}
         listingDataState={listingDataState}
@@ -106,15 +139,22 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
 };
 
 const Listings = ({ tutorTutee, listingDataState, query }) => {
+  // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
+
+  // Set to true if there are no results, after filtering using given query
   const [isEmpty, setIsEmpty] = useState(false);
+
+  // Array of objects containing the data of each listing
   const [listingData, setListingData] = listingDataState;
 
+  // Fetch listings from Supabase and display using ListingCards
   useEffect(() => {
     const getListings = async () => {
       try {
         setLoading(true);
 
+        // Fetch data from the 'listings' table
         let {
           data: listingDb,
           listingError,
@@ -122,23 +162,31 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
         } = await supabase
           .from("listings")
           .select(
-            "creator_id, title, description, subject, rates, fields, listing_id"
+            "creator_id, title, description, subject, rates, fields, image_urls, listing_id"
           )
           .eq("seeking_for", tutorTutee);
         if (listingError && listingStatus !== 406) throw listingError;
 
+        // Filter using the entered query (set to "" by default/on clearing the textbox)
         listingDb = listingDb.filter(
           ({ title, description, subject, rates, fields }) =>
             `${title} ${description} ${subject} ${rates} ${fields}`.includes(
               query
             )
         );
+
+        // Indicate no results and useEffect call here, if filtered results array is empty
         if (listingDb.length === 0) {
           setIsEmpty(true);
           return;
         }
+
+        // Results found. Continue with rendering them using ListingCards
         setIsEmpty(false);
 
+        // Map each of the fetched rows into an async call to obtain each listing creators'
+        // avatar URL. After all asynchronous calls have been resolved, set the result to
+        // the listingData state/hook.
         const newListingData = await Promise.all(
           listingDb.map(
             async ({
@@ -148,6 +196,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
               subject,
               rates,
               fields,
+              image_urls,
               listing_id,
             }) => {
               let {
@@ -174,6 +223,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                 subject,
                 rates,
                 fields,
+                image_urls,
                 listing_id,
               };
             }
@@ -218,6 +268,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                 subject,
                 rates,
                 fields,
+                image_urls,
                 listing_id,
               }) => {
                 return (
@@ -229,6 +280,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                       key={listing_id}
                       subject={subject}
                       rates={rates}
+                      image_urls={image_urls}
                       fields={fields}
                     />
                   ) || <h1>Nothing here!</h1>

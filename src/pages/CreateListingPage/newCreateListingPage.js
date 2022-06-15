@@ -16,10 +16,10 @@ import LoadingOverlay from "react-loading-overlay-ts";
 const CreateListingPage = ({ _userLoggedIn }) => {
   // Options to be shown under the selection field dropdown box. Edit if required!
   const fieldParams = {
+    subject: "Subject",
     qualifications: "Qualifications",
     timing: "Preferred Times",
     commitment: "Commitment Period",
-    subject: "Subjects",
     others: "Others",
   };
 
@@ -318,9 +318,6 @@ const CreateListingBody = (props) => {
 
       {/* Start of dynamic fields/selection fields */}
       <div className={createListingPageStyles["selection-fields"]}>
-        <h1 className="nunito-medium-black-24px mx-2 my-0 pt-2 align-self-center">
-          Additionally, ... (Optional)
-        </h1>
         {/* Creates a SelectionField for each object present in the selectionFields state.
         SelectionField implementation can be found below. */}
         {selectionFields.map((sField) => (
@@ -404,12 +401,9 @@ const SelectionField = (props) => {
       */}
       <select
         className={createListingPageStyles["selection-dropdown-box-master"]}
-        defaultValue="DEFAULT"
+        defaultValue="subject"
         onChange={handleDropdownChange}
       >
-        <option disabled value="DEFAULT" hidden>
-          Requirement
-        </option>
         {(() => {
           const fields = [];
 

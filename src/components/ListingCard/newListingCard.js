@@ -1,20 +1,10 @@
 import React from "react";
-import Badge from "react-bootstrap/Badge";
+import FieldTag from "components/FieldTag/fieldTag";
 import Card from "react-bootstrap/Card";
 import Carousel from "react-bootstrap/Carousel";
 import newListingCardStyles from "./newListingCard.module.css";
 
 const ListingCard = ({ avatarUrl, image_urls, subject, rates, fields }) => {
-  // Colors to set the relevant field badges to
-  // Modify if necessary
-  const fieldColors = {
-    qualifications: "success",
-    timing: "warning",
-    commitment: "info",
-    subject: "primary",
-    others: "secondary",
-  };
-
   return (
     <Card
       className={newListingCardStyles.card + " mx-sm-3 my-3 py-4 rounded-5"}
@@ -77,15 +67,11 @@ const ListingCard = ({ avatarUrl, image_urls, subject, rates, fields }) => {
       {/* Optional fields. Decorated with Bootstrap Badges */}
       <Card.Body>
         {fields.map((field) => (
-          <Badge
-            pill
-            bg={fieldColors[field.category]}
-            text={field.category === "warning" ? "dark" : ""}
+          <FieldTag
+            category={field.category}
+            value={field.value}
             key={field.category + field.value}
-            className="mx-1"
-          >
-            {field.value}
-          </Badge>
+          />
         ))}
       </Card.Body>
     </Card>

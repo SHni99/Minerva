@@ -2,26 +2,15 @@ import React, { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import RatingStyle from "./Rating.module.css";
 
-const Rating = () => {
-    return (
-      <div className="">
-        <StarRating />
-      </div>
-    );
-  };
-  
-  export default Rating;
-
   const colors = {
     orange: "#FFBA5A",
     grey: "#a9a9a9"
     
 };
 
-const StarRating = () => {
+const Rating = () => {
   const [currentValue, setCurrentValue] = useState(0);
   const [hoverValue, setHoverValue] = useState(0);
-  const stars = Array(5).fill(0)
 
   const handleClick = value => {
     setCurrentValue(value)
@@ -35,8 +24,9 @@ const StarRating = () => {
     setHoverValue(0)
   }
   return (
-    <div className={RatingStyle["star"]}>
-        {stars.map((_, index) => {
+    <div className={RatingStyle["contain"]}>
+        {[...Array(5)].map((item, index) => {
+        
           return (
             <FaStar
               key={index}
@@ -46,9 +36,8 @@ const StarRating = () => {
               onMouseLeave={handleMouseLeave}
               color={(hoverValue || currentValue) > index ? colors.orange : colors.grey}
               style={{
-                marginRight: 10,
+                
                 cursor: "pointer",
-                transform: "rotate(180deg)"
               }}
             />
           )
@@ -56,3 +45,5 @@ const StarRating = () => {
       </div>
   );
 };
+
+export default Rating;

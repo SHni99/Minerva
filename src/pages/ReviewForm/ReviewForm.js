@@ -6,9 +6,7 @@ import Button from "react-bootstrap/Button";
 
 export default function FormComponent() {
     const [reviews, setReviews] = useState("");
-    const onChange = (e) => {
-        setReviews(e.target.value);
-    };
+
     const onSubmit = (e) => {
         console.log("Form Submitted");
     };
@@ -17,7 +15,7 @@ export default function FormComponent() {
 
         <div className={ReviewStyle["container-center-horizontal"]}>
             <form onSubmit={onSubmit} className={`${ReviewStyle["home-inner"]} container mt-20`}>
-                <div className="col-lg-6 m-auto">
+                <div className="">
                     <div
                         className={`card shadow text-center rounded-5`}
                         style={{ backgroundColor: "#FAFAD2" }}
@@ -25,16 +23,20 @@ export default function FormComponent() {
                         <div className="card-body mt-4">
                             <img
                                 src="/images/img_avatarDefault.jpg"
-                                className="rounded-pill w-10 h-10"
+                                className="rounded-pill w-20 h-20 my-3"
                                 alt="default"
                             />
-                            <div> <Rating /> </div>
-                                <input
-                                    className="form-control form-control-lg m-auto"
+
+                            <div>
+                                <Rating /> </div>
+                            <div className="form-group">
+                                <textarea
+                                    className={`${ReviewStyle["textarea"]} form-control form-control-lg my-3`}
                                     value={reviews}
                                     type="text"
                                     placeholder="enter your review here"
-                                ></input>
+                                    onChange={(e) => setReviews(e.target.value)}
+                                ></textarea>
                                 <div className="row-lg-2 m-5">
 
                                     <Button
@@ -43,13 +45,13 @@ export default function FormComponent() {
                                             fontSize: "15px",
                                             backgroundColor: "#42d38b",
                                         }}
-                                        onChange={onChange}
                                     >{"Submit review"}
                                     </Button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
             </form>
 
         </div>

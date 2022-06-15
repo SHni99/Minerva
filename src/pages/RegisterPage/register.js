@@ -40,7 +40,7 @@ const RegisterPagePage = () => {
             setError("Please enter a password more than 8 characters");
             reset();
         } else if (!/^(?=.*[0-9])/.test(password)) {
-            setError("PLease enter a password containing at least one NUMBER");
+            setError("Please enter a password containing at least one NUMBER");
             reset();
         } else if (!/^(?=.*[A-Z])/.test(password)) {
             setError("Please enter a password containing at least one UPPERCASE character");

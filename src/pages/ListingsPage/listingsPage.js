@@ -152,15 +152,15 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
         } = await supabase
           .from("listings")
           .select(
-            "creator_id, title, description, subject, rates, fields, image_urls, listing_id"
+            "creator_id, title, description, level, rates, fields, image_urls, listing_id"
           )
           .eq("seeking_for", tutorTutee);
         if (listingError && listingStatus !== 406) throw listingError;
 
         // Filter using the entered query (set to "" by default/on clearing the textbox)
         listingDb = listingDb.filter(
-          ({ title, description, subject, rates, fields }) =>
-            `${title} ${description} ${subject} ${rates} ${fields}`.includes(
+          ({ title, description, level, rates, fields }) =>
+            `${title} ${description} ${level} ${rates} ${fields}`.includes(
               query
             )
         );
@@ -183,7 +183,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
               creator_id,
               title,
               description,
-              subject,
+              level,
               rates,
               fields,
               image_urls,
@@ -210,7 +210,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                 avatarUrl,
                 title,
                 description,
-                subject,
+                level,
                 rates,
                 fields,
                 image_urls,
@@ -255,7 +255,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                 avatarUrl,
                 title,
                 description,
-                subject,
+                level,
                 rates,
                 fields,
                 image_urls,
@@ -268,7 +268,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
                       title={title}
                       description={description}
                       key={listing_id}
-                      subject={subject}
+                      level={level}
                       rates={rates}
                       image_urls={image_urls}
                       fields={fields}

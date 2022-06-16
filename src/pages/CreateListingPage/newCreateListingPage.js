@@ -133,6 +133,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   // Handles submission of entire form to Supabase
   const handleSubmit = async () => {
     // Get all relevant details from input fields
+    const level = document.getElementById("level").value;
     const rates = document.getElementById("rates").value;
     const fields = sFieldInputs.map((sFieldInput) => {
       return {
@@ -140,6 +141,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
         value: sFieldInput.getInput(),
       };
     });
+    const image_urls = imageURLs.map((img) => img.publicURL);
 
     // Update Supabase with input
     try {
@@ -151,7 +153,9 @@ const CreateListingPage = ({ _userLoggedIn }) => {
         creator_id: supabase.auth.user().id,
         fields,
         rates,
+        image_urls,
         seeking_for: tutorTutee,
+        level,
       };
 
       // Attempt to upload data to Supabase
@@ -350,10 +354,11 @@ const CreateListingBody = (props) => {
 
       {/* Add Images section. Capped at 3. */}
       <LoadingOverlay active={uploading} spinner text="Loading...">
-        <Row className={`${createListingPageStyles["listing-images"]}`}>
+        <div className={`${createListingPageStyles["listing-images"]}`}>
           {/* Map each element in imageURLs into a ListingImage to display the image. */}
           {imageURLs.map((imgObj) => (
             <ListingImage
+              key={imgObj.publicURL}
               imgUrl={imgObj.publicURL}
               onImgDelete={onImgDelete}
               uploading={uploading}
@@ -370,7 +375,7 @@ const CreateListingBody = (props) => {
               numPics={imageURLs.length}
             />
           )}
-        </Row>
+        </div>
       </LoadingOverlay>
 
       {/* Start of dynamic fields/selection fields */}

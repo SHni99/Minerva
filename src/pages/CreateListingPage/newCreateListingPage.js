@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 
 import CloseButton from "react-bootstrap/CloseButton";
 import Spinner from "react-bootstrap/Spinner";
-import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import FooterBar from "components/FooterBar/footerBar";
@@ -124,7 +123,10 @@ const CreateListingPage = ({ _userLoggedIn }) => {
 
   // Handles adding of selection fields
   const onSFieldAdd = () => {
-    const newSFields = [...sFields, { id: sFields.length }];
+    const newSFields = [
+      ...sFields,
+      { id: sFields.length ? sFields[sFields.length - 1].id + 1 : 0 },
+    ];
     setSFields(newSFields);
   };
 
@@ -469,17 +471,23 @@ const SelectionField = ({
   };
 
   return (
-    <div className={createListingPageStyles["selection-field-1"]}>
+    <Row
+      className={`${createListingPageStyles["selection-field-1"]} my-4 my-sm-2`}
+    >
       {/*
          The dropdown box. 
          Calls handleDropdownChange when changed.
          Displays fixed values which can be changed in the fieldParams const
          declared at the start.
       */}
-      <select
+      <Col
+        as="select"
         className={createListingPageStyles["selection-dropdown-box-master"]}
         defaultValue="subject"
         onChange={handleDropdownChange}
+        xs={12}
+        sm={6}
+        lg={5}
       >
         {(() => {
           const fields = [];
@@ -494,24 +502,37 @@ const SelectionField = ({
 
           return fields;
         })()}
-      </select>
+      </Col>
 
       {/* The input box for users to elaborate on their requirements. */}
-      <div
+      <Col
         className={`${createListingPageStyles["selection-input-box-master"]}`}
+        xs={12}
+        sm={6}
+        lg={5}
       >
         <input
-          className={createListingPageStyles["input-text-4"]}
           placeholder="Tell us more..."
+          maxLength={30}
           onChange={(e) => setPreviewText(e.target.value || "Preview")}
         />
-      </div>
+      </Col>
 
-      <FieldTag category={previewCategory} value={previewText} />
-
-      {/* Button to delete this SelectionField. */}
-      <CloseButton className="m-1" onClick={() => onSFieldDelete(id)} />
-    </div>
+      <Col
+        className="d-flex flex-row align-items-center justify-center text-center"
+        xs={12}
+        lg={2}
+      >
+        {/* Preview of the tag to be shown on their listing. */}
+        <FieldTag
+          category={previewCategory}
+          value={previewText}
+          maxWidth="calc(80% + 0.8vw)"
+        />
+        {/* Button to delete this SelectionField. */}
+        <CloseButton className="m-1" onClick={() => onSFieldDelete(id)} />
+      </Col>
+    </Row>
   );
 };
 

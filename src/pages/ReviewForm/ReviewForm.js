@@ -21,8 +21,6 @@ export default function FormComponent() {
       let { error } = await supabaseClient
         .from("reviews")
         .insert(data, { returning: "minimal" });
-      console.log(currentValue);
-      console.log(textbox);
       if (error) throw error;
     } catch (error) {
       alert(error.message);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabaseClient as supabase } from "config/supabase-client";
-import { useForm } from "react-hook-form";
 
 import CloseButton from "react-bootstrap/CloseButton";
 import Spinner from "react-bootstrap/Spinner";
@@ -44,11 +43,6 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   const [imageURLs, setImageURLs] = useState([]);
   const [sFields, setSFields] = useState([{ id: 0 }]);
   const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit: validateAndSubmit,
-    formState: { errors: validationErrors },
-  } = useForm();
   const [invalidRates, setInvalidRates] = useState(null);
 
   // ------------------ End of variable declarations ----------------------
@@ -196,9 +190,6 @@ const CreateListingPage = ({ _userLoggedIn }) => {
         handleSubmit={handleSubmit}
         fieldParams={fieldParams}
         submitting={submitting}
-        register={register}
-        validateAndSubmit={validateAndSubmit}
-        validationErrors={validationErrors}
         rates={rates}
         setRates={setRates}
         invalidRates={invalidRates}
@@ -227,9 +218,6 @@ const CreateListingBody = (props) => {
     handleSubmit,
     fieldParams,
     submitting,
-    register,
-    validateAndSubmit,
-    validationErrors,
     rates,
     setRates,
     invalidRates,
@@ -246,10 +234,7 @@ const CreateListingBody = (props) => {
     </div>
   ) : (
     // Actual submission form. Shown only if not submitting and user is logged in.
-    <form
-      className={createListingPageStyles["body"]}
-      onSubmit={validateAndSubmit(handleSubmit)}
-    >
+    <form className={createListingPageStyles["body"]} onSubmit={handleSubmit}>
       {/* Fixed field 1: Tutor/Tutee toggle. Defaults to Tutor. */}
       <Row
         className={`${createListingPageStyles["choose-tutor-tutee"]} my-3 mx-4`}
@@ -471,9 +456,7 @@ const SelectionField = ({
   };
 
   return (
-    <Row
-      className={`${createListingPageStyles["selection-field-1"]} my-4 my-sm-2`}
-    >
+    <Row className={`${createListingPageStyles["selection-field-1"]} my-2`}>
       {/*
          The dropdown box. 
          Calls handleDropdownChange when changed.

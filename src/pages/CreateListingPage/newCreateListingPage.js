@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabaseClient as supabase } from "config/supabase-client";
-import { Spinner } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
 import CloseButton from "react-bootstrap/CloseButton";
+import Spinner from "react-bootstrap/Spinner";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import FieldTag from "components/FieldTag/fieldTag";
@@ -246,24 +249,41 @@ const CreateListingBody = (props) => {
       onSubmit={validateAndSubmit(handleSubmit)}
     >
       {/* Fixed field 1: Tutor/Tutee toggle. Defaults to Tutor. */}
-      <div className={`${createListingPageStyles["choose-tutor-tutee"]} my-3`}>
-        <h1 className={`${createListingPageStyles["big-text"]} m-0 p-0`}>
+      <Row
+        className={`${createListingPageStyles["choose-tutor-tutee"]} my-3 mx-4`}
+      >
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} m-0 p-0`}
+          xs={12}
+          sm="auto"
+        >
           Find me a
-        </h1>
-        <TutorTuteeToggle
-          tutorTutee={tutorTutee}
-          setTutorTutee={setTutorTutee}
-        />
-      </div>
+        </Col>
+        <Col xs={12} sm="auto">
+          <TutorTuteeToggle
+            tutorTutee={tutorTutee}
+            setTutorTutee={setTutorTutee}
+          />
+        </Col>
+      </Row>
 
       {/* Fixed field 2: Teaching level. Defaults to Primary. */}
-      <div className="d-flex flex-row my-2 align-items-center">
-        <h1 className={`${createListingPageStyles["big-text"]} p-0 m-0`}>
+      <Row className="d-flex flex-row my-2 align-items-center justify-center mx-3">
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} p-0 m-0`}
+          xs={12}
+          sm="auto"
+        >
           at the
-        </h1>
-        <select
-          className={`${createListingPageStyles["level-dropdown"]} mx-3 py-0`}
+        </Col>
+        <Col
+          as="select"
+          className={`${createListingPageStyles["level-dropdown"]} py-0 mx-3`}
           id="level"
+          xs={12}
+          sm="auto"
         >
           {(() => {
             const fields = [];
@@ -278,54 +298,72 @@ const CreateListingBody = (props) => {
 
             return fields;
           })()}
-        </select>
-        <h1 className={`${createListingPageStyles["big-text"]} p-0 m-0`}>
+        </Col>
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} p-0 m-0`}
+          xs={12}
+          sm="auto"
+        >
           level
-        </h1>
-      </div>
+        </Col>
+      </Row>
 
       {/* Fixed field 3: Tutor/Tutee rate. Required field. */}
-      <div className="d-flex flex-row align-items-center my-4">
-        <h1 className={`${createListingPageStyles["big-text"]} m-0 p-0`}>
-          for $
-        </h1>
-        <input
-          name="rates"
-          id="rates"
-          className={`${createListingPageStyles["rates-input"]} rounded-4 me-2`}
-          value={rates}
-          placeholder="..."
-          onChange={(e) => {
-            let newVal = e.target.value;
-            // Prevent excessive leading 0s
-            if (/^[0][0-9]+/.test(newVal))
-              newVal = newVal.substring(1, newVal.length);
+      <Row className="d-flex flex-row align-items-center my-3 my-sm-4">
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} m-0 p-0`}
+          xs={12}
+          sm="auto"
+        >
+          for
+        </Col>
+        <Col
+          className="d-flex flex-row align-items-center justify-center"
+          xs={12}
+          sm="auto"
+        >
+          $
+          <input
+            name="rates"
+            id="rates"
+            className={`${createListingPageStyles["rates-input"]} rounded-4 mx-1`}
+            value={rates}
+            placeholder="..."
+            onChange={(e) => {
+              let newVal = e.target.value;
+              // Prevent excessive leading 0s
+              if (/^[0][0-9]+/.test(newVal))
+                newVal = newVal.substring(1, newVal.length);
 
-            if (/^\d{0,3}$/.test(newVal)) {
-              setInvalidRates(null);
-              setRates(newVal);
-            } else if (/[^0-9]/.test(newVal)) {
-              setInvalidRates("Only digits are allowed.");
-            } else if (/^\d*/.test(newVal)) {
-              setInvalidRates(
-                "Woah there! Try to keep your rates under $1000!"
-              );
-            }
-          }}
-        />
-        <h1 className={`${createListingPageStyles["big-text"]} m-0`}>
-          per hour
-        </h1>
-      </div>
-      <p className="text-danger">{invalidRates}</p>
+              if (/^\d{0,3}$/.test(newVal)) {
+                setInvalidRates(null);
+                setRates(newVal);
+              } else if (/[^0-9]/.test(newVal)) {
+                setInvalidRates("Only digits are allowed.");
+              } else if (/^\d*/.test(newVal)) {
+                setInvalidRates(
+                  "Woah there! Try to keep your rates under $1000!"
+                );
+              }
+            }}
+          />
+        </Col>
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} m-0 p-0`}
+          xs={12}
+          sm="auto"
+        >
+          per hour!
+        </Col>
+      </Row>
+      <p className="text-danger mx-4 text-center">{invalidRates}</p>
 
       {/* Add Images section. Capped at 3. */}
       <LoadingOverlay active={uploading} spinner text="Loading...">
-        <div
-          className={`\
-            ${createListingPageStyles["listing-images"]} \
-            ${createListingPageStyles["border-1px-gray700---101828"]}`}
-        >
+        <Row className={`${createListingPageStyles["listing-images"]}`}>
           {/* Map each element in imageURLs into a ListingImage to display the image. */}
           {imageURLs.map((imgObj) => (
             <ListingImage
@@ -345,11 +383,11 @@ const CreateListingBody = (props) => {
               numPics={imageURLs.length}
             />
           )}
-        </div>
+        </Row>
       </LoadingOverlay>
 
       {/* Start of dynamic fields/selection fields */}
-      <div className={createListingPageStyles["selection-fields"]}>
+      <Row className={`${createListingPageStyles["selection-fields"]} my-4`}>
         {/* Creates a SelectionField for each object present in the selectionFields state.
         SelectionField implementation can be found below. */}
         {selectionFields.map((sField) => (
@@ -368,7 +406,7 @@ const CreateListingBody = (props) => {
           style={{ color: "gray", cursor: "pointer" }}
           onClick={onSFieldAdd}
         />
-      </div>
+      </Row>
       {/* Submit Button.  */}
       <Button
         type="submit"
@@ -460,14 +498,12 @@ const SelectionField = ({
 
       {/* The input box for users to elaborate on their requirements. */}
       <div
-        className={`\
-            ${createListingPageStyles["selection-input-box-master"]} \
-            ${createListingPageStyles["border-1px-gray500---98a2b3"]}`}
+        className={`${createListingPageStyles["selection-input-box-master"]}`}
       >
         <input
           className={createListingPageStyles["input-text-4"]}
           placeholder="Tell us more..."
-          onChange={(e) => setPreviewText(e.target.value)}
+          onChange={(e) => setPreviewText(e.target.value || "Preview")}
         />
       </div>
 
@@ -487,9 +523,7 @@ const ListingImage = ({
   numPics,
 }) => {
   return (
-    <div
-      className={`${createListingPageStyles["add-image-placeholder"]} border-1px-mountain-mist`}
-    >
+    <div className={`${createListingPageStyles["add-image-placeholder"]}`}>
       {imgUrl ? (
         <React.Fragment>
           <CloseButton

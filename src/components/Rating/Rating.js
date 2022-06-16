@@ -8,8 +8,11 @@ import RatingStyle from "./Rating.module.css";
     
 };
 
-const Rating = () => {
-  const [currentValue, setCurrentValue] = useState(0);
+const Rating = (props) => {
+  const {
+    setReviews
+  } = props;
+  const [currentValue, setCurrentValue] = setReviews;
   const [hoverValue, setHoverValue] = useState(0);
 
   const handleClick = value => {
@@ -25,7 +28,7 @@ const Rating = () => {
   }
   return (
     <div className={RatingStyle["contain"]}>
-        {[...Array(5)].map((item, index) => {
+        {[...Array(5)].map((_, index) => {
         
           return (
             <FaStar

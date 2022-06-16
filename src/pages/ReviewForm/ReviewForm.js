@@ -2,19 +2,49 @@ import React, { useState } from "react";
 import Rating from "components/Rating/Rating";
 import ReviewStyle from "./ReviewForm.module.css";
 import Button from "react-bootstrap/Button";
+//import { useNavigate } from "react-router-dom";
+import { supabaseClient } from "../../config/supabase-client";
 
 
 export default function FormComponent() {
-    const [reviews, setReviews] = useState("");
+    //const navigate = useNavigate();
+    const [comment, setComment] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [currentValue, setCurrentValue] = useState(0);
 
-    const onSubmit = (e) => {
-        console.log("Form Submitted");
+    const onSubmit = async ({ index, textbox }) => {
+
+        console.log(currentValue);
+        
+
+        try {
+            const data = {
+                id: supabaseClient.auth.user().id,
+                index,
+                textbox,
+            };
+            setLoading(true);
+            const { error } = await supabaseClient
+                .from("reviews")
+                .insert(data, { returning: "minimal" });
+                console.log(textbox);
+            if (error) throw error;
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
 
         <div className={ReviewStyle["container-center-horizontal"]}>
-            <form onSubmit={onSubmit} className={`${ReviewStyle["home-inner"]} container mt-20`}>
+            <form onSubmit={() => {
+                onSubmit({
+                    index: currentValue,
+                    textbox: comment
+                });
+            }} className={`${ReviewStyle["home-inner"]} container mt-20`}>
                 <div className="">
                     <div
                         className={`card shadow text-center rounded-5`}
@@ -28,24 +58,26 @@ export default function FormComponent() {
                             />
 
                             <div>
-                                <Rating /> </div>
+                                <Rating
+                                    setReviews={[currentValue, setCurrentValue]} /></div>
                             <div className="form-group">
                                 <textarea
                                     className={`${ReviewStyle["textarea"]} form-control form-control-lg my-3`}
-                                    value={reviews}
+                                    value={comment}
                                     type="text"
                                     placeholder="enter your review here"
-                                    onChange={(e) => setReviews(e.target.value)}
+                                    onChange={(e) => setComment(e.target.value)}
                                 ></textarea>
                                 <div className="row-lg-2 m-5">
 
                                     <Button
                                         className={`col-lg-5 rounded-4 p-2 ml-5  w-1 border-dark text-dark`}
+                                        type="submit"
                                         style={{
                                             fontSize: "15px",
                                             backgroundColor: "#42d38b",
                                         }}
-                                    >{"Submit review"}
+                                    >{loading ? "Submitting" : "Submit review"}
                                     </Button>
                                 </div>
                             </div>

@@ -8,9 +8,7 @@ import LandingPage from "pages/LandingPage/landingPage";
 import PasswordPage from "pages/ForgotPasswordPage/password";
 import ResetPage from "pages/ResetPage/resetPage";
 import LoginMainPage from "pages/loginMainPage/loginMain";
-// Toggle Switch: old vs new Create Listing Page
-// import CreateListingPage from "pages/CreateListingPage/createListingPage";
-import CreateListingPage from "pages/CreateListingPage/newCreateListingPage";
+import CreateListingPage from "pages/CreateListingPage/createListingPage";
 import ReviewForm from "pages/ReviewForm/ReviewForm";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "pages/Home";

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
-// Feature Switch: Old vs New ListingCard
-//import ListingCard from "components/ListingCard/listingCard";
-import ListingCard from "components/ListingCard/newListingCard";
+import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
 import FieldTag from "components/FieldTag/fieldTag";

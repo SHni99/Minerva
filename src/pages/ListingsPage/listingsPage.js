@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
-// Feature Switch: Old vs New ListingCard
-//import ListingCard from "components/ListingCard/listingCard";
-import ListingCard from "components/ListingCard/newListingCard";
+import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
-import Badge from "react-bootstrap/Badge";
+import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -74,7 +72,7 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
           />
           <CloseButton
             onClick={() => {
-              setQuery(null);
+              setQuery("");
               document.getElementById("search-input").value = "";
             }}
           />
@@ -94,22 +92,12 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
         style={{ fontFamily: "Nunito" }}
       >
         <h5 className="text-center">
-          Listing Field Legend:
-          <Badge bg="primary" className="m-1" pill>
-            Subjects
-          </Badge>
-          <Badge bg="success" className="m-1" pill>
-            Qualifications
-          </Badge>
-          <Badge bg="warning" text="dark" className="m-1" pill>
-            Preferred Times
-          </Badge>
-          <Badge bg="info" className="m-1" pill>
-            Commitment Period
-          </Badge>
-          <Badge bg="secondary" className="m-1" pill>
-            Others
-          </Badge>
+          Tags: <span></span>
+          <FieldTag category="subject" value="Subject" />
+          <FieldTag category="qualifications" value="Qualifications" />
+          <FieldTag category="timing" value="Preferred Times" />
+          <FieldTag category="commitment" value="Commitment Period" />
+          <FieldTag category="others" value="Others" />
         </h5>
       </div>
       {/* Listings */}
@@ -161,18 +149,16 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
           listingStatus,
         } = await supabase
           .from("listings")
-          .select(
-            "creator_id, title, description, subject, rates, fields, image_urls, listing_id"
-          )
+          .select("creator_id, level, rates, fields, image_urls, listing_id")
           .eq("seeking_for", tutorTutee);
         if (listingError && listingStatus !== 406) throw listingError;
 
         // Filter using the entered query (set to "" by default/on clearing the textbox)
-        listingDb = listingDb.filter(
-          ({ title, description, subject, rates, fields }) =>
-            `${title} ${description} ${subject} ${rates} ${fields}`.includes(
-              query
-            )
+        listingDb = listingDb.filter(({ level, rates, fields }) =>
+          `${level} ${rates} ${Object.keys(fields).reduce(
+            (acc, key) => `${acc} ${fields[key].value}`,
+            ""
+          )}`.includes(query)
         );
 
         // Indicate no results and useEffect call here, if filtered results array is empty
@@ -191,9 +177,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
           listingDb.map(
             async ({
               creator_id,
-              title,
-              description,
-              subject,
+              level,
               rates,
               fields,
               image_urls,
@@ -218,9 +202,7 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
 
               return {
                 avatarUrl,
-                title,
-                description,
-                subject,
+                level,
                 rates,
                 fields,
                 image_urls,
@@ -254,39 +236,22 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
         <Spinner animation="border" role="status" aria-label="Loading" />
       ) : (
         <React.Fragment>
-          {listingData
-            .filter(
-              (listing) =>
-                listing.title.indexOf(query || "") > -1 ||
-                listing.description.indexOf(query || "") > -1
-            )
-            .map(
-              ({
-                avatarUrl,
-                title,
-                description,
-                subject,
-                rates,
-                fields,
-                image_urls,
-                listing_id,
-              }) => {
-                return (
-                  (
-                    <ListingCard
-                      avatarUrl={avatarUrl}
-                      title={title}
-                      description={description}
-                      key={listing_id}
-                      subject={subject}
-                      rates={rates}
-                      image_urls={image_urls}
-                      fields={fields}
-                    />
-                  ) || <h1>Nothing here!</h1>
-                );
-              }
-            )}
+          {listingData.map(
+            ({ avatarUrl, level, rates, fields, image_urls, listing_id }) => {
+              return (
+                (
+                  <ListingCard
+                    avatarUrl={avatarUrl}
+                    key={listing_id}
+                    level={level}
+                    rates={rates}
+                    image_urls={image_urls}
+                    fields={fields}
+                  />
+                ) || <h1>Nothing here!</h1>
+              );
+            }
+          )}
         </React.Fragment>
       )}
     </div>

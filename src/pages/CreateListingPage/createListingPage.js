@@ -1,25 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabaseClient as supabase } from "config/supabase-client";
-import { Spinner } from "react-bootstrap";
-import { useForm } from "react-hook-form";
 
+import Accordion from "react-bootstrap/Accordion";
 import CloseButton from "react-bootstrap/CloseButton";
+import Spinner from "react-bootstrap/Spinner";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
+import FieldTag from "components/FieldTag/fieldTag";
 import createListingPageStyles from "./createListingPage.module.css";
 import Button from "react-bootstrap/Button";
 import { PlusCircle } from "react-bootstrap-icons";
-import AutosizeInput from "react-input-autosize";
 import LoadingOverlay from "react-loading-overlay-ts";
 
 const CreateListingPage = ({ _userLoggedIn }) => {
   // Options to be shown under the selection field dropdown box. Edit if required!
   const fieldParams = {
+    subject: "Subject",
     qualifications: "Qualifications",
     timing: "Preferred Times",
     commitment: "Commitment Period",
-    subject: "Subjects",
+    others: "Others",
+  };
+
+  // Options to be shown under the education level dropdown box. Edit if required!
+  const levelParams = {
+    primary: "Primary",
+    secondary: "Secondary",
+    tertiary: "Tertiary",
+    undergrad: "Undergraduate",
+    grad: "Graduate",
     others: "Others",
   };
 
@@ -30,18 +42,9 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   const [rates, setRates] = useState("");
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [imageURLs, setImageURLs] = useState([]);
-  const [sFields, setSFields] = useState(
-    [0, 1, 2].map((id) => {
-      return { id };
-    })
-  );
-  const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit: validateAndSubmit,
-    formState: { errors: validationErrors },
-  } = useForm();
+  const [sFields, setSFields] = useState([{ id: 0 }]);
   const [invalidRates, setInvalidRates] = useState(null);
+  const navigate = useNavigate();
 
   // ------------------ End of variable declarations ----------------------
 
@@ -115,7 +118,10 @@ const CreateListingPage = ({ _userLoggedIn }) => {
 
   // Handles adding of selection fields
   const onSFieldAdd = () => {
-    const newSFields = [...sFields, { id: sFields.length }];
+    const newSFields = [
+      ...sFields,
+      { id: sFields.length ? sFields[sFields.length - 1].id + 1 : 0 },
+    ];
     setSFields(newSFields);
   };
 
@@ -126,18 +132,23 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   };
 
   // Handles submission of entire form to Supabase
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     // Get all relevant details from input fields
-    const title = document.getElementById("title").value;
-    const description = document.getElementById("description").value;
+    const level = document.getElementById("level").value;
     const rates = document.getElementById("rates").value;
-    const subject = document.getElementById("subject").value;
+    if (!rates) {
+      setInvalidRates("This is a required field.");
+      document.getElementById("rates").focus();
+      return;
+    }
     const fields = sFieldInputs.map((sFieldInput) => {
       return {
         category: sFieldInput.requirement,
         value: sFieldInput.getInput(),
       };
     });
+    const image_urls = imageURLs.map((img) => img.publicURL);
 
     // Update Supabase with input
     try {
@@ -147,12 +158,11 @@ const CreateListingPage = ({ _userLoggedIn }) => {
       // Pack the data to be uploaded to Supabase
       const data = {
         creator_id: supabase.auth.user().id,
-        title,
-        description,
         fields,
         rates,
-        subject,
+        image_urls,
         seeking_for: tutorTutee,
+        level,
       };
 
       // Attempt to upload data to Supabase
@@ -191,14 +201,12 @@ const CreateListingPage = ({ _userLoggedIn }) => {
         handleSubmit={handleSubmit}
         fieldParams={fieldParams}
         submitting={submitting}
-        register={register}
-        validateAndSubmit={validateAndSubmit}
-        validationErrors={validationErrors}
         rates={rates}
         setRates={setRates}
         invalidRates={invalidRates}
         setInvalidRates={setInvalidRates}
         imageURLs={imageURLs}
+        levelParams={levelParams}
       />
       <FooterBar />
     </div>
@@ -221,14 +229,12 @@ const CreateListingBody = (props) => {
     handleSubmit,
     fieldParams,
     submitting,
-    register,
-    validateAndSubmit,
-    validationErrors,
     rates,
     setRates,
     invalidRates,
     setInvalidRates,
     imageURLs,
+    levelParams,
   } = props;
 
   // Check if submission is in progress. Show "Submitting..." if required.
@@ -239,94 +245,101 @@ const CreateListingBody = (props) => {
     </div>
   ) : (
     // Actual submission form. Shown only if not submitting and user is logged in.
-    <form
-      className={createListingPageStyles["body"]}
-      onSubmit={validateAndSubmit(handleSubmit)}
-    >
-      {/* Listing Title. Required field. */}
-      <input
-        className={`\
-            ${createListingPageStyles["input-composition-master"]} \
-            ${createListingPageStyles["border-1px-gray700--101828"]}`}
-        placeholder="Listing Title"
-        id="title"
-        value=""
-        {...register("title", {
-          required: "This is a required field.",
-        })}
-      />
-      <p className="text-danger mt-1 mb-5">{validationErrors.title?.message}</p>
-
-      {/* Add Images section. Capped at 3. */}
-      <LoadingOverlay active={uploading} spinner text="Loading...">
-        <div
-          className={`\
-              ${createListingPageStyles["listing-images"]} \
-              ${createListingPageStyles["border-1px-gray700---101828"]}`}
+    <form className={createListingPageStyles["body"]} onSubmit={handleSubmit}>
+      {/* Fixed field 1: Tutor/Tutee toggle. Defaults to Tutor. */}
+      <Row
+        className={`${createListingPageStyles["choose-tutor-tutee"]} my-3 mx-4`}
+      >
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} m-0 p-0`}
+          xs={12}
+          sm="auto"
         >
-          {/* Map each element in imageURLs into a ListingImage to display the image. */}
-          {imageURLs.map((imgObj) => (
-            <ListingImage
-              imgUrl={imgObj.publicURL}
-              onImgDelete={onImgDelete}
-              uploading={uploading}
-              numPics={imageURLs.length}
-            />
-          ))}
-
-          {/* If there are less than 3 imageURL elements, then add a 
-          placeholder ListingImage for user to add new images */}
-          {imageURLs.length < 3 && (
-            <ListingImage
-              onImgUpload={onImgUpload}
-              uploading={uploading}
-              numPics={imageURLs.length}
-            />
-          )}
-        </div>
-      </LoadingOverlay>
-
-      {/* Input fields. Includes both fixed and dynamic (selection fields) fields. */}
-      <div className={createListingPageStyles["listing-fields"]}>
-        {/* Fixed field 1: Tutor/Tutee toggle. Defaults to Tutor. */}
-        <div className={createListingPageStyles["choose-tutor-tutee"]}>
-          <h1
-            className={`${createListingPageStyles["findMeText"]} nunito-medium-black-24px`}
-          >
-            Find me a
-          </h1>
+          Find me a
+        </Col>
+        <Col xs={12} sm="auto">
           <TutorTuteeToggle
             tutorTutee={tutorTutee}
             setTutorTutee={setTutorTutee}
           />
-        </div>
+        </Col>
+      </Row>
 
-        {/* Fixed field 2: Tutor/Tutee rate. Required field. */}
-        <div className="d-flex flex-row align-items-center">
-          <h1 className="nunito-medium-black-24px m-0 p-0">for $</h1>
-          <AutosizeInput
+      {/* Fixed field 2: Teaching level. Defaults to Primary. */}
+      <Row className="d-flex flex-row my-2 align-items-center justify-center mx-3">
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} p-0 m-0`}
+          xs={12}
+          sm="auto"
+        >
+          at the
+        </Col>
+        <Col
+          as="select"
+          className={`${createListingPageStyles["level-dropdown"]} py-0 mx-3`}
+          id="level"
+          xs={12}
+          sm="auto"
+        >
+          {(() => {
+            const fields = [];
+
+            for (let field in levelParams) {
+              fields.push(
+                <option key={field} value={field}>
+                  {levelParams[field]}
+                </option>
+              );
+            }
+
+            return fields;
+          })()}
+        </Col>
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} p-0 m-0`}
+          xs={12}
+          sm="auto"
+        >
+          level
+        </Col>
+      </Row>
+
+      {/* Fixed field 3: Tutor/Tutee rate. Required field. */}
+      <Row className="d-flex flex-row align-items-center my-3 my-sm-4">
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} m-0 p-0`}
+          xs={12}
+          sm="auto"
+        >
+          for
+        </Col>
+        <Col
+          className="d-flex flex-row align-items-center justify-center"
+          xs={12}
+          sm="auto"
+        >
+          $
+          <input
             name="rates"
             id="rates"
+            className={`${createListingPageStyles["rates-input"]} rounded-4 mx-1`}
             value={rates}
-            className="nunito-medium-black-24px ms-1 border-0 px-3 py-1 m-2"
             placeholder="..."
-            style={{
-              borderRadius: "15px",
-              boxShadow: "0px 4px 4px #00000040",
-              color: "var(--sapphire)",
-              fontWeight: "bold",
-            }}
             onChange={(e) => {
               let newVal = e.target.value;
+              // Prevent excessive leading 0s
               if (/^[0][0-9]+/.test(newVal))
                 newVal = newVal.substring(1, newVal.length);
-              if (/^\d{0,3}(\.\d{0,2})?$/.test(newVal)) {
-                if (invalidRates) setInvalidRates(null);
+
+              if (/^\d{0,3}$/.test(newVal)) {
+                setInvalidRates(null);
                 setRates(newVal);
-              } else if (/^[^0-9.]/.test(newVal)) {
-                setInvalidRates("Only digits and decimals are allowed.");
-              } else if (/^\d{0,3}(\.\d*)/.test(newVal)) {
-                setInvalidRates("2 decimal places will do!");
+              } else if (/[^0-9]/.test(newVal)) {
+                setInvalidRates("Only digits are allowed.");
               } else if (/^\d*/.test(newVal)) {
                 setInvalidRates(
                   "Woah there! Try to keep your rates under $1000!"
@@ -334,82 +347,83 @@ const CreateListingBody = (props) => {
               }
             }}
           />
-          <h1 className="nunito-medium-black-24px m-0">per hour</h1>
-        </div>
-        <p className="text-danger">{invalidRates}</p>
-
-        {/* Fixed field 3: Subject. Required Field.*/}
-        <div className="d-flex flex-row align-items-center mb-1">
-          <h1 className="nunito-medium-black-24px mx-2 my-0 p-0">to teach</h1>
-          <input
-            id="subject"
-            className="nunito-medium-black-24px ms-1 border-0 px-3 py-1 mx-2 text-center"
-            placeholder="Enter a subject!"
-            style={{
-              width: "250px",
-              borderRadius: "15px",
-              boxShadow: "0px 4px 4px #00000040",
-              overflow: "scroll",
-              color: "var(--sapphire)",
-              fontWeight: "bold",
-            }}
-            {...register("subject", {
-              required: "This is a required field.",
-              maxLength: {
-                value: 30,
-                message: "That's a little too long!",
-              },
-            })}
-          />
-        </div>
-        <p className="text-danger">{validationErrors.subject?.message}</p>
-
-        {/* Fixed field 4: Listing description
-          Required field, with a maximum of 100 characters. */}
-        <div
-          className={`\
-                ${createListingPageStyles["describe-listing-input"]} \
-                ${createListingPageStyles["border-1px-gray700-101828"]}`}
+        </Col>
+        <Col
+          as="h1"
+          className={`${createListingPageStyles["big-text"]} m-0 p-0`}
+          xs={12}
+          sm="auto"
         >
-          <input
-            className={createListingPageStyles["describe-listing-text"]}
-            placeholder="Describe your listing in one short sentence."
-            id="description"
-            {...register("describeListing", {
-              required: "This is a required field.",
-            })}
-          />
-        </div>
-        <p className="text-danger mt-1">
-          {validationErrors.describeListing?.message}
-        </p>
+          per hour!
+        </Col>
+      </Row>
+      <p className="text-danger mx-4 text-center">{invalidRates}</p>
 
-        {/* Start of dynamic fields/selection fields */}
-        <div className={createListingPageStyles["selection-fields"]}>
-          <h1 className="nunito-medium-black-24px mx-2 my-0 pt-2 align-self-center">
-            Additionally, ... (Optional)
-          </h1>
-          {/* Creates a SelectionField for each object present in the selectionFields state.
-            SelectionField implementation can be found below. */}
-          {selectionFields.map((sField) => (
-            <SelectionField
-              key={sField.id}
-              id={sField.id}
-              onSFieldDelete={onSFieldDelete}
-              sFieldInputStates={sFieldInputStates}
-              fieldParams={fieldParams}
-            />
-          ))}
-          {/* Button to add selection fields. onClick handler can be found above, under CreateListingPage. */}
-          <PlusCircle
-            size={42}
-            className="align-self-center mt-3"
-            style={{ color: "gray", cursor: "pointer" }}
-            onClick={onSFieldAdd}
-          />
-        </div>
-      </div>
+      {/* Add Images section. Capped at 3. */}
+      <Accordion defaultActiveKey="0" className="my-3">
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>Listing Images (max 3)</Accordion.Header>
+          <Accordion.Body className={createListingPageStyles["accordion-item"]}>
+            <LoadingOverlay active={uploading} spinner text="Loading...">
+              <div
+                className={`${createListingPageStyles["listing-images"]} my-4`}
+              >
+                {/* Map each element in imageURLs into a ListingImage to display the image. */}
+                {imageURLs.map((imgObj) => (
+                  <ListingImage
+                    key={imgObj.publicURL}
+                    imgUrl={imgObj.publicURL}
+                    onImgDelete={onImgDelete}
+                    uploading={uploading}
+                    numPics={imageURLs.length}
+                  />
+                ))}
 
+                {/* If there are less than 3 imageURL elements, then add a 
+        placeholder ListingImage for user to add new images */}
+                {imageURLs.length < 3 && (
+                  <ListingImage
+                    onImgUpload={onImgUpload}
+                    uploading={uploading}
+                    numPics={imageURLs.length}
+                  />
+                )}
+              </div>
+            </LoadingOverlay>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+
+      {/* Start of dynamic fields/selection fields */}
+      <Accordion defaultActiveKey="0" className="my-3">
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>Tags (Optional)</Accordion.Header>
+          <Accordion.Body className={createListingPageStyles["accordion-item"]}>
+            <Row
+              className={`${createListingPageStyles["selection-fields"]} my-4 p-3`}
+            >
+              {/* Creates a SelectionField for each object present in the selectionFields state.
+        SelectionField implementation can be found below. */}
+              {selectionFields.map((sField) => (
+                <SelectionField
+                  key={sField.id}
+                  id={sField.id}
+                  onSFieldDelete={onSFieldDelete}
+                  sFieldInputStates={sFieldInputStates}
+                  fieldParams={fieldParams}
+                />
+              ))}
+              {/* Button to add selection fields. onClick handler can be found above, under CreateListingPage. */}
+              <PlusCircle
+                size={42}
+                className="align-self-center mt-3"
+                style={{ color: "gray", cursor: "pointer" }}
+                onClick={onSFieldAdd}
+              />
+            </Row>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
       {/* Submit Button.  */}
       <Button
         type="submit"
@@ -431,86 +445,115 @@ const CreateListingBody = (props) => {
 const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   return (
     <div
-      className={`${createListingPageStyles["tutor-tutee-toggle"]} px-2`}
+      className={`${createListingPageStyles["tutor-tutee-toggle"]} px-2 my-0`}
       onClick={() => setTutorTutee(tutorTutee === "tutor" ? "tutee" : "tutor")}
     >
-      <div className={`inter-medium-sapphire-24px`}>{tutorTutee}</div>
+      <div>{tutorTutee}</div>
     </div>
   );
 };
 
 // The SelectionField element.
-const SelectionField = (props) => {
-  const { id, onSFieldDelete, sFieldInputStates, fieldParams } = props;
-  const [sFieldInputs, setSFieldInputs] = sFieldInputStates;
-
-  // Called whenever there is a change in the dropdown box selection.
-  // Records the changes into the sFieldInputs state.
-  // The sFieldInputs will contain objects with these three items:
+const SelectionField = ({
+  id,
+  onSFieldDelete,
+  sFieldInputStates,
+  fieldParams,
+}) => {
+  // Array of objects containing these three details:
   // 1. SelectionField id
   // 2. Value of the selected item in the dropdown box
   // 3. A method to get the value of the corresponding input box
+  const [sFieldInputs, setSFieldInputs] = sFieldInputStates;
+  const [previewText, setPreviewText] = useState("Preview");
+  const [previewCategory, setPreviewCategory] = useState("subject");
 
-  const handleDropdownChange = (e) => {
-    const fieldDropdown = e.target;
-    const fieldInput = e.target.parentElement.children[1].firstChild;
+  // Called whenever there is a change in the dropdown box selection.
+  // Records the changes into the sFieldInputs state.
+
+  const captureSField = (dropdown, input) => {
     setSFieldInputs([
       ...sFieldInputs.filter((sField) => sField.id !== id),
       {
         id,
-        requirement: fieldDropdown.value,
-        getInput: () => fieldInput.value,
+        requirement: dropdown.value,
+        getInput: () => input.value,
       },
     ]);
   };
 
+  const handleDropdownChange = (e) => {
+    captureSField(e.target, e.target.parentElement.children[1].firstChild);
+    setPreviewCategory(e.target.value);
+  };
+
   return (
-    <div className={createListingPageStyles["selection-field-1"]}>
+    <Row className={`${createListingPageStyles["selection-field-1"]} my-2`}>
       {/*
          The dropdown box. 
          Calls handleDropdownChange when changed.
          Displays fixed values which can be changed in the fieldParams const
          declared at the start.
       */}
-      <select
+      <Col
+        as="select"
         className={createListingPageStyles["selection-dropdown-box-master"]}
-        defaultValue="DEFAULT"
+        defaultValue="subject"
         onChange={handleDropdownChange}
+        xs={12}
+        sm={6}
+        lg={5}
       >
-        <option disabled value="DEFAULT" hidden>
-          Requirement
-        </option>
         {(() => {
           const fields = [];
 
           for (let field in fieldParams) {
             fields.push(
               <option key={field} value={field}>
-                {" "}
-                {fieldParams[field]}{" "}
+                {fieldParams[field]}
               </option>
             );
           }
 
           return fields;
         })()}
-      </select>
+      </Col>
 
       {/* The input box for users to elaborate on their requirements. */}
-      <div
-        className={`\
-            ${createListingPageStyles["selection-input-box-master"]} \
-            ${createListingPageStyles["border-1px-gray500---98a2b3"]}`}
+      <Col
+        className={`${createListingPageStyles["selection-input-box-master"]}`}
+        xs={12}
+        sm={6}
+        lg={4}
       >
         <input
-          className={createListingPageStyles["input-text-4"]}
           placeholder="Tell us more..."
+          maxLength={30}
+          onChange={(e) => setPreviewText(e.target.value || "Preview")}
+          onFocus={(e) =>
+            captureSField(
+              e.target.parentElement.parentElement.firstChild,
+              e.target
+            )
+          }
         />
-      </div>
+      </Col>
 
-      {/* Button to delete this SelectionField. */}
-      <CloseButton className="m-1" onClick={() => onSFieldDelete(id)} />
-    </div>
+      <Col
+        className="d-flex flex-row align-items-center justify-center justify-content-lg-evenly text-center"
+        xs={12}
+        lg={3}
+      >
+        {/* Preview of the tag to be shown on their listing. */}
+        <FieldTag
+          category={previewCategory}
+          value={previewText}
+          maxWidth="calc(80% + 0.8vw)"
+        />
+        {/* Button to delete this SelectionField. */}
+        <CloseButton className="m-1" onClick={() => onSFieldDelete(id)} />
+      </Col>
+    </Row>
   );
 };
 
@@ -522,9 +565,7 @@ const ListingImage = ({
   numPics,
 }) => {
   return (
-    <div
-      className={`${createListingPageStyles["add-image-placeholder"]} border-1px-mountain-mist`}
-    >
+    <div className={`${createListingPageStyles["add-image-placeholder"]}`}>
       {imgUrl ? (
         <React.Fragment>
           <CloseButton

@@ -9,8 +9,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 25px 0px;
-  margin: 10px 8%;
+  padding: 25px 5vw;
+  margin: 10px calc(10% - 10px);
   position: relative;
 }
 
@@ -59,6 +59,11 @@
   padding: 17px;
 }
 
+.listing-images::before, .listing-images::after {
+  content: '';
+  margin: auto;
+}
+
 .add-image-placeholder {
   border-width: 1px;
   border-style: solid;
@@ -71,6 +76,7 @@
   border-radius: 15px;
   display: flex;
   height: 256px;
+  max-width: 350px;
   overflow: hidden;
   min-width: 190px;
   width: fit-content !important;
@@ -95,7 +101,7 @@
 }
 
 .selection-fields {
-  align-items: flex-start;
+  align-items: center;
   align-self: center;
   border: 1px solid 
 #000000bf;
@@ -104,9 +110,16 @@
   flex-direction: column;
   min-height: 50px;
   overflow: hidden;
-  padding: 14px 42px 40px 42px;
-  width: 80%;
+  width: calc(110px + 40vw);
   position: relative;
+}
+
+.accordion-item {
+  background-color: var(--zircon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .icon-plus-1 {

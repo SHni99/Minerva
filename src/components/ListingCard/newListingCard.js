@@ -5,6 +5,15 @@ import Carousel from "react-bootstrap/Carousel";
 import newListingCardStyles from "./newListingCard.module.css";
 
 const ListingCard = ({ avatarUrl, image_urls, level, rates, fields }) => {
+  const levelParams = {
+    primary: "Primary",
+    secondary: "Secondary",
+    tertiary: "Tertiary",
+    undergrad: "Undergraduate",
+    grad: "Graduate",
+    others: "Others",
+  };
+
   return (
     <Card
       className={newListingCardStyles.card + " mx-sm-3 my-3 py-4 rounded-5"}
@@ -55,13 +64,14 @@ const ListingCard = ({ avatarUrl, image_urls, level, rates, fields }) => {
           <p className="m-0">/hr</p>
         </div>
       </Card.Body>
+
       {/* Tutoring Level */}
       <Card.Subtitle
         as="h5"
         className="d-flex justify-center px-4 text-center"
         style={{ fontFamily: "Nunito" }}
       >
-        {level}
+        {levelParams[level]}
       </Card.Subtitle>
 
       {/* Optional fields. Decorated with Bootstrap Badges */}

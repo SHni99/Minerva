@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabaseClient as supabase } from "config/supabase-client";
 
+import Accordion from "react-bootstrap/Accordion";
 import CloseButton from "react-bootstrap/CloseButton";
 import Spinner from "react-bootstrap/Spinner";
 import Row from "react-bootstrap/Row";
@@ -42,8 +43,8 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [imageURLs, setImageURLs] = useState([]);
   const [sFields, setSFields] = useState([{ id: 0 }]);
-  const navigate = useNavigate();
   const [invalidRates, setInvalidRates] = useState(null);
+  const navigate = useNavigate();
 
   // ------------------ End of variable declarations ----------------------
 
@@ -131,10 +132,16 @@ const CreateListingPage = ({ _userLoggedIn }) => {
   };
 
   // Handles submission of entire form to Supabase
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     // Get all relevant details from input fields
     const level = document.getElementById("level").value;
     const rates = document.getElementById("rates").value;
+    if (!rates) {
+      setInvalidRates("This is a required field.");
+      document.getElementById("rates").focus();
+      return;
+    }
     const fields = sFieldInputs.map((sFieldInput) => {
       return {
         category: sFieldInput.requirement,
@@ -353,52 +360,70 @@ const CreateListingBody = (props) => {
       <p className="text-danger mx-4 text-center">{invalidRates}</p>
 
       {/* Add Images section. Capped at 3. */}
-      <LoadingOverlay active={uploading} spinner text="Loading...">
-        <div className={`${createListingPageStyles["listing-images"]}`}>
-          {/* Map each element in imageURLs into a ListingImage to display the image. */}
-          {imageURLs.map((imgObj) => (
-            <ListingImage
-              key={imgObj.publicURL}
-              imgUrl={imgObj.publicURL}
-              onImgDelete={onImgDelete}
-              uploading={uploading}
-              numPics={imageURLs.length}
-            />
-          ))}
+      <Accordion defaultActiveKey="0" className="my-3">
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>Listing Images (max 3)</Accordion.Header>
+          <Accordion.Body className={createListingPageStyles["accordion-item"]}>
+            <LoadingOverlay active={uploading} spinner text="Loading...">
+              <div
+                className={`${createListingPageStyles["listing-images"]} my-4`}
+              >
+                {/* Map each element in imageURLs into a ListingImage to display the image. */}
+                {imageURLs.map((imgObj) => (
+                  <ListingImage
+                    key={imgObj.publicURL}
+                    imgUrl={imgObj.publicURL}
+                    onImgDelete={onImgDelete}
+                    uploading={uploading}
+                    numPics={imageURLs.length}
+                  />
+                ))}
 
-          {/* If there are less than 3 imageURL elements, then add a 
+                {/* If there are less than 3 imageURL elements, then add a 
         placeholder ListingImage for user to add new images */}
-          {imageURLs.length < 3 && (
-            <ListingImage
-              onImgUpload={onImgUpload}
-              uploading={uploading}
-              numPics={imageURLs.length}
-            />
-          )}
-        </div>
-      </LoadingOverlay>
+                {imageURLs.length < 3 && (
+                  <ListingImage
+                    onImgUpload={onImgUpload}
+                    uploading={uploading}
+                    numPics={imageURLs.length}
+                  />
+                )}
+              </div>
+            </LoadingOverlay>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
 
       {/* Start of dynamic fields/selection fields */}
-      <Row className={`${createListingPageStyles["selection-fields"]} my-4`}>
-        {/* Creates a SelectionField for each object present in the selectionFields state.
+      <Accordion defaultActiveKey="0" className="my-3">
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>Tags (Optional)</Accordion.Header>
+          <Accordion.Body className={createListingPageStyles["accordion-item"]}>
+            <Row
+              className={`${createListingPageStyles["selection-fields"]} my-4 p-3`}
+            >
+              {/* Creates a SelectionField for each object present in the selectionFields state.
         SelectionField implementation can be found below. */}
-        {selectionFields.map((sField) => (
-          <SelectionField
-            key={sField.id}
-            id={sField.id}
-            onSFieldDelete={onSFieldDelete}
-            sFieldInputStates={sFieldInputStates}
-            fieldParams={fieldParams}
-          />
-        ))}
-        {/* Button to add selection fields. onClick handler can be found above, under CreateListingPage. */}
-        <PlusCircle
-          size={42}
-          className="align-self-center mt-3"
-          style={{ color: "gray", cursor: "pointer" }}
-          onClick={onSFieldAdd}
-        />
-      </Row>
+              {selectionFields.map((sField) => (
+                <SelectionField
+                  key={sField.id}
+                  id={sField.id}
+                  onSFieldDelete={onSFieldDelete}
+                  sFieldInputStates={sFieldInputStates}
+                  fieldParams={fieldParams}
+                />
+              ))}
+              {/* Button to add selection fields. onClick handler can be found above, under CreateListingPage. */}
+              <PlusCircle
+                size={42}
+                className="align-self-center mt-3"
+                style={{ color: "gray", cursor: "pointer" }}
+                onClick={onSFieldAdd}
+              />
+            </Row>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
       {/* Submit Button.  */}
       <Button
         type="submit"
@@ -446,18 +471,20 @@ const SelectionField = ({
   // Called whenever there is a change in the dropdown box selection.
   // Records the changes into the sFieldInputs state.
 
-  const handleDropdownChange = (e) => {
-    const fieldDropdown = e.target;
-    const fieldInput = e.target.parentElement.children[1].firstChild;
+  const captureSField = (dropdown, input) => {
     setSFieldInputs([
       ...sFieldInputs.filter((sField) => sField.id !== id),
       {
         id,
-        requirement: fieldDropdown.value,
-        getInput: () => fieldInput.value,
+        requirement: dropdown.value,
+        getInput: () => input.value,
       },
     ]);
-    setPreviewCategory(fieldDropdown.value);
+  };
+
+  const handleDropdownChange = (e) => {
+    captureSField(e.target, e.target.parentElement.children[1].firstChild);
+    setPreviewCategory(e.target.value);
   };
 
   return (
@@ -497,19 +524,25 @@ const SelectionField = ({
         className={`${createListingPageStyles["selection-input-box-master"]}`}
         xs={12}
         sm={6}
-        lg={5}
+        lg={4}
       >
         <input
           placeholder="Tell us more..."
           maxLength={30}
           onChange={(e) => setPreviewText(e.target.value || "Preview")}
+          onFocus={(e) =>
+            captureSField(
+              e.target.parentElement.parentElement.firstChild,
+              e.target
+            )
+          }
         />
       </Col>
 
       <Col
-        className="d-flex flex-row align-items-center justify-center text-center"
+        className="d-flex flex-row align-items-center justify-center justify-content-lg-evenly text-center"
         xs={12}
-        lg={2}
+        lg={3}
       >
         {/* Preview of the tag to be shown on their listing. */}
         <FieldTag

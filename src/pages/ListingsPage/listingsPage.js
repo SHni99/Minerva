@@ -151,18 +151,13 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
           listingStatus,
         } = await supabase
           .from("listings")
-          .select(
-            "creator_id, title, description, level, rates, fields, image_urls, listing_id"
-          )
+          .select("creator_id, level, rates, fields, image_urls, listing_id")
           .eq("seeking_for", tutorTutee);
         if (listingError && listingStatus !== 406) throw listingError;
 
         // Filter using the entered query (set to "" by default/on clearing the textbox)
-        listingDb = listingDb.filter(
-          ({ title, description, level, rates, fields }) =>
-            `${title} ${description} ${level} ${rates} ${fields}`.includes(
-              query
-            )
+        listingDb = listingDb.filter(({ level, rates, fields }) =>
+          `$${level} ${rates} ${fields}`.includes(query)
         );
 
         // Indicate no results and useEffect call here, if filtered results array is empty
@@ -181,8 +176,6 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
           listingDb.map(
             async ({
               creator_id,
-              title,
-              description,
               level,
               rates,
               fields,
@@ -208,8 +201,6 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
 
               return {
                 avatarUrl,
-                title,
-                description,
                 level,
                 rates,
                 fields,
@@ -244,39 +235,22 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
         <Spinner animation="border" role="status" aria-label="Loading" />
       ) : (
         <React.Fragment>
-          {listingData
-            .filter(
-              (listing) =>
-                listing.title.indexOf(query || "") > -1 ||
-                listing.description.indexOf(query || "") > -1
-            )
-            .map(
-              ({
-                avatarUrl,
-                title,
-                description,
-                level,
-                rates,
-                fields,
-                image_urls,
-                listing_id,
-              }) => {
-                return (
-                  (
-                    <ListingCard
-                      avatarUrl={avatarUrl}
-                      title={title}
-                      description={description}
-                      key={listing_id}
-                      level={level}
-                      rates={rates}
-                      image_urls={image_urls}
-                      fields={fields}
-                    />
-                  ) || <h1>Nothing here!</h1>
-                );
-              }
-            )}
+          {listingData.map(
+            ({ avatarUrl, level, rates, fields, image_urls, listing_id }) => {
+              return (
+                (
+                  <ListingCard
+                    avatarUrl={avatarUrl}
+                    key={listing_id}
+                    level={level}
+                    rates={rates}
+                    image_urls={image_urls}
+                    fields={fields}
+                  />
+                ) || <h1>Nothing here!</h1>
+              );
+            }
+          )}
         </React.Fragment>
       )}
     </div>

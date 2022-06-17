@@ -7,6 +7,7 @@ import profileStyles from "./profile.module.css";
 import PersonalAvatar from "components/Avatar/avatar";
 import Button from "react-bootstrap/Button";
 
+//retrieve session from loginmain page and call getProfile method if session is read
 const ProfilePage = ({ session }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ const ProfilePage = ({ session }) => {
     getProfile();
   }, [session]);
 
+  // get data from profiles table in supabase
   const getProfile = async () => {
     try {
       setLoading(true);
@@ -43,6 +45,7 @@ const ProfilePage = ({ session }) => {
     }
   };
 
+  //modify the data components in supabase and set its states to new values
   async function updateProfile({ username, avatar_url }) {
     try {
       setLoading(true);
@@ -67,6 +70,7 @@ const ProfilePage = ({ session }) => {
     }
   }
 
+  //log user out and redirect to landing page
   const handleLogout = async (navigate, e) => {
     e.preventDefault();
 
@@ -83,6 +87,7 @@ const ProfilePage = ({ session }) => {
     }
   };
 
+  //profile page component classes
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
@@ -106,7 +111,9 @@ const ProfilePage = ({ session }) => {
 
 export default ProfilePage;
 
+//the body which is the card container in the middle
 const ProfilePageBody = (props) => {
+  //call every params under props (from ProfilePage)
   const {
     session,
     username,
@@ -133,7 +140,7 @@ const ProfilePageBody = (props) => {
             style={{ backgroundColor: "#FAFAD2" }}
           >
             <div className="card-body mt-4">
-              <PersonalAvatar
+              <PersonalAvatar //user can upload from his side, will update avatar_url under the profile table 
                 className="align-self"
                 url={avatar_url}
                 onUpload={(url) => {
@@ -158,7 +165,7 @@ const ProfilePageBody = (props) => {
                   className="form-control form-control-lg m-auto"
                 ></input>
                 <div className="row-lg-2 m-5">
-                  <Button
+                  <Button //logout button: supabase logout function
                     className={` col-lg-5 rounded-4 p-2 mr-5  w-1 border-dark text-dark`}
                     style={{
                       fontSize: "15px",
@@ -171,7 +178,7 @@ const ProfilePageBody = (props) => {
                     <strong>Log out</strong>
                   </Button>
 
-                  <Button
+                  <Button //update button: triggers three events when run successfully
                     className={`col-lg-5 rounded-4 p-2 ml-5  w-1 border-dark text-dark`}
                     style={{
                       fontSize: "15px",

@@ -11,6 +11,7 @@ const PasswordPage = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
+  //user will use his/her email to reset password with the help of supabase
   const forgotPassword = async (email, e) => {
     e.preventDefault();
 
@@ -76,7 +77,7 @@ const PasswordPage = () => {
                         }}
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => setEmail(e.target.value)} //email changes everytime an input change is made
                         placeholder="Enter email"
                       ></input>
                     </div>

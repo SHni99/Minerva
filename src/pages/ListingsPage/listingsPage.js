@@ -72,7 +72,7 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
           />
           <CloseButton
             onClick={() => {
-              setQuery(null);
+              setQuery("");
               document.getElementById("search-input").value = "";
             }}
           />
@@ -155,7 +155,10 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
 
         // Filter using the entered query (set to "" by default/on clearing the textbox)
         listingDb = listingDb.filter(({ level, rates, fields }) =>
-          `$${level} ${rates} ${fields}`.includes(query)
+          `${level} ${rates} ${Object.keys(fields).reduce(
+            (acc, key) => `${acc} ${fields[key].value}`,
+            ""
+          )}`.includes(query)
         );
 
         // Indicate no results and useEffect call here, if filtered results array is empty

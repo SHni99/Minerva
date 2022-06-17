@@ -5,6 +5,8 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import FooterBar from "components/FooterBar/footerBar";
 import { JournalCheck, Funnel, ChatLeftText } from "react-bootstrap-icons";
+import { supabaseClient } from "config/supabase-client";
+import { useNavigate } from "react-router-dom";
 
 import landingPageStyles from "./landingPage.module.css";
 
@@ -30,7 +32,17 @@ const srcImgLink = (imgName) => {
   return `url("${require("assets/images/" + imgName)}")`;
 };
 
+const switchPage = (navigate, e) => {
+  e.preventDefault();
+  if (supabaseClient.auth.user()) {
+    navigate("/loginmainpage");
+  } else {
+    navigate("/loginpage");
+  }
+};
+
 const IntroSection = () => {
+  const navigate = useNavigate();
   return (
     <Container
       className="px-md-3 px-lg-5"
@@ -62,11 +74,16 @@ const IntroSection = () => {
           <Button className="px-3 py-2 m-2 rounded-pill" href="/listingspage">
             View Listings
           </Button>
-          <Button variant="outline-light border-0 m-2" href="/loginpage">
-            Login
+          <Button
+            variant="outline-light border-0 m-2"
+            onClick={(e) => {
+              switchPage(navigate, e);
+            }}
+          >
+            {supabaseClient.auth.user()? "My Profile" : "Login"}
           </Button>
           <Button variant="light m-2" href="/registerpage">
-            Register
+          {supabaseClient.auth.user()? "My Reviews" : "Register"}
           </Button>
         </Col>
       </Row>
@@ -107,7 +124,7 @@ const IntroSection = () => {
                 className="p-3 border"
                 variant="dark"
                 style={{ borderRadius: "10px" }}
-                href="/formpage"
+                href="/aboutuspage"
               >
                 About Us
               </Button>

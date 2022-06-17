@@ -71,7 +71,7 @@ const PersonalAvatar = ({ url, onUpload }) => {
             style={{ cursor: "pointer", fontWeight: "bold" }}
             htmlFor="single"
           >
-            {uploading ? "Uploading ..." : "Upload"}
+            {uploading ? "Uploading" : "Upload"}
           </label>
           <input
             style={{

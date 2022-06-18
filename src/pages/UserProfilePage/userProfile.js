@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
-  const {creator_id} = state;
+  const { creator_id } = state;
   console.log(creator_id);
   return (
     <div
@@ -26,7 +26,7 @@ export default ViewProfilePage;
 const ProfilePageBody = (props) => {
   const { creator_id } = props;
   const [username, setUsername] = useState("");
-  const [avatar_url, setAvatarUrl] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("");
 
@@ -37,15 +37,13 @@ const ProfilePageBody = (props) => {
   // get data from profiles table in supabase
   const getProfile = async () => {
     try {
-      let { data, error, status } = await supabaseClient
+      const { data, error: avatarUrlError } = await supabaseClient
         .from("profiles")
-        .select(`username, avatar_url, Bio, gender `)
+        .select("avatar_url, username, Bio, gender")
         .eq("id", creator_id)
         .single();
-
-      if (error && status !== 406) {
-        throw error;
-      }
+      if (avatarUrlError) throw avatarUrlError;
+      if (data.avatar_url === "") return;
 
       const { publicURL, error: publicUrlError } = supabaseClient.storage
         .from("avatars")
@@ -77,9 +75,9 @@ const ProfilePageBody = (props) => {
           <div className="row">
             <div className="col-lg-4 my-auto">
               <img
-                src={avatar_url || "/images/img_avatarDefault.jpg"}
+                src={avatarUrl || "/images/img_avatarDefault.jpg"}
+                alt={"avatar" || "default_avatar"}
                 className={`${viewprofileStyles["avatar"]} rounded-pill`}
-                alt="avatar"
               ></img>
             </div>
             <div className="col-lg-4 my-auto">
@@ -89,16 +87,15 @@ const ProfilePageBody = (props) => {
               >
                 <div className="card-body mt-4">
                   <h2>
-                    {"Welcome "}
+                    {"Username: "}
                     <label className="text-danger poppins-semi-bold-black-24px">
-                      { username || ""}
+                      {username || ""}
                     </label>
-                    {" !"}
+                    
                   </h2>
                 </div>
               </div>
             </div>
-            
           </div>
         </div>
       </div>

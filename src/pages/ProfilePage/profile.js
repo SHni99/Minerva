@@ -91,11 +91,11 @@ const ProfilePageBody = () => {
               >
                 <div className="card-body mt-4">
                   <h2>
-                    {"Welcome "}
+                    {"Username: "}
                     <label className="text-danger poppins-semi-bold-black-24px">
                       {username || ""}
                     </label>
-                    {" !"}
+                    
                   </h2>
                 </div>
               </div>

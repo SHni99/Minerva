@@ -48,7 +48,7 @@ const LoginPage = () => {
         alert("Logged in");
         navigate("/listingspage");
       } catch (error) {
-        alert("You have entered an invald email or password");
+        alert("You have entered an invalid email or password");
       } finally {
         setLoading(false);
       }

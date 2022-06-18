@@ -4,7 +4,6 @@ import { supabaseClient } from "../../config/supabase-client";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import viewprofileStyles from "./profile.module.css";
-import PersonalAvatar from "components/Avatar/avatar";
 import Button from "react-bootstrap/Button";
 
 const viewProfilePage = () => {
@@ -23,7 +22,7 @@ export default viewProfilePage;
 
 //the body which is the card container in the middle
 const ProfilePageBody = () => {
-  const [loading, setLoading] = useState(false);
+  
   const [username, setUsername] = useState(null);
   const [avatar_url, setAvatarUrl] = useState(null);
   const [bio, setBio] = useState("");
@@ -37,7 +36,7 @@ const ProfilePageBody = () => {
   // get data from profiles table in supabase
   const getProfile = async () => {
     try {
-      setLoading(true);
+      
       const user = supabaseClient.auth.user();
 
       let { data, error, status } = await supabaseClient
@@ -65,9 +64,7 @@ const ProfilePageBody = () => {
       }
     } catch (error) {
       alert(error.message);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   return (

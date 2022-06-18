@@ -19,3 +19,11 @@
     object-fit: cover;
     margin-bottom: 4px;
 }
+
+.level {
+    font-family: "Nunito";
+    font-size: 130%;
+    padding: 10px;
+    background-color: var(--gray100---fcfcfd);
+    border-width: 2px 0px;
+}

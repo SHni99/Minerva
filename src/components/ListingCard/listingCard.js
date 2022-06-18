@@ -4,7 +4,16 @@ import Card from "react-bootstrap/Card";
 import Carousel from "react-bootstrap/Carousel";
 import listingCardStyles from "./listingCard.module.css";
 
-const ListingCard = ({ avatarUrl, image_urls, level, rates, fields }) => {
+const ListingCard = ({
+  avatarUrl,
+  username,
+  image_urls,
+  level,
+  rates,
+  fields,
+  setModalState,
+  creator_id,
+}) => {
   const levelParams = {
     primary: "Primary",
     secondary: "Secondary",
@@ -14,11 +23,25 @@ const ListingCard = ({ avatarUrl, image_urls, level, rates, fields }) => {
     others: "Others",
   };
 
+  const showModal = (e) => {
+    if (e.target.className.includes("carousel-control")) return;
+    setModalState({
+      show: true,
+      username,
+      avatarUrl,
+      image_urls,
+      fields,
+      creator_id,
+    });
+  };
   return (
-    <Card className={listingCardStyles.card + " mx-sm-3 my-3 py-4 rounded-5"}>
+    <Card
+      className={listingCardStyles.card + " mx-sm-3 my-3 py-4 rounded-5"}
+      onClick={showModal}
+    >
       {/* Carousel to display avatar image + listing images */}
       {/* Note: Consider adding a modal image on click to show full image */}
-      <Card.Body className="d-flex justify-center">
+      <Card.Body className="d-flex justify-center avatar-section">
         <Carousel
           variant="dark"
           indicators={false}

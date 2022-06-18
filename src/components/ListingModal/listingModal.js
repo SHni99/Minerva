@@ -9,7 +9,8 @@ import FieldTag from "components/FieldTag/fieldTag";
 
 const ListingModal = (props) => {
   const { onHide, data } = props;
-  const { show, username, avatarUrl, image_urls, fields, creator_id } = data;
+  const { show, username, avatarUrl, image_urls, fields /*,creator_id*/ } =
+    data;
   const tagNames = {
     subject: "Subjects",
     commitment: "Commitment Period",

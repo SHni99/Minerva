@@ -9,7 +9,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
-
+import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
 
 const ListingsPage = () => {
@@ -17,16 +17,30 @@ const ListingsPage = () => {
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [listingData, setListingData] = useState([]);
   const [query, setQuery] = useState("");
+  const unusedModalState = {
+    show: false,
+    username: "",
+    avatarUrl: "",
+    image_urls: [],
+    fields: [],
+    creator_id: "",
+  };
+  const [modalState, setModalState] = useState(unusedModalState);
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
+      <ListingModal
+        data={modalState}
+        onHide={() => setModalState(unusedModalState)}
+      />
       <ListingPageBody
         tutorTuteeState={[tutorTutee, setTutorTutee]}
         listingDataState={[listingData, setListingData]}
         queryState={[query, setQuery]}
+        setModalState={setModalState}
       />
       <FooterBar />
     </div>
@@ -35,7 +49,12 @@ const ListingsPage = () => {
 
 export default ListingsPage;
 
-const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
+const ListingPageBody = ({
+  tutorTuteeState,
+  listingDataState,
+  queryState,
+  setModalState,
+}) => {
   // Stores the text of the tutor/tutee toggle
   const [tutorTutee, setTutorTutee] = tutorTuteeState;
   // Stores the text entered into the search bar
@@ -105,6 +124,7 @@ const ListingPageBody = ({ tutorTuteeState, listingDataState, queryState }) => {
         tutorTutee={tutorTutee}
         listingDataState={listingDataState}
         query={query}
+        setModalState={setModalState}
       />
     </Container>
   );
@@ -126,7 +146,7 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   );
 };
 
-const Listings = ({ tutorTutee, listingDataState, query }) => {
+const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
@@ -184,12 +204,12 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
               listing_id,
             }) => {
               let {
-                data: { avatar_url: avatarTitle },
+                data: { avatar_url: avatarTitle, username },
                 error: avatarError,
                 status: avatarStatus,
               } = await supabase
                 .from("profiles")
-                .select("avatar_url")
+                .select("username, avatar_url")
                 .eq("id", creator_id)
                 .single();
               if (avatarError && avatarStatus !== 406) throw avatarError;
@@ -202,11 +222,13 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
 
               return {
                 avatarUrl,
+                username,
                 level,
                 rates,
                 fields,
                 image_urls,
                 listing_id,
+                creator_id,
               };
             }
           )
@@ -237,16 +259,28 @@ const Listings = ({ tutorTutee, listingDataState, query }) => {
       ) : (
         <React.Fragment>
           {listingData.map(
-            ({ avatarUrl, level, rates, fields, image_urls, listing_id }) => {
+            ({
+              avatarUrl,
+              username,
+              level,
+              rates,
+              fields,
+              image_urls,
+              listing_id,
+              creator_id,
+            }) => {
               return (
                 (
                   <ListingCard
                     avatarUrl={avatarUrl}
+                    username={username}
                     key={listing_id}
                     level={level}
                     rates={rates}
                     image_urls={image_urls}
                     fields={fields}
+                    setModalState={setModalState}
+                    creator_id={creator_id}
                   />
                 ) || <h1>Nothing here!</h1>
               );

@@ -252,6 +252,12 @@
   font-weight: 400;
   font-style: normal;
 }
+.nunito {
+  font-family: "Nunito";
+}
+.nunito-sans {
+  font-family: "Nunito Sans";
+}
 .nunito-semi-bold-black-24px {
   color: var(--black);
   font-family: var(--font-family-nunito);
@@ -272,6 +278,9 @@
   font-size: var(--font-size-xl);
   font-weight: 700;
   font-style: normal;
+}
+.inter {
+  font-family: "Inter";
 }
 .inter-medium-black-20px {
   color: var(--black-2);

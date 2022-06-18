@@ -1,6 +1,7 @@
 .card {
     box-shadow: 0px 4px 4px #00000040;
     width: 205px;
+    cursor: pointer;
 }
 
 .avatar {

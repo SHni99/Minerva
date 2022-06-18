@@ -1,0 +1,30 @@
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    border-width: 1px;
+    margin-right: 10px;
+}
+
+.image-section {
+    min-height: 200px;
+    display:flex;
+    align-items: center;
+}
+
+.carousel-item img {
+    margin: auto;
+    width: 80%;
+}
+
+.tag-row {
+    padding: 10px 0px;
+    display: flex;
+    align-items: center;
+}
+
+.tag-header {
+    display: flex;
+    justify-content: end;
+    text-align: end;
+}

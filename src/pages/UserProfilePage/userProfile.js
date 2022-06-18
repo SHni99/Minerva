@@ -1,48 +1,46 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabaseClient } from "../../config/supabase-client";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
-import viewprofileStyles from "./profile.module.css";
-import Button from "react-bootstrap/Button";
+import viewprofileStyles from "./userProfile.module.css";
+import { useLocation } from "react-router-dom";
 
-const viewProfilePage = () => {
+const ViewProfilePage = () => {
+  const { state } = useLocation();
+  const {creator_id} = state;
+  console.log(creator_id);
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ProfilePageBody />
+      <ProfilePageBody creator_id={creator_id} />
       <FooterBar />
     </div>
   );
 };
 
-export default viewProfilePage;
+export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = () => {
-  
-  const [username, setUsername] = useState(null);
+const ProfilePageBody = (props) => {
+  const { creator_id } = props;
+  const [username, setUsername] = useState("");
   const [avatar_url, setAvatarUrl] = useState(null);
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     getProfile();
-  }, []);
+  });
 
   // get data from profiles table in supabase
   const getProfile = async () => {
     try {
-      
-      const user = supabaseClient.auth.user();
-
       let { data, error, status } = await supabaseClient
         .from("profiles")
         .select(`username, avatar_url, Bio, gender `)
-        .eq("id", user.id)
+        .eq("id", creator_id)
         .single();
 
       if (error && status !== 406) {
@@ -64,7 +62,7 @@ const ProfilePageBody = () => {
       }
     } catch (error) {
       alert(error.message);
-    } 
+    }
   };
 
   return (
@@ -79,7 +77,7 @@ const ProfilePageBody = () => {
           <div className="row">
             <div className="col-lg-4 my-auto">
               <img
-                src={avatar_url}
+                src={avatar_url || "/images/img_avatarDefault.jpg"}
                 className={`${viewprofileStyles["avatar"]} rounded-pill`}
                 alt="avatar"
               ></img>
@@ -93,51 +91,21 @@ const ProfilePageBody = () => {
                   <h2>
                     {"Welcome "}
                     <label className="text-danger poppins-semi-bold-black-24px">
-                      {username || ""}
+                      { username || ""}
                     </label>
                     {" !"}
                   </h2>
                 </div>
               </div>
             </div>
-            <div className="col-lg-4">
-              <div className="row-lg-3 my-5">
-                <div style={{ paddingLeft: "300px" }}>
-                  <Button
-                    className="bg-primary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate("/loginmainpage");
-                    }}
-                  >
-                    {" Edit my profile"}
-                  </Button>
-                </div>
-              </div>
-              <div className="row-lg-3 my-7">
-                <div style={{ paddingLeft: "300px" }}>
-                  <Button
-                    className="bg-primary text-black"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate("/formpage");
-                    }}
-                  >
-                    View my reviews
-                  </Button>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
 
       <div className="my-5">Gender: {gender}</div>
       <label className="poppins-semi-bold-black-64px">BIO:</label>
-      <div className={viewprofileStyles["border-box"]}>
-        {" "}
-        {bio}
-      </div>
+      <div className={viewprofileStyles["border-box"]}> {bio}</div>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import LoginMainPage from "pages/loginMainPage/loginMain";
 import CreateListingPage from "pages/CreateListingPage/createListingPage";
 import ReviewForm from "pages/ReviewForm/ReviewForm";
 import ProfilePage from "pages/ProfilePage/profile";
+import ViewProfilePage from "pages/UserProfilePage/userProfile";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFound from "pages/NotFound";
 
@@ -31,6 +32,7 @@ const ProjectRoutes = () => {
         <Route path="/loginmainpage" element={<LoginMainPage />} />
         <Route path="/formpage" element={<ReviewForm />} />
         <Route path="/viewprofilepage" element={<ProfilePage />} />
+        <Route path="/profile" element={<ViewProfilePage />} />
       </Routes>
     </Router>
   );

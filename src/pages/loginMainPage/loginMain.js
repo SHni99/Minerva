@@ -4,8 +4,10 @@ import Login from 'pages/LoginPage/login';
 import Profile from 'pages/ProfilePage/profile';
 
 export default function LoginMainPage() {
+  //value pass into setSession will update session
     const [session, setSession] = useState(null)
 
+  // backend trigger to execute for next event
   useEffect(() => {
     setSession(supabaseClient.auth.session())
 
@@ -15,6 +17,7 @@ export default function LoginMainPage() {
   }, []);
 
   return (
+     // if there is a session exists, it will direct to profile page, else login page
     <div
     style={{padding: '50px 0 100px 0'}}>
       {!session ? < Login /> : 

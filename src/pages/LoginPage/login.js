@@ -13,31 +13,33 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error1, setError] = useState("");
 
+  //user auth: will check the password entry then check for valid email or password with supabase
   const handleLogin = async (email, password, navigate, e) => {
-
     e.preventDefault();
-    
+
     if (password.length < 8) {
       setError("Please enter a password more than 8 characters");
       setPassword("");
-    } else if (!/^(?=.*[0-9])/.test(password)){
+    } else if (!/^(?=.*[0-9])/.test(password)) {
       setError("PLease enter a password containing at least one NUMBER");
       setPassword("");
-    } else if (!/^(?=.*[A-Z])/.test(password)){
-      setError("Please enter a password containing at least one UPPERCASE character");
+    } else if (!/^(?=.*[A-Z])/.test(password)) {
+      setError(
+        "Please enter a password containing at least one UPPERCASE character"
+      );
       setPassword("");
-    } else if (!/^(?=.*[a-z])/.test(password)){
-      setError("Please enter a password containing at least one LOWERCASE character");
+    } else if (!/^(?=.*[a-z])/.test(password)) {
+      setError(
+        "Please enter a password containing at least one LOWERCASE character"
+      );
       setPassword("");
-    } else if (!/^(?=.*[!@#$%^&*])/.test(password)){
+    } else if (!/^(?=.*[!@#$%^&*])/.test(password)) {
       setError("Please enter a password containing at least one SPECIAL CASE");
       setPassword("");
-    } 
-    
-    else {
+    } else {
       try {
         setLoading(true);
-
+        //password which meets the req will move onto this step
         const { error } = await supabaseClient.auth.signIn({
           email,
           password,
@@ -79,7 +81,7 @@ const LoginPage = () => {
                   style={{ cursor: "pointer" }}
                   src={"/images/img_minervaLogo.png"}
                   alt="minerva"
-                  onClick={home}
+                  onClick={home} //redirects to home
                 />
 
                 <div className="col-md-12">
@@ -96,7 +98,7 @@ const LoginPage = () => {
                           }}
                           type="email"
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={(e) => setEmail(e.target.value)} //email changes everytime an input change is made
                           placeholder="Enter username or email"
                           data-testid="findemail"
                         ></input>
@@ -114,14 +116,14 @@ const LoginPage = () => {
                         }}
                         type="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)} //password changes everytime an input change is made
                         placeholder="Enter password"
                         data-testid="findpassword"
                       ></input>
                     </div>
                     <h4
                       className={`nunitosans-bold-endeavour-24px mt-3 text-left`}
-                      onClick={passwordPage}
+                      onClick={passwordPage} //redirects to password reset page
                       style={{
                         cursor: "pointer",
                       }}
@@ -169,7 +171,7 @@ const LoginPage = () => {
                       className={
                         "col-lg-4 nunitosans-bold-licorice-28px text-left"
                       }
-                      onClick={registerPage}
+                      onClick={registerPage} //redirects to register page
                     >{`Sign up`}</button>
                   </div>
                 </div>

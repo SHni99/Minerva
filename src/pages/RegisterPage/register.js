@@ -30,12 +30,13 @@ const RegisterPagePage = () => {
     }, []);
 
     const handleSignUp = async (email, password, username, navigate) => {
-
+        //reset() will set password and confirmPassword to null everytime user enter wrong password
         const reset = () => {
             setPassword("");
             setConfirmPassword("");
         }
 
+        //user must enter a password with more than 8 chars, at least an uppercase, lowercase, special case and number
         if (password.length < 8) {
             setError("Please enter a password more than 8 characters");
             reset();
@@ -55,7 +56,7 @@ const RegisterPagePage = () => {
             setError("Please enter the SAME passwords!");
             reset();
         }
-        else {
+        else { //after user enter a strong password, the information entered will be stored in supabase
             try {
                 setLoading(true);
                 const { error } = await supabaseClient.auth.signUp(
@@ -102,7 +103,7 @@ const RegisterPagePage = () => {
                                     src={"/images/img_minervaLogo.png"}
                                     className={"col-sm-6 mb-9 h-20"}
                                     style={{ cursor: "pointer" }}
-                                    onClick={home}
+                                    onClick={home} //redirects to home
                                     alt="minerva"
                                 />
                                 <div className="col-md-12">
@@ -117,7 +118,7 @@ const RegisterPagePage = () => {
                                             }}
                                             type="text"
                                             value={username}
-                                            onChange={(e) =>
+                                            onChange={(e) => //username changes everytime an input change is made
                                                 setUsername(e.target.value)
                                             }
                                             placeholder="Enter username"
@@ -135,7 +136,7 @@ const RegisterPagePage = () => {
                                             }}
                                             type="email"
                                             value={email}
-                                            onChange={(e) =>
+                                            onChange={(e) => //email changes everytime an input change is made
                                                 setEmail(e.target.value)
                                             }
                                             placeholder="Enter email"
@@ -153,7 +154,7 @@ const RegisterPagePage = () => {
                                             }}
                                             type="password"
                                             value={password}
-                                            onChange={(e) =>
+                                            onChange={(e) => //password changes everytime an input change is made
                                                 setPassword(e.target.value)
                                             }
                                             placeholder="Enter password"
@@ -171,7 +172,7 @@ const RegisterPagePage = () => {
                                             }}
                                             type="password"
                                             value={confirmPassword}
-                                            onChange={(e) =>
+                                            onChange={(e) => //confirmPassword changes everytime an input change is made
                                                 setConfirmPassword(
                                                     e.target.value
                                                 )
@@ -181,7 +182,7 @@ const RegisterPagePage = () => {
                                     </div>
                                 </div>
                                 {error1 && <h4 className=" nunitosans-bold-endeavour-24px text-danger text-left">{error1}</h4>}
-                                <PasswordChecklist
+                                <PasswordChecklist //list of password requirement to be met. User-friendly tool.
                                     rules={[
                                         "minLength",
                                         "specialChar",
@@ -231,13 +232,13 @@ const RegisterPagePage = () => {
                                         className={
                                             "col-lg-4 nunitosans-bold-licorice-28px text-left"
                                         }
-                                        onClick={loginpage}
+                                        onClick={loginpage} //redirects to login page
                                     >{`Log In`}</button>
                                 </div>
                             </div>
                         </div>
 
-                        <div
+                        <div //right side of the page
                             style={{
                                 backgroundImage: `url(${"/images/img_image5.png"})`,
                                 borderTopRightRadius: "5px",

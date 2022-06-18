@@ -11,7 +11,8 @@ export default function FormComponent() {
   const [loading, setLoading] = useState(false);
   const [currentValue, setCurrentValue] = useState(0);
 
-  const onReviewSubmit = async ({index, textbox}) => {
+  //information will be registered under the table "reviews"
+  const onReviewSubmit = async ({ index, textbox }) => {
     try {
       const data = {
         index,
@@ -54,7 +55,9 @@ export default function FormComponent() {
               />
 
               <div>
-                <Rating setReviews={[currentValue, setCurrentValue]} />
+                <Rating //user can review the quality of his dealer by awarding the number of stars (out of 5)
+                setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
+                />
               </div>
               <div className="form-group">
                 <textarea
@@ -65,7 +68,7 @@ export default function FormComponent() {
                   onChange={(e) => setComment(e.target.value)}
                 ></textarea>
                 <div className="row-lg-2 m-5">
-                  <Button
+                  <Button //execute onReviewSubmit when click or enter
                     className={`col-lg-5 rounded-4 p-2 ml-5  w-1 border-dark text-dark`}
                     type="submit"
                     style={{

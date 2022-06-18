@@ -4,6 +4,7 @@ import { supabaseClient } from "../../config/supabase-client";
 import ResetStyles from "./reset.module.css";
 import { CloseButton } from "react-bootstrap";
 
+//user will be directed to this page upon verifying with the reset link send through his email
 const ResetPage = () => {
   const navigate = useNavigate();
   const home = () => navigate("/");
@@ -13,9 +14,10 @@ const ResetPage = () => {
   const [loading, setLoading] = useState(false);
   const [error1, setError] = useState("");
 
+  //reset password with an email requirement
   const handleReset = async (newPassword, confirmPassword, e) => {
     e.preventDefault();
-
+    //reset() will set password and confirmPassword to null everytime user enter wrong password
     const reset = () => {
       setNewPassword("");
       setConfirmPassword("");
@@ -43,7 +45,7 @@ const ResetPage = () => {
     else {
       try {
         setLoading(true);
-
+        //make use of supabase function to update to new password
         const { error } = await supabaseClient.auth.update({
           password: newPassword,
         });
@@ -80,7 +82,7 @@ const ResetPage = () => {
               }}
             >
               <div className="card-body p-5">
-                <CloseButton
+                <CloseButton //in the event if user wants to exit, it directs him back to login page
                   onClick={login}
                   className={"ml-6"}
                   style={{ marginLeft: "800px" }}

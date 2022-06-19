@@ -32,17 +32,23 @@ const ProfilePageBody = (props) => {
 
   useEffect(() => {
     getProfile();
+    console.log(username);
   });
 
   // get data from profiles table in supabase
   const getProfile = async () => {
     try {
-      const { data, error: avatarUrlError } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from("profiles")
         .select("avatar_url, username, Bio, gender")
         .eq("id", creator_id)
         .single();
-      if (avatarUrlError) throw avatarUrlError;
+      if (error) throw error;
+      if (data) {
+        setUsername(data.username);
+        setBio(data.Bio);
+        setGender(data.gender);
+      }
       if (data.avatar_url === "") return;
 
       const { publicURL, error: publicUrlError } = supabaseClient.storage
@@ -52,12 +58,6 @@ const ProfilePageBody = (props) => {
       if (publicUrlError) throw publicUrlError;
 
       setAvatarUrl(publicURL);
-
-      if (data) {
-        setUsername(data.username);
-        setBio(data.Bio);
-        setGender(data.gender);
-      }
     } catch (error) {
       alert(error.message);
     }
@@ -67,9 +67,7 @@ const ProfilePageBody = (props) => {
     <div className="text-center">
       <div
         className={viewprofileStyles["container-center-horizontal"]}
-        style={{
-          backgroundImage: `url(${"/images/img_image5.png"})`,
-        }}
+
       >
         <div className={`${viewprofileStyles["home-inner"]} container`}>
           <div className="row">
@@ -89,9 +87,9 @@ const ProfilePageBody = (props) => {
                   <h2>
                     {"Username: "}
                     <label className="text-danger poppins-semi-bold-black-24px">
-                      {username || ""}
+                      {username}
                     </label>
-                    
+
                   </h2>
                 </div>
               </div>
@@ -100,7 +98,7 @@ const ProfilePageBody = (props) => {
         </div>
       </div>
 
-      <div className="my-5">Gender: {gender}</div>
+      <div className="my-5 poppins-semi-bold-black-64px">Gender: {gender}</div>
       <label className="poppins-semi-bold-black-64px">BIO:</label>
       <div className={viewprofileStyles["border-box"]}> {bio}</div>
     </div>

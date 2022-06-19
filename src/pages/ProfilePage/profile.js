@@ -71,9 +71,7 @@ const ProfilePageBody = () => {
     <div className="text-center">
       <div
         className={viewprofileStyles["container-center-horizontal"]}
-        style={{
-          backgroundImage: `url(${"/images/img_image5.png"})`,
-        }}
+        
       >
         <div className={`${viewprofileStyles["home-inner"]} container`}>
           <div className="row">
@@ -132,7 +130,7 @@ const ProfilePageBody = () => {
         </div>
       </div>
 
-      <div className="my-5">Gender: {gender}</div>
+      <div className="my-5 poppins-semi-bold-black-64px">Gender: {gender}</div>
       <label className="poppins-semi-bold-black-64px">BIO:</label>
       <div className={viewprofileStyles["border-box"]}>
         {" "}

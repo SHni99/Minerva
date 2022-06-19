@@ -1,7 +1,7 @@
 import React from "react";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
-import Container from "react-bootstrap/Container";
+import { MainContainer } from "@chatscope/chat-ui-kit-react";
 
 const ChatPage = () => {
   return (
@@ -18,5 +18,5 @@ const ChatPage = () => {
 export default ChatPage;
 
 const ChatPageBody = (props) => {
-  return <Container></Container>;
+  return <MainContainer></MainContainer>;
 };

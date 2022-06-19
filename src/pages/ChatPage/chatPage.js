@@ -6,8 +6,6 @@ import {
   Avatar,
   MainContainer,
   ChatContainer,
-  MessageList,
-  Message,
   MessageInput,
   Sidebar,
   Search,

@@ -22,7 +22,6 @@ export default viewProfilePage;
 
 //the body which is the card container in the middle
 const ProfilePageBody = () => {
-  
   const [username, setUsername] = useState(null);
   const [avatar_url, setAvatarUrl] = useState(null);
   const [bio, setBio] = useState("");
@@ -36,7 +35,6 @@ const ProfilePageBody = () => {
   // get data from profiles table in supabase
   const getProfile = async () => {
     try {
-      
       const user = supabaseClient.auth.user();
 
       let { data, error, status } = await supabaseClient
@@ -62,80 +60,106 @@ const ProfilePageBody = () => {
       if (publicUrlError) throw publicUrlError;
 
       setAvatarUrl(publicURL);
-
     } catch (error) {
       alert(error.message);
-    } 
+    }
   };
 
   return (
     <div className="text-center">
-      <div
-        className={viewprofileStyles["container-center-horizontal"]}
-        
-      >
-        <div className={`${viewprofileStyles["home-inner"]} container`}>
-          <div className="row">
-            <div className="col-lg-4 my-auto">
-              <img
-                src={avatar_url || "/images/img_avatarDefault.jpg"}
-                className={`${viewprofileStyles["avatar"]} rounded-pill`}
-                alt="avatar"
-              ></img>
-            </div>
-            <div className="col-lg-4 my-auto">
-              <div
-                className={`card shadow text-center rounded-5 `}
-                style={{ backgroundColor: "#FAFAD2" }}
-              >
-                <div className="card-body mt-4">
-                  <h2>
-                    {"Username: "}
-                    <label className="text-danger poppins-semi-bold-black-24px">
-                      {username || ""}
-                    </label>
-                    
-                  </h2>
+      <div className={viewprofileStyles["container-center-horizontal"]}>
+        <div className={`${viewprofileStyles["home-inner"]} container-fluid`}>
+          <div className="row align-self-center">
+            <div className="col-3 ">
+              <div className="col">
+                <img
+                  src={avatar_url || "/images/img_avatarDefault.jpg"}
+                  className={`${viewprofileStyles["avatar"]} rounded-pill`}
+                  alt="avatar"
+                ></img>
+              </div>
+
+              <div className="col mt-5">
+                <h3>
+                  {"Username: "}
+                  <label className="text-danger poppins-normal-black-24px">
+                    {username || ""}
+                  </label>
+                </h3>
+
+                <div className="my-5 poppins-normal-black-24px">
+                  Gender: {gender}
+                </div>
+                <label className="poppins-normal-black-24px">BIO:</label>
+                <div className="card">
+                  <div className="card-body bg-light border-dark">{bio}</div>
                 </div>
               </div>
             </div>
-            <div className="col-lg-4">
-              <div className="row-lg-3 my-5">
-                <div style={{ paddingLeft: "300px" }}>
-                  <Button
-                    className="bg-primary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate("/loginmainpage");
-                    }}
-                  >
-                    {" Edit my profile"}
-                  </Button>
+
+            <div className="col-8">
+              <div className="row ">
+                <div className="row-lg-3 text-right">
+                  <div>
+                    <Button
+                      className="bg-primary"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate("/loginmainpage");
+                      }}
+                    >
+                      {" Edit my profile"}
+                    </Button>
+                  </div>
+
+                  <div className="row-lg-3 my-7">
+                    <div>
+                      <Button
+                        className="bg-primary"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate("/formpage");
+                        }}
+                      >
+                        View my reviews
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="row-lg-3 my-7">
-                <div style={{ paddingLeft: "300px" }}>
-                  <Button
-                    className="bg-primary text-black"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate("/formpage");
-                    }}
-                  >
-                    View my reviews
-                  </Button>
-                </div>
+              <div className="row">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link active"
+                      id="home-tab"
+                      data-toggle="tab"
+                      href="/listingspage"
+                      role="tab"
+                      aria-controls="Listings"
+                      aria-selected="true"
+                    >
+                      Listings
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="profile-tab"
+                      data-toggle="tab"
+                      href="#profile"
+                      role="tab"
+                      aria-controls="Reviews"
+                      aria-selected="false"
+                    >
+                      Reviews
+                    </a>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="my-5 poppins-semi-bold-black-64px">Gender: {gender}</div>
-      <label className="poppins-semi-bold-black-64px">BIO:</label>
-      <div className={viewprofileStyles["border-box"]}>
-        {" "}
-        {bio}
       </div>
     </div>
   );

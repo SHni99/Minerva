@@ -13,6 +13,7 @@ import ReviewForm from "pages/ReviewForm/ReviewForm";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "pages/Home";
 import NotFound from "pages/NotFound";
+import ChatPage from "pages/ChatPage/chatPage";
 
 const ProjectRoutes = () => {
   return (
@@ -31,6 +32,7 @@ const ProjectRoutes = () => {
         <Route path="/resetpage" element={<ResetPage />} />
         <Route path="/loginmainpage" element={<LoginMainPage />} />
         <Route path="/formpage" element={<ReviewForm />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </Router>
   );

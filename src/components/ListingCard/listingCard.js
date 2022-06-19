@@ -89,8 +89,7 @@ const ListingCard = ({
       {/* Tutoring Level */}
       <Card.Subtitle
         as="h5"
-        className="d-flex justify-center px-4 text-center"
-        style={{ fontFamily: "Nunito" }}
+        className={`${listingCardStyles.level} d-flex justify-center px-4 text-center`}
       >
         {levelParams[level]}
       </Card.Subtitle>

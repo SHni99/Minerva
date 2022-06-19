@@ -61,13 +61,19 @@ const ListingModal = (props) => {
           )}
         </Row>
         {Object.keys(tags).map((tag) => (
-          <Row className={listingModalStyles["tag-row"]}>
+          <Row className={listingModalStyles["tag-row"]} key={tag}>
             <Col
               className={listingModalStyles["tag-header"]}
               xs={5}
             >{`${tagNames[tag]}: `}</Col>
             <Col xs={7}>
-              <FieldTag category={tag} value={tags[tag]} key={tag} />
+              {tags[tag].map((tagValue) => (
+                <FieldTag
+                  category={tag}
+                  value={tagValue}
+                  key={`${tag} ${tagValue}`}
+                />
+              ))}
             </Col>
           </Row>
         ))}

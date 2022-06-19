@@ -5,6 +5,11 @@ import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import viewprofileStyles from "./profile.module.css";
 import Button from "react-bootstrap/Button";
+import Tabs from "react-bootstrap/Tabs";
+import Tab from "react-bootstrap/Tab";
+import ListingCard from "components/ListingCard/listingCard";
+import Spinner from "react-bootstrap/Spinner";
+import Listings from "components/UserListing/userlistings"
 
 const viewProfilePage = () => {
   return (
@@ -27,9 +32,11 @@ const ProfilePageBody = () => {
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("");
   const navigate = useNavigate();
+  const checkId = supabaseClient.auth.user().id;
 
   useEffect(() => {
     getProfile();
+    console.log(checkId)
   }, []);
 
   // get data from profiles table in supabase
@@ -126,36 +133,21 @@ const ProfilePageBody = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="row">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link active"
-                      id="home-tab"
-                      data-toggle="tab"
-                      href="/listingspage"
-                      role="tab"
-                      aria-controls="Listings"
-                      aria-selected="true"
-                    >
-                      Listings
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      id="profile-tab"
-                      data-toggle="tab"
-                      href="#profile"
-                      role="tab"
-                      aria-controls="Reviews"
-                      aria-selected="false"
-                    >
-                      Reviews
-                    </a>
-                  </li>
-                </ul>
+                <Tabs
+                  defaultActiveKey="listings"
+                  transition={false}
+                  id="noanim-tab-example"
+                  className="mb-3"
+                >
+                  <Tab eventKey="listings" title="Listings">
+                    <Listings 
+                    checkId={checkId}
+                    />
+                  </Tab>
+                  <Tab eventKey="reviews" title="Reviews">
+                    ...
+                  </Tab>
+                </Tabs>
               </div>
             </div>
           </div>

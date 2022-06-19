@@ -4,6 +4,9 @@ import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import viewprofileStyles from "./userProfile.module.css";
 import { useLocation } from "react-router-dom";
+import Tabs from "react-bootstrap/Tabs";
+import Tab from "react-bootstrap/Tab";
+import Listings from "components/UserListing/userlistings"
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
@@ -97,34 +100,21 @@ const ProfilePageBody = (props) => {
 
             <div className="col-8">
               <div className="row">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link active"
-                      id="home-tab"
-                      data-toggle="tab"
-                      href="/listingspage"
-                      role="tab"
-                      aria-controls="Listings"
-                      aria-selected="true"
-                    >
-                      Listings
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      id="profile-tab"
-                      data-toggle="tab"
-                      href="#profile"
-                      role="tab"
-                      aria-controls="Reviews"
-                      aria-selected="false"
-                    >
-                      Reviews
-                    </a>
-                  </li>
-                </ul>
+              <Tabs
+                  defaultActiveKey="listings"
+                  transition={false}
+                  id="noanim-tab-example"
+                  className="mb-3"
+                >
+                  <Tab eventKey="listings" title="Listings">
+                    <Listings 
+                    checkId={creator_id}
+                    />
+                  </Tab>
+                  <Tab eventKey="reviews" title="Reviews">
+                    gsy
+                  </Tab>
+                </Tabs>
               </div>
             </div>
           </div>
@@ -133,3 +123,4 @@ const ProfilePageBody = (props) => {
     </div>
   );
 };
+

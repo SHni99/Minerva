@@ -135,13 +135,7 @@ function CredentialsCorner(props) {
   if (isLoggedIn) {
     return (
       <div className={navBarStyles["credentialsCorner"]}>
-        <Button href="create-listing" active>
-          Create Listing
-        </Button>
-
-        <Link to="/chat" className={navBarStyles.chat}>
-          <ChatDots></ChatDots>
-        </Link>
+        {/* Profile Pic */}
         {loading ? (
           <Spinner animation="border" className={navBarStyles["avatar"]} />
         ) : (
@@ -157,6 +151,16 @@ function CredentialsCorner(props) {
             data-testid="profilePic"
           />
         )}
+
+        {/* Create Listing Button */}
+        <Button href="create-listing" className="mx-4" active>
+          Create Listing
+        </Button>
+
+        {/* Chat Button */}
+        <Link to="/chat" className={navBarStyles.chat}>
+          <ChatDots></ChatDots>
+        </Link>
       </div>
     );
   }

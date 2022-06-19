@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chatscope/chat-ui-kit-react": "^1.9.3",
+    "@chatscope/chat-ui-kit-styles": "^1.2.3",
     "@supabase/supabase-js": "^1.35.3",
     "@tailwindcss/forms": "^0.5.2",
     "@testing-library/react": "^11.2.7",

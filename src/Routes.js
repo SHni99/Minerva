@@ -14,6 +14,7 @@ import ProfilePage from "pages/ProfilePage/profile";
 import ViewProfilePage from "pages/UserProfilePage/userProfile";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFound from "pages/NotFound";
+import ChatPage from "pages/ChatPage/chatPage";
 
 const ProjectRoutes = () => {
   return (
@@ -33,6 +34,7 @@ const ProjectRoutes = () => {
         <Route path="/formpage" element={<ReviewForm />} />
         <Route path="/viewprofilepage" element={<ProfilePage />} />
         <Route path="/profile" element={<ViewProfilePage />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </Router>
   );

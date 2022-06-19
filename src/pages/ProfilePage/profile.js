@@ -7,9 +7,7 @@ import viewprofileStyles from "./profile.module.css";
 import Button from "react-bootstrap/Button";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
-import ListingCard from "components/ListingCard/listingCard";
-import Spinner from "react-bootstrap/Spinner";
-import Listings from "components/UserListing/userlistings"
+import UserListings from "components/UserListing/userlistings"
 
 const viewProfilePage = () => {
   return (
@@ -36,7 +34,6 @@ const ProfilePageBody = () => {
 
   useEffect(() => {
     getProfile();
-    console.log(checkId)
   }, []);
 
   // get data from profiles table in supabase
@@ -140,7 +137,7 @@ const ProfilePageBody = () => {
                   className="mb-3"
                 >
                   <Tab eventKey="listings" title="Listings">
-                    <Listings 
+                    <UserListings 
                     checkId={checkId}
                     />
                   </Tab>

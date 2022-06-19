@@ -167,8 +167,13 @@
   align-items: center;
   display: flex;
   margin-bottom: 1px;
-  margin-left: 38px;
   width: 64px;
   height: 64px;
   cursor: pointer;
+}
+
+.chat {
+  font-size: 30px;
+  padding: 0px 30px;
+  color: gray;
 }

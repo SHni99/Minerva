@@ -5,6 +5,7 @@ import { supabaseClient as supabase } from "../../config/supabase-client";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Container from "react-bootstrap/Container";
+import { ChatDots } from "react-bootstrap-icons";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
@@ -107,14 +108,14 @@ const NavBar = ({ _userLoggedIn }) => {
 
         <Col
           xs={12}
-          lg={5}
-          xxl={6}
+          lg={4}
+          xxl={5}
           className="d-flex justify-center justify-content-lg-start align-center g-0"
         >
           <div className={`${navBarStyles.links}`}>{generateNavBarLinks()}</div>
         </Col>
 
-        <Col xs={12} lg={3} className="d-flex justify-center align-center">
+        <Col xs={12} lg={4} className="d-flex justify-center align-center">
           <CredentialsCorner
             isLoggedIn={isLoggedIn}
             avatarUrl={avatarUrl}
@@ -138,6 +139,9 @@ function CredentialsCorner(props) {
           Create Listing
         </Button>
 
+        <Link to="/chat" className={navBarStyles.chat}>
+          <ChatDots></ChatDots>
+        </Link>
         {loading ? (
           <Spinner animation="border" className={navBarStyles["avatar"]} />
         ) : (

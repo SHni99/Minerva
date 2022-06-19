@@ -59,7 +59,7 @@ const RegisterPagePage = () => {
         else { //after user enter a strong password, the information entered will be stored in supabase
             try {
                 setLoading(true);
-                const { error } = await supabaseClient.auth.signUp(
+                const {  error } = await supabaseClient.auth.signUp(
                     { email, password },
                     {
                         data: {

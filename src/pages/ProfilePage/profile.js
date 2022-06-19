@@ -48,6 +48,12 @@ const ProfilePageBody = () => {
       if (error && status !== 406) {
         throw error;
       }
+      if (data) {
+        setUsername(data.username);
+        setBio(data.Bio);
+        setGender(data.gender);
+      }
+      if (data.avatar_url === "") return;
 
       const { publicURL, error: publicUrlError } = supabaseClient.storage
         .from("avatars")
@@ -57,11 +63,6 @@ const ProfilePageBody = () => {
 
       setAvatarUrl(publicURL);
 
-      if (data) {
-        setUsername(data.username);
-        setBio(data.Bio);
-        setGender(data.gender);
-      }
     } catch (error) {
       alert(error.message);
     } 
@@ -77,7 +78,7 @@ const ProfilePageBody = () => {
           <div className="row">
             <div className="col-lg-4 my-auto">
               <img
-                src={avatar_url}
+                src={avatar_url || "/images/img_avatarDefault.jpg"}
                 className={`${viewprofileStyles["avatar"]} rounded-pill`}
                 alt="avatar"
               ></img>

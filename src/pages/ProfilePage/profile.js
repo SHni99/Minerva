@@ -5,39 +5,82 @@ import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import viewprofileStyles from "./profile.module.css";
 import Button from "react-bootstrap/Button";
+import { useLocation } from "react-router-dom";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import UserListings from "components/UserListing/userlistings"
+import Listings from "components/UserListing/userlistings"
 
-const viewProfilePage = () => {
+const ViewProfilePage = () => {
+
+  const location= useLocation();
+  const {state} = useLocation();
+
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ProfilePageBody />
+      <ProfilePageBody creator_id={state ? state.creator_id : ""} />
       <FooterBar />
     </div>
   );
 };
 
-export default viewProfilePage;
+export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = () => {
+const ProfilePageBody = (props) => {
+  const { creator_id } = props;
   const [username, setUsername] = useState(null);
   const [avatar_url, setAvatarUrl] = useState(null);
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("");
+  const [checkUser, setcheckUser] = useState(false);
   const navigate = useNavigate();
   const checkId = supabaseClient.auth.user().id;
 
   useEffect(() => {
-    getProfile();
-  }, []);
+    if (creator_id === "" || creator_id === checkId) {
+      setcheckUser(false);
+      getProfile();
+    } else {
+      setcheckUser(true);
+      getUserProfile();
+    }
+    console.log(creator_id);
+    console.log(checkId);
+  }, [creator_id, checkId]);
 
-  // get data from profiles table in supabase
+  const getUserProfile = async () => {
+    try {
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("avatar_url, username, Bio, gender")
+        .eq("id", creator_id)
+        .single();
+      if (error) throw error;
+      if (data) {
+        setUsername(data.username);
+        setBio(data.Bio);
+        setGender(data.gender);
+      }
+      if (data.avatar_url === "") return;
+
+      const { publicURL, error: publicUrlError } = supabaseClient.storage
+        .from("avatars")
+        .getPublicUrl(data.avatar_url);
+
+      if (publicUrlError) throw publicUrlError;
+
+      setAvatarUrl(publicURL);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const getProfile = async () => {
+
     try {
       const user = supabaseClient.auth.user();
 
@@ -100,53 +143,73 @@ const ProfilePageBody = () => {
                 </div>
               </div>
             </div>
-
-            <div className="col-8">
-              <div className="row ">
-                <div className="row-lg-3 text-right">
-                  <div>
-                    <Button
-                      className="bg-primary"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate("/loginmainpage");
-                      }}
-                    >
-                      {" Edit my profile"}
-                    </Button>
-                  </div>
-
-                  <div className="row-lg-3 my-7">
+            {checkUser ? (
+              <div className="col-8">
+                <div className="row">
+                  <Tabs
+                    defaultActiveKey="listings"
+                    transition={false}
+                    id="noanim-tab-example"
+                    className="mb-3"
+                  >
+                    <Tab eventKey="listings" title="Listings">
+                      <Listings
+                        checkId={creator_id}
+                      />
+                    </Tab>
+                    <Tab eventKey="reviews" title="Reviews">
+                      gsy
+                    </Tab>
+                  </Tabs>
+                </div>
+              </div>
+            ) : (
+              <div className="col-8">
+                <div className="row ">
+                  <div className="row-lg-3 text-right">
                     <div>
                       <Button
                         className="bg-primary"
                         onClick={(e) => {
                           e.preventDefault();
-                          navigate("/formpage");
+                          navigate("/loginmainpage");
                         }}
                       >
-                        View my reviews
+                        {" Edit my profile"}
                       </Button>
                     </div>
+
+                    <div className="row-lg-3 my-7">
+                      <div>
+                        <Button
+                          className="bg-primary"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            navigate("/formpage");
+                          }}
+                        >
+                          View my reviews
+                        </Button>
+                      </div>
+                    </div>
                   </div>
+                  <Tabs
+                    defaultActiveKey="listings"
+                    transition={false}
+                    id="noanim-tab-example"
+                    className="mb-3"
+                  >
+                    <Tab eventKey="listings" title="Listings">
+                      <UserListings
+                        checkId={checkId}
+                      />
+                    </Tab>
+                    <Tab eventKey="reviews" title="Reviews">
+                      ...
+                    </Tab>
+                  </Tabs>
                 </div>
-                <Tabs
-                  defaultActiveKey="listings"
-                  transition={false}
-                  id="noanim-tab-example"
-                  className="mb-3"
-                >
-                  <Tab eventKey="listings" title="Listings">
-                    <UserListings 
-                    checkId={checkId}
-                    />
-                  </Tab>
-                  <Tab eventKey="reviews" title="Reviews">
-                    ...
-                  </Tab>
-                </Tabs>
-              </div>
-            </div>
+              </div>)}
           </div>
         </div>
       </div>

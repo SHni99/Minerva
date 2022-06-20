@@ -35,7 +35,7 @@ const srcImgLink = (imgName) => {
 const switchPage = (navigate, e) => {
   e.preventDefault();
   if (supabaseClient.auth.user()) {
-    navigate("/viewprofilepage");
+    navigate("/profile");
   } else {
     navigate("/loginpage");
   }

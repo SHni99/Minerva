@@ -8,20 +8,18 @@ import Button from "react-bootstrap/Button";
 import { useLocation } from "react-router-dom";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
-import UserListings from "components/UserListing/userlistings"
-import Listings from "components/UserListing/userlistings"
+import UserListings from "components/UserListing/userlistings";
+import Listings from "components/UserListing/userlistings";
 
 const ViewProfilePage = () => {
-
-  const location= useLocation();
-  const {state} = useLocation();
+  const { state } = useLocation();
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ProfilePageBody creator_id={state ? state.creator_id : ""} />
+      <ProfilePageBody creator_id={state ? state.creator_id : undefined} />
       <FooterBar />
     </div>
   );
@@ -32,85 +30,87 @@ export default ViewProfilePage;
 //the body which is the card container in the middle
 const ProfilePageBody = (props) => {
   const { creator_id } = props;
-  const [username, setUsername] = useState(null);
-  const [avatar_url, setAvatarUrl] = useState(null);
-  const [bio, setBio] = useState("");
-  const [gender, setGender] = useState("");
+  const [profileData, setProfileData] = useState([]);
   const [checkUser, setcheckUser] = useState(false);
   const navigate = useNavigate();
   const checkId = supabaseClient.auth.user().id;
 
   useEffect(() => {
-    if (creator_id === "" || creator_id === checkId) {
+
+    const getUserProfile = async () => {
+      try {
+        const { data, error } = await supabaseClient
+          .from("profiles")
+          .select("avatar_url, username, bio, gender")
+          .eq("id", creator_id)
+          .single();
+  
+        if (error) throw error;
+        if (data) {
+          setProfileData({
+            username: data.username,
+            bio: data.bio,
+            gender: data.gender
+          });
+        }
+        if (data.avatar_url === "") return;
+  
+        const { publicURL, error: publicUrlError } = supabaseClient.storage
+          .from("avatars")
+          .getPublicUrl(data.avatar_url);
+  
+        if (publicUrlError) throw publicUrlError;
+  
+        setProfileData({ 
+          avatar_url: publicURL, 
+        });
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+  
+    const getProfile = async () => {
+      try {
+        let { data, error, status } = await supabaseClient
+          .from("profiles")
+          .select(`username, avatar_url, bio, gender `)
+          .eq("id", checkId)
+          .single();
+  
+        if (error && status !== 406) {
+          throw error;
+        }
+        if (data) {
+          setProfileData({
+            username: data.username,
+            bio: data.bio,
+            gender: data.gender
+          });
+        }
+        if (data.avatar_url === "") return;
+  
+        const { publicURL, error: publicUrlError } = supabaseClient.storage
+          .from("avatars")
+          .getPublicUrl(data.avatar_url);
+  
+        if (publicUrlError) throw publicUrlError;
+  
+        setProfileData({ 
+          avatar_url: publicURL, 
+        });
+      } catch (error) {
+        alert(error.message);
+      }
+    };  
+
+    if (checkId === creator_id || creator_id === undefined) {
       setcheckUser(false);
       getProfile();
     } else {
       setcheckUser(true);
       getUserProfile();
     }
-    console.log(creator_id);
-    console.log(checkId);
   }, [creator_id, checkId]);
-
-  const getUserProfile = async () => {
-    try {
-      const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("avatar_url, username, Bio, gender")
-        .eq("id", creator_id)
-        .single();
-      if (error) throw error;
-      if (data) {
-        setUsername(data.username);
-        setBio(data.Bio);
-        setGender(data.gender);
-      }
-      if (data.avatar_url === "") return;
-
-      const { publicURL, error: publicUrlError } = supabaseClient.storage
-        .from("avatars")
-        .getPublicUrl(data.avatar_url);
-
-      if (publicUrlError) throw publicUrlError;
-
-      setAvatarUrl(publicURL);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  const getProfile = async () => {
-
-    try {
-      const user = supabaseClient.auth.user();
-
-      let { data, error, status } = await supabaseClient
-        .from("profiles")
-        .select(`username, avatar_url, Bio, gender `)
-        .eq("id", user.id)
-        .single();
-
-      if (error && status !== 406) {
-        throw error;
-      }
-      if (data) {
-        setUsername(data.username);
-        setBio(data.Bio);
-        setGender(data.gender);
-      }
-      if (data.avatar_url === "") return;
-
-      const { publicURL, error: publicUrlError } = supabaseClient.storage
-        .from("avatars")
-        .getPublicUrl(data.avatar_url);
-
-      if (publicUrlError) throw publicUrlError;
-
-      setAvatarUrl(publicURL);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
 
   return (
     <div className="text-center">
@@ -120,7 +120,7 @@ const ProfilePageBody = (props) => {
             <div className="col-3 ">
               <div className="col">
                 <img
-                  src={avatar_url || "/images/img_avatarDefault.jpg"}
+                  src={profileData.avatar_url || "/images/img_avatarDefault.jpg"}
                   className={`${viewprofileStyles["avatar"]} rounded-pill`}
                   alt="avatar"
                 ></img>
@@ -130,16 +130,16 @@ const ProfilePageBody = (props) => {
                 <h3>
                   {"Username: "}
                   <label className="text-danger poppins-normal-black-24px">
-                    {username || ""}
+                    {profileData.username || ""}
                   </label>
                 </h3>
 
                 <div className="my-5 poppins-normal-black-24px">
-                  Gender: {gender}
+                  Gender: {profileData.gender}
                 </div>
                 <label className="poppins-normal-black-24px">BIO:</label>
                 <div className="card">
-                  <div className="card-body bg-light border-dark">{bio}</div>
+                  <div className="card-body bg-light border-dark">{profileData.bio}</div>
                 </div>
               </div>
             </div>
@@ -153,9 +153,7 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <Listings
-                        checkId={creator_id}
-                      />
+                      <Listings checkId={creator_id || checkId} />
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
                       gsy
@@ -200,16 +198,15 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <UserListings
-                        checkId={checkId}
-                      />
+                      <UserListings checkId={checkId} />
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
                       ...
                     </Tab>
                   </Tabs>
                 </div>
-              </div>)}
+              </div>
+            )}
           </div>
         </div>
       </div>

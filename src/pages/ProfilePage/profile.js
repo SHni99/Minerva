@@ -10,6 +10,7 @@ import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import UserListings from "components/UserListing/userlistings";
 import Listings from "components/UserListing/userlistings";
+import Rating from "components/Rating/Rating";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
@@ -30,13 +31,19 @@ export default ViewProfilePage;
 //the body which is the card container in the middle
 const ProfilePageBody = (props) => {
   const { creator_id } = props;
-  const [profileData, setProfileData] = useState([]);
+  const [profileData, setProfileData] = useState({
+    username: "",
+    avatar_url: "",
+    bio: "",
+    gender: "",
+  });
   const [checkUser, setcheckUser] = useState(false);
+  const [currentValue, setCurrentValue] = useState(false);
   const navigate = useNavigate();
   const checkId = supabaseClient.auth.user().id;
+  const ratinghover = useState(true);
 
   useEffect(() => {
-
     const getUserProfile = async () => {
       try {
         const { data, error } = await supabaseClient
@@ -44,31 +51,30 @@ const ProfilePageBody = (props) => {
           .select("avatar_url, username, bio, gender")
           .eq("id", creator_id)
           .single();
-  
+
         if (error) throw error;
-        if (data) {
-          setProfileData({
-            username: data.username,
-            bio: data.bio,
-            gender: data.gender
-          });
-        }
+
         if (data.avatar_url === "") return;
-  
+
         const { publicURL, error: publicUrlError } = supabaseClient.storage
           .from("avatars")
           .getPublicUrl(data.avatar_url);
-  
+
         if (publicUrlError) throw publicUrlError;
-  
-        setProfileData({ 
-          avatar_url: publicURL, 
-        });
+
+        if (data) {
+          setProfileData({
+            username: data.username,
+            avatar_url: publicURL,
+            bio: data.bio,
+            gender: data.gender,
+          });
+        }
       } catch (error) {
         alert(error.message);
       }
     };
-  
+
     const getProfile = async () => {
       try {
         let { data, error, status } = await supabaseClient
@@ -76,32 +82,31 @@ const ProfilePageBody = (props) => {
           .select(`username, avatar_url, bio, gender `)
           .eq("id", checkId)
           .single();
-  
+
         if (error && status !== 406) {
           throw error;
         }
-        if (data) {
-          setProfileData({
-            username: data.username,
-            bio: data.bio,
-            gender: data.gender
-          });
-        }
+
         if (data.avatar_url === "") return;
-  
+
         const { publicURL, error: publicUrlError } = supabaseClient.storage
           .from("avatars")
           .getPublicUrl(data.avatar_url);
-  
+
         if (publicUrlError) throw publicUrlError;
-  
-        setProfileData({ 
-          avatar_url: publicURL, 
-        });
+
+        if (data) {
+          setProfileData({
+            username: data.username,
+            avatar_url: publicURL,
+            bio: data.bio,
+            gender: data.gender,
+          });
+        }
       } catch (error) {
         alert(error.message);
       }
-    };  
+    };
 
     if (checkId === creator_id || creator_id === undefined) {
       setcheckUser(false);
@@ -120,7 +125,9 @@ const ProfilePageBody = (props) => {
             <div className="col-3 ">
               <div className="col">
                 <img
-                  src={profileData.avatar_url || "/images/img_avatarDefault.jpg"}
+                  src={
+                    profileData.avatar_url || "/images/img_avatarDefault.jpg"
+                  }
                   className={`${viewprofileStyles["avatar"]} rounded-pill`}
                   alt="avatar"
                 ></img>
@@ -128,18 +135,33 @@ const ProfilePageBody = (props) => {
 
               <div className="col mt-5">
                 <h3>
-                  {"Username: "}
+                  {"@"}
                   <label className="text-danger poppins-normal-black-24px">
-                    {profileData.username || ""}
+                    {"" || profileData.username}
                   </label>
                 </h3>
-
-                <div className="my-5 poppins-normal-black-24px">
+                
+                  <div className="row m-auto">
+                  
+                    <div className="col-4 ml-auto">
+                    
+                      <Rating
+                        setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
+                        ratinghover={ratinghover}
+                      />
+                     
+                    </div>
+                    <div className="col-4 text-left mr-5">{"--->"}</div>
+                  </div>
+                
+                <div className="my-3 poppins-normal-black-24px">
                   Gender: {profileData.gender}
                 </div>
                 <label className="poppins-normal-black-24px">BIO:</label>
                 <div className="card">
-                  <div className="card-body bg-light border-dark">{profileData.bio}</div>
+                  <div className="card-body bg-light border-dark">
+                    {profileData.bio}
+                  </div>
                 </div>
               </div>
             </div>

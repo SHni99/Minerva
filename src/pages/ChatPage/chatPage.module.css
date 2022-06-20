@@ -3,8 +3,13 @@
     padding-bottom: 30px;
 }
 
-.cs-search input {
-    background-color: #c6e3fa !important;
+.cs-search {
+    background-color: var(--zircon) !important;
+    border-width: 1px;
+}
+
+.cs-search * {
+    background-color: var(--zircon) !important;
 }
 
 .sidebar-visible {
@@ -24,4 +29,13 @@
 
 .chatContainer-invisible {
     display: none !important;
+}
+
+.message-input :nth-child(2) {
+  background-color: var(--zircon) !important;
+  border-width: 1px;
+}
+
+.message-input :nth-child(2) * {
+  background-color: var(--zircon) !important;
 }

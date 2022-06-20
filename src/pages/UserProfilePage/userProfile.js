@@ -1,55 +1,52 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabaseClient } from "../../config/supabase-client";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
-import viewprofileStyles from "./profile.module.css";
-import Button from "react-bootstrap/Button";
+import viewprofileStyles from "./userProfile.module.css";
+import { useLocation } from "react-router-dom";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
-import UserListings from "components/UserListing/userlistings"
+import Listings from "components/UserListing/userlistings"
 
-const viewProfilePage = () => {
+const ViewProfilePage = () => {
+  const { state } = useLocation();
+  const { creator_id } = state;
+  console.log(creator_id);
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ProfilePageBody />
+      <ProfilePageBody creator_id={creator_id} />
       <FooterBar />
     </div>
   );
 };
 
-export default viewProfilePage;
+export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = () => {
-  const [username, setUsername] = useState(null);
-  const [avatar_url, setAvatarUrl] = useState(null);
+const ProfilePageBody = (props) => {
+  const { creator_id } = props;
+  const [username, setUsername] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [bio, setBio] = useState("");
   const [gender, setGender] = useState("");
-  const navigate = useNavigate();
-  const checkId = supabaseClient.auth.user().id;
 
   useEffect(() => {
     getProfile();
-  }, []);
+    console.log(username);
+  });
 
   // get data from profiles table in supabase
   const getProfile = async () => {
     try {
-      const user = supabaseClient.auth.user();
-
-      let { data, error, status } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from("profiles")
-        .select(`username, avatar_url, Bio, gender `)
-        .eq("id", user.id)
+        .select("avatar_url, username, Bio, gender")
+        .eq("id", creator_id)
         .single();
-
-      if (error && status !== 406) {
-        throw error;
-      }
+      if (error) throw error;
       if (data) {
         setUsername(data.username);
         setBio(data.Bio);
@@ -77,7 +74,7 @@ const ProfilePageBody = () => {
             <div className="col-3 ">
               <div className="col">
                 <img
-                  src={avatar_url || "/images/img_avatarDefault.jpg"}
+                  src={avatarUrl || "/images/img_avatarDefault.jpg"}
                   className={`${viewprofileStyles["avatar"]} rounded-pill`}
                   alt="avatar"
                 ></img>
@@ -102,47 +99,20 @@ const ProfilePageBody = () => {
             </div>
 
             <div className="col-8">
-              <div className="row ">
-                <div className="row-lg-3 text-right">
-                  <div>
-                    <Button
-                      className="bg-primary"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigate("/loginmainpage");
-                      }}
-                    >
-                      {" Edit my profile"}
-                    </Button>
-                  </div>
-
-                  <div className="row-lg-3 my-7">
-                    <div>
-                      <Button
-                        className="bg-primary"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/formpage");
-                        }}
-                      >
-                        View my reviews
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <Tabs
+              <div className="row">
+              <Tabs
                   defaultActiveKey="listings"
                   transition={false}
                   id="noanim-tab-example"
                   className="mb-3"
                 >
                   <Tab eventKey="listings" title="Listings">
-                    <UserListings 
-                    checkId={checkId}
+                    <Listings 
+                    checkId={creator_id}
                     />
                   </Tab>
                   <Tab eventKey="reviews" title="Reviews">
-                    ...
+                    gsy
                   </Tab>
                 </Tabs>
               </div>
@@ -153,3 +123,4 @@ const ProfilePageBody = () => {
     </div>
   );
 };
+

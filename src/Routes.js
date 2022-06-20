@@ -1,6 +1,6 @@
 import React from "react";
 import ListingsPage from "pages/ListingsPage/listingsPage";
-import ProfilePage from "pages/ProfilePage/profile";
+import UpdateProfilePage from "pages/UpdateProfilePage/updateProfile";
 import AboutusPage from "pages/AboutusPage/aboutUsPage";
 import RegisterPage from "pages/RegisterPage/register";
 import LoginPage from "pages/LoginPage/login";
@@ -10,8 +10,9 @@ import ResetPage from "pages/ResetPage/resetPage";
 import LoginMainPage from "pages/loginMainPage/loginMain";
 import CreateListingPage from "pages/CreateListingPage/createListingPage";
 import ReviewForm from "pages/ReviewForm/ReviewForm";
+import ProfilePage from "pages/ProfilePage/profile";
+import ViewProfilePage from "pages/UserProfilePage/userProfile";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "pages/Home";
 import NotFound from "pages/NotFound";
 import ChatPage from "pages/ChatPage/chatPage";
 
@@ -25,13 +26,14 @@ const ProjectRoutes = () => {
         <Route path="/registerpage" element={<RegisterPage />} />
         <Route path="/aboutuspage" element={<AboutusPage />} />
         <Route path="/listingspage" element={<ListingsPage />} />
-        <Route path="/profilepage" element={<ProfilePage />} />
-        <Route path="/dhiwise-dashboard" element={<Home />} />
+        <Route path="/profilepage" element={<UpdateProfilePage />} />
         <Route path="/create-listing" element={<CreateListingPage />} />
         <Route path="/passwordpage" element={<PasswordPage />} />
         <Route path="/resetpage" element={<ResetPage />} />
         <Route path="/loginmainpage" element={<LoginMainPage />} />
         <Route path="/formpage" element={<ReviewForm />} />
+        <Route path="/viewprofilepage" element={<ProfilePage />} />
+        <Route path="/profile" element={<ViewProfilePage />} />
         <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </Router>

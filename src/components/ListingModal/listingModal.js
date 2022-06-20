@@ -6,11 +6,11 @@ import Carousel from "react-bootstrap/Carousel";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import FieldTag from "components/FieldTag/fieldTag";
+import { useNavigate } from "react-router-dom";
 
 const ListingModal = (props) => {
   const { onHide, data } = props;
-  const { show, username, avatarUrl, image_urls, fields /*,creator_id*/ } =
-    data;
+  const { show, username, avatarUrl, image_urls, fields, creator_id } = data;
   const tagNames = {
     subject: "Subjects",
     commitment: "Commitment Period",
@@ -24,7 +24,7 @@ const ListingModal = (props) => {
     acc[key] = [...(acc[key] || []), obj.value];
     return acc;
   }, {});
-
+  const navigate = useNavigate();
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
@@ -79,7 +79,15 @@ const ListingModal = (props) => {
         ))}
       </Modal.Body>
       <Modal.Footer className="px-4 d-flex justify-content-evenly">
-        <Button variant="outline-secondary">View Profile</Button>
+        <Button
+          variant="outline-secondary"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/profile", {state: { creator_id }});
+          }}
+        >
+          View Profile
+        </Button>
         <Button className="px-5">Chat</Button>
       </Modal.Footer>
     </Modal>

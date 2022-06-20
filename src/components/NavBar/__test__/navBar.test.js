@@ -96,7 +96,7 @@ describe("Profile Picture", () => {
     it("redirects to the profile page on click", () => {
         const history = wrapNavBar(true);
         fireEvent.click(queryProfilePic());
-        expect(history.location.pathname).toBe("/loginmainpage");
+        expect(history.location.pathname).toBe("/viewprofilepage");
     });
 });
 

@@ -13,6 +13,7 @@ import {
   ConversationList,
   ConversationHeader,
   Conversation,
+  MessageList,
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import chatPageStyles from "./chatPage.module.css";
@@ -33,31 +34,39 @@ export default ChatPage;
 
 const ChatPageBody = (props) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
-  const [showSidebar, setShowSidebar] = useState(window.innerWidth > 768);
+  const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
   // The ID of the other party the current user is currently chatting with
   const [activeChatId, setActiveChatId] = useState(null);
+  const [messages, setMessages] = useState([]);
 
-  // The data containing the conversations to be loaded under the ConversationList.
-  // Stored as an array with objects of the following format:
-  // {
-  //   name: String,
-  //   id: String,
-  //   message: String,
-  //   src: String
-  // }
+  /* The data containing the conversations to be loaded under the ConversationList.
+     Stored as an object of objects.
+     Key: chat_id
+     Value:
+     {
+       user_id,
+       name,
+       src,
+       message
+     } 
+  */
   const [conversations, setConversations] = useState([]);
   // Boolean denoted whether the conversations are currently being fetched or not
   const [loadingConvos, setLoadingConvos] = useState(false);
 
   // Helper functions to add/remove classes from elements
   const removeClass = (elem, name) => {
+    if (!elem || !elem.className.includes(name)) return;
+
     elem.className = elem.className
       .split(" ")
       .filter((cName) => cName !== name)
       .join(" ");
   };
   const addClass = (elem, name) => {
+    if (!elem || elem.className.includes(name)) return;
+
     elem.className += ` ${name}`;
   };
 
@@ -65,6 +74,14 @@ const ChatPageBody = (props) => {
   const handleConvoClick = (chatId) => {
     setShowSidebar(false);
     setActiveChatId(chatId);
+  };
+
+  // Handles the display of active chat messages
+  // Only supports direct messages so far
+  const generateMessages = () => {
+    // const { src: partnerAvatarUrl } = conversations.filter(
+    //   (convo) => convo.id === activeChatId
+    // )[0];
   };
 
   // Fetch all conversations and store them in `conversations`
@@ -78,12 +95,13 @@ const ChatPageBody = (props) => {
         // Fetch data from conversations and messages table
         let { data: convoData, error: convoError } = await supabase
           .from("conversations")
-          .select("participants, messages(sender_id, payload)");
+          .select("id, participants, messages(sender_id, payload)")
+          .order("created_at", { ascending: false, foreignTable: "messages" });
         if (convoError) throw convoError;
 
         // Convert each row of convoData into the appropriate format for `conversations`
-        const newConversations = await Promise.all(
-          convoData.map(async ({ messages, participants }) => {
+        let newConversations = await Promise.all(
+          convoData.map(async ({ id, participants, messages }) => {
             const { payload, sender_id } = messages;
             const uid = supabase.auth.user().id;
 
@@ -114,17 +132,25 @@ const ChatPageBody = (props) => {
                     .getPublicUrl(userData.avatar_url).data.publicURL;
 
             return {
+              chat_id: id,
               name: userData.username,
-              id: partnerId,
+              user_id: partnerId,
               message,
               src: avatarUrl,
             };
           })
         );
+        newConversations = newConversations.reduce((res, convo) => {
+          const { chat_id, name, user_id, message, src } = convo;
+          res[chat_id] = { name, user_id, message, src };
+          return res;
+        }, {});
 
         console.log(newConversations);
+        if (Object.keys(newConversations).length === 0) setShowSidebar(false);
         setConversations(newConversations);
       } catch (error) {
+        console.log(error);
         alert(error.message);
       } finally {
         setLoadingConvos(false);
@@ -138,11 +164,20 @@ const ChatPageBody = (props) => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         setShowSidebar(false);
+      } else if (!activeChatId) {
+        setShowSidebar(
+          document.getElementsByClassName("cs-conversation").length
+        );
       }
     };
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
+    // We are disabling the eslint warning regarding useEffect having
+    // missing dependencies as we do not need to re-setup the event handler
+    // on any state change.
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle showing/hiding of the sidebar on showSidebar change
@@ -156,11 +191,7 @@ const ChatPageBody = (props) => {
       document.getElementsByClassName("cs-conversation__content")
     );
 
-    if (
-      window.innerWidth < 768 &&
-      showSidebar &&
-      !sidebarElem.className.includes("sidebar-visible")
-    ) {
+    if (window.innerWidth < 768 && showSidebar) {
       addClass(sidebarElem, chatPageStyles["sidebar-visible"]);
       addClass(convoAvatarElem, chatPageStyles["convoAvatar-visible"]);
       addClass(searchBarElem, chatPageStyles["convoContent-visible"]);
@@ -180,7 +211,7 @@ const ChatPageBody = (props) => {
         removeClass(convoContent, chatPageStyles["convoContent-visible"])
       );
     }
-  }, [showSidebar]);
+  }, [showSidebar, loadingConvos]);
 
   return (
     <div className={chatPageStyles.body}>
@@ -191,28 +222,72 @@ const ChatPageBody = (props) => {
             className={`${chatPageStyles["cs-search"]} py-0`}
           />
           <ConversationList>
-            {conversations.map(({ name, message, src, id }) => (
+            {Object.keys(conversations).map((id) => (
               <Conversation
                 onClick={() => handleConvoClick(id)}
                 key={id}
                 active={activeChatId === id}
               >
-                <Avatar src={src} name={name} />
-                <Conversation.Content name={name} info={message} />
+                <Avatar
+                  src={conversations[id].src}
+                  name={conversations[id].name}
+                />
+                <Conversation.Content
+                  name={conversations[id].name}
+                  info={conversations[id].message}
+                />
               </Conversation>
             ))}
           </ConversationList>
         </Sidebar>
-        <ChatContainer>
-          <ConversationHeader>
-            <ConversationHeader.Back onClick={() => setShowSidebar(true)} />
-            <Avatar src="/images/img_avatarDefault.jpg" name="DERP" />
-          </ConversationHeader>
-          <MessageInput
-            placeholder="Your message here..."
-            className={`${chatPageStyles["message-input"]}`}
-          />
-        </ChatContainer>
+        {!activeChatId ? (
+          <ChatContainer>
+            <MessageList>
+              <MessageList.Content
+                className={`${chatPageStyles["empty-chat"]}`}
+              >
+                <p className="px-md-5">
+                  Nothing here! <br /> Try{" "}
+                  {window.innerWidth < 768
+                    ? "starting "
+                    : "selecting a chat on the left or start "}
+                  a new conversation from
+                  <a href="/listingspage" className="ms-2">
+                    a listing
+                  </a>
+                  .
+                </p>
+              </MessageList.Content>
+            </MessageList>
+          </ChatContainer>
+        ) : (
+          <ChatContainer>
+            {Object.keys(conversations)
+              .filter((convo_id) => convo_id === activeChatId)
+              .map((id) => (
+                <ConversationHeader key={id}>
+                  <ConversationHeader.Back
+                    onClick={() => setShowSidebar(true)}
+                  />
+                  <Avatar
+                    src={conversations[id].src}
+                    name={conversations[id].name}
+                  />
+                  <ConversationHeader.Content
+                    userName={conversations[id].name}
+                    className={`${chatPageStyles["convo-header"]}`}
+                  />
+                </ConversationHeader>
+              ))}
+
+            {generateMessages()}
+
+            <MessageInput
+              placeholder="Your message here..."
+              className={`${chatPageStyles["message-input"]}`}
+            />
+          </ChatContainer>
+        )}
       </MainContainer>
     </div>
   );

@@ -39,3 +39,18 @@
 .message-input :nth-child(2) * {
   background-color: var(--zircon) !important;
 }
+
+.empty-chat {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    font-size: 150%;
+}
+
+.convo-header * {
+    font-family: "Nunito Sans";
+    font-weight: bold;
+}

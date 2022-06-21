@@ -36,9 +36,19 @@ const ChatPageBody = (props) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
-  // The ID of the other party the current user is currently chatting with
+  // The ID of the current active chat
   const [activeChatId, setActiveChatId] = useState(null);
+
+  /* Array of objects which represent a message each.
+     Structure: {
+       time (ISO format),
+       type (text/image),
+       content,
+       isOwnMessage (true if sent by current user)
+     }
+  */
   const [messages, setMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   /* The data containing the conversations to be loaded under the ConversationList.
      Stored as an object of objects.
@@ -76,13 +86,42 @@ const ChatPageBody = (props) => {
     setActiveChatId(chatId);
   };
 
-  // Handles the display of active chat messages
-  // Only supports direct messages so far
-  const generateMessages = () => {
-    // const { src: partnerAvatarUrl } = conversations.filter(
-    //   (convo) => convo.id === activeChatId
-    // )[0];
-  };
+  useEffect(() => {
+    // Loads old messages and listens for any new messages
+    const getOldMessages = async () => {
+      try {
+        setLoadingMessages(true);
+
+        let { data, error } = await supabase
+          .from("messages")
+          .select("created_at, sender_id, payload")
+          .eq("convo_id", activeChatId)
+          .order("created_at", { ascending: true });
+        if (error) throw error;
+
+        const newMessages = data.map(({ created_at, sender_id, payload }) => {
+          // Change this to expand the number of supported message types
+          // Currently only supports image and text content
+          const type = payload.imageUrl ? "image" : "text";
+
+          // Change code here for content to expand supported content types
+          return {
+            time: created_at,
+            type,
+            content: payload[type === "image" ? "imageUrl" : "text"],
+            isOwnMessage: sender_id === supabase.auth.user().id,
+          };
+        });
+
+        setMessages(newMessages);
+      } catch (error) {
+        console.log(error.message);
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+    getOldMessages();
+  }, [activeChatId]);
 
   // Fetch all conversations and store them in `conversations`
   // Run only once, at the start.
@@ -146,7 +185,6 @@ const ChatPageBody = (props) => {
           return res;
         }, {});
 
-        console.log(newConversations);
         if (Object.keys(newConversations).length === 0) setShowSidebar(false);
         setConversations(newConversations);
       } catch (error) {
@@ -262,25 +300,19 @@ const ChatPageBody = (props) => {
           </ChatContainer>
         ) : (
           <ChatContainer>
-            {Object.keys(conversations)
-              .filter((convo_id) => convo_id === activeChatId)
-              .map((id) => (
-                <ConversationHeader key={id}>
-                  <ConversationHeader.Back
-                    onClick={() => setShowSidebar(true)}
-                  />
-                  <Avatar
-                    src={conversations[id].src}
-                    name={conversations[id].name}
-                  />
-                  <ConversationHeader.Content
-                    userName={conversations[id].name}
-                    className={`${chatPageStyles["convo-header"]}`}
-                  />
-                </ConversationHeader>
-              ))}
-
-            {generateMessages()}
+            {
+              <ConversationHeader>
+                <ConversationHeader.Back onClick={() => setShowSidebar(true)} />
+                <Avatar
+                  src={conversations[activeChatId].src}
+                  name={conversations[activeChatId].name}
+                />
+                <ConversationHeader.Content
+                  userName={conversations[activeChatId].name}
+                  className={`${chatPageStyles["convo-header"]}`}
+                />
+              </ConversationHeader>
+            }
 
             <MessageInput
               placeholder="Your message here..."

@@ -4,10 +4,10 @@ import { supabaseClient as supabase } from "config/supabase-client";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
 import ListingModal from "components/ListingModal/listingModal";
-import listingsPageStyles from "./userlistings.module.css";
+import userListingsStyles from "./userlistings.module.css";
 
-const ListingsPage = (props) => {
-  const {checkId} = props;
+const UserListingsPage = (props) => {
+  const { checkId } = props;
 
   const [listingData, setListingData] = useState([]);
   const unusedModalState = {
@@ -24,36 +24,24 @@ const ListingsPage = (props) => {
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
-      
       <ListingModal
         data={modalState}
         onHide={() => setModalState(unusedModalState)}
       />
-      <ListingPageBody
+      <UserListingBody
         checkId={checkId}
         listingDataState={[listingData, setListingData]}
         setModalState={setModalState}
       />
-      
     </div>
   );
 };
 
-export default ListingsPage;
+export default UserListingsPage;
 
-const ListingPageBody = ({
-  checkId,
-  listingDataState,
-  setModalState,
-}) => {
-  
-  
-
-
-
+const UserListingBody = ({ checkId, listingDataState, setModalState }) => {
   return (
-    <Container className={`${listingsPageStyles["body"]}`}>
-    
+    <Container className={`${userListingsStyles["body"]}`}>
       <Listings
         checkId={checkId}
         listingDataState={listingDataState}
@@ -62,8 +50,6 @@ const ListingPageBody = ({
     </Container>
   );
 };
-
-
 
 const Listings = ({ checkId, listingDataState, setModalState }) => {
   // Set to true when data is being fetched from Supabase
@@ -91,14 +77,6 @@ const Listings = ({ checkId, listingDataState, setModalState }) => {
           .select("creator_id, level, rates, fields, image_urls, listing_id")
           .eq("creator_id", checkId);
         if (listingError && listingStatus !== 406) throw listingError;
-
-        // Filter using the entered query (set to "" by default/on clearing the textbox)
-        listingDb = listingDb.filter(({ level, rates, fields }) =>
-          `${level} ${rates} ${Object.keys(fields).reduce(
-            (acc, key) => `${acc} ${fields[key].value}`,
-            ""
-          )}`
-        );
 
         // Indicate no results and useEffect call here, if filtered results array is empty
         if (listingDb.length === 0) {
@@ -170,7 +148,7 @@ const Listings = ({ checkId, listingDataState, setModalState }) => {
   }, [checkId]);
 
   return (
-    <div className={listingsPageStyles["listings"]}>
+    <div className={userListingsStyles["listings"]}>
       {isEmpty ? (
         <h1>Nothing here!</h1>
       ) : loading ? (

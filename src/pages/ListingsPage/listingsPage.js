@@ -33,6 +33,7 @@ const ListingsPage = () => {
     >
       <NavBar />
       <ListingModal
+        checkUser={true}
         data={modalState}
         onHide={() => setModalState(unusedModalState)}
       />

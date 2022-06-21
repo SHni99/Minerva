@@ -54,3 +54,8 @@
     font-family: "Nunito Sans";
     font-weight: bold;
 }
+
+.msg-footer * {
+    display: flex !important;
+    padding: 0 !important;
+}

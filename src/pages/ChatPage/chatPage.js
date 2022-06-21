@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import moment from "moment";
 import { useState } from "react";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
@@ -7,6 +8,7 @@ import {
   Avatar,
   MainContainer,
   ChatContainer,
+  Message,
   MessageInput,
   Sidebar,
   Search,
@@ -17,6 +19,7 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import chatPageStyles from "./chatPage.module.css";
+import Spinner from "react-bootstrap/Spinner";
 
 const ChatPage = () => {
   return (
@@ -315,6 +318,38 @@ const ChatPageBody = (props) => {
                 />
               </ConversationHeader>
             }
+
+            {loadingMessages ? (
+              <MessageList>
+                <MessageList.Content
+                  className={`${chatPageStyles["empty-chat"]}`}
+                >
+                  <Spinner
+                    animation="border"
+                    role="status"
+                    aria-label="Loading"
+                  />
+                </MessageList.Content>
+              </MessageList>
+            ) : (
+              <MessageList className="py-2">
+                {messages.map(({ time, type, content, isOwnMessage }) => (
+                  <Message
+                    key={time}
+                    model={{
+                      message: content,
+                      direction: isOwnMessage ? "outgoing" : "incoming",
+                    }}
+                    type={type}
+                  >
+                    <Message.Footer
+                      sentTime={moment(time).format("LT")}
+                      className={chatPageStyles["msg-footer"]}
+                    />
+                  </Message>
+                ))}
+              </MessageList>
+            )}
 
             <MessageInput
               placeholder="Your message here..."

@@ -86,7 +86,9 @@ const ChatPageBody = (props) => {
     setActiveChatId(chatId);
   };
 
+  // Fetches messages in chat
   useEffect(() => {
+    if (!activeChatId) return;
     // Loads old messages and listens for any new messages
     const getOldMessages = async () => {
       try {

@@ -9,7 +9,7 @@ import FieldTag from "components/FieldTag/fieldTag";
 import { useNavigate } from "react-router-dom";
 
 const ListingModal = (props) => {
-  const { onHide, data } = props;
+  const { onHide, data, checkUser } = props;
   const { show, username, avatarUrl, image_urls, fields, creator_id } = data;
   const tagNames = {
     subject: "Subjects",
@@ -26,7 +26,7 @@ const ListingModal = (props) => {
   }, {});
   const navigate = useNavigate();
   return (
-    <Modal show={show} onHide={onHide}>
+    <Modal show={show} onHide={onHide} checkUser={checkUser}>
       <Modal.Header closeButton>
         <img
           src={avatarUrl || "/images/img_avatarDefault.jpg"}
@@ -78,18 +78,22 @@ const ListingModal = (props) => {
           </Row>
         ))}
       </Modal.Body>
-      <Modal.Footer className="px-4 d-flex justify-content-evenly">
+      {checkUser ? (
+        <Modal.Footer className="px-4 d-flex justify-content-evenly">
         <Button
           variant="outline-secondary"
           onClick={(e) => {
             e.preventDefault();
-            navigate("/profile", {state: { creator_id }});
+            navigate("/profile", { state: { creator_id } });
           }}
         >
           View Profile
         </Button>
         <Button className="px-5">Chat</Button>
       </Modal.Footer>
+      ) : (
+        <div></div>
+      )}
     </Modal>
   );
 };

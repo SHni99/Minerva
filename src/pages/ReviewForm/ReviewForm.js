@@ -9,14 +9,17 @@ export default function FormComponent() {
   //const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const ratinghover = false;
   const [currentValue, setCurrentValue] = useState(0);
 
   //information will be registered under the table "reviews"
-  const onReviewSubmit = async ({ index, textbox }) => {
+  const onReviewSubmit = async ({ index, textbox, user_id }) => {
+    const user = supabaseClient.auth.user().id;
     try {
       const data = {
         index,
         textbox,
+        user_id: user
       };
       setLoading(true);
       let { error } = await supabaseClient
@@ -57,6 +60,7 @@ export default function FormComponent() {
               <div>
                 <Rating //user can review the quality of his dealer by awarding the number of stars (out of 5)
                 setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
+                ratinghover={ratinghover}
                 />
               </div>
               <div className="form-group">

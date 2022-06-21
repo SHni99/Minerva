@@ -141,7 +141,7 @@ function CredentialsCorner(props) {
         ) : (
           <Link
             className={navBarStyles["avatar"]}
-            to="/viewprofilepage"
+            to="/profile"
             style={{
               backgroundImage: `url(${
                 avatarUrl || "/images/img_avatarDefault.jpg"

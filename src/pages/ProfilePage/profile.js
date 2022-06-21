@@ -136,26 +136,28 @@ const ProfilePageBody = (props) => {
               <div className="col mt-5">
                 <h3>
                   {"@"}
-                  <label className="text-danger poppins-normal-black-24px">
+                  <label className="text-dark poppins-normal-black-24px">
                     {"" || profileData.username}
                   </label>
                 </h3>
-                
-                  <div className="row m-auto">
-                  
-                    <div className="col-4 ml-auto">
-                    
-                      <Rating
-                        setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
-                        ratinghover={ratinghover}
-                      />
-                     
-                    </div>
-                    <div className="col-4 text-left mr-5">{"--->"}</div>
+
+                <div className="row m-auto">
+                  <div className="col-4 ml-auto">
+                    <Rating
+                      setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
+                      ratinghover={ratinghover}
+                    />
                   </div>
-                
-                <div className="my-3 poppins-normal-black-24px">
-                  Gender: {profileData.gender}
+                  <div className="col-4 text-left mr-5">{"--->"}</div>
+                </div>
+
+                <div className="my-5 poppins-normal-black-24px">
+                  Gender:{" "}
+                  {profileData.gender === "Male" ? (
+                    <div className="poppins-normal-sapphire-24px">Male</div>
+                  ) : (
+                    <div className="poppins-normal-red-24px">Female</div>
+                  )}
                 </div>
                 <label className="poppins-normal-black-24px">BIO:</label>
                 <div className="card">
@@ -175,7 +177,7 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <Listings checkId={creator_id || checkId} />
+                      <Listings checkId={creator_id || checkId}/>
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
                       gsy
@@ -220,7 +222,7 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <UserListings checkId={checkId} />
+                      <UserListings checkId={checkId} checkUser={checkUser}/>
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
                       ...

@@ -11,8 +11,10 @@ import Button from "react-bootstrap/Button";
 const UpdateProfilePage = ({ session }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState(null);
-  const [avatar_url, setAvatarUrl] = useState(null);
+  const [username, setUsername] = useState("");
+  const [avatar_url, setAvatarUrl] = useState("");
+  const [gender, setGender] = useState("");
+  const [bio, setBio] = useState("");
 
   useEffect(() => {
     getProfile();
@@ -26,7 +28,7 @@ const UpdateProfilePage = ({ session }) => {
 
       let { data, error, status } = await supabaseClient
         .from("profiles")
-        .select(`username, avatar_url`)
+        .select(`username, avatar_url, gender, bio`)
         .eq("id", user.id)
         .single();
 
@@ -37,6 +39,8 @@ const UpdateProfilePage = ({ session }) => {
       if (data) {
         setUsername(data.username);
         setAvatarUrl(data.avatar_url);
+        setGender(data.gender);
+        setBio(data.bio);
       }
     } catch (error) {
       alert(error.message);
@@ -55,6 +59,8 @@ const UpdateProfilePage = ({ session }) => {
         id: user.id,
         username,
         avatar_url,
+        gender,
+        bio,
         updated_at: new Date(),
       };
 
@@ -98,6 +104,10 @@ const UpdateProfilePage = ({ session }) => {
         username={username}
         avatar_url={avatar_url}
         setUsername={setUsername}
+        gender={gender}
+        setGender={setGender}
+        bio={bio}
+        setBio={setBio}
         navigate={navigate}
         handleLogout={handleLogout}
         updateProfile={updateProfile}
@@ -118,6 +128,10 @@ const ProfilePageBody = (props) => {
     session,
     username,
     setUsername,
+    gender,
+    setGender,
+    bio,
+    setBio,
     navigate,
     handleLogout,
     avatar_url,
@@ -140,7 +154,7 @@ const ProfilePageBody = (props) => {
             style={{ backgroundColor: "#FAFAD2" }}
           >
             <div className="card-body mt-4">
-              <PersonalAvatar //user can upload from his side, will update avatar_url under the profile table 
+              <PersonalAvatar //user can upload from his side, will update avatar_url under the profile table
                 className="align-self"
                 url={avatar_url}
                 onUpload={(url) => {
@@ -162,6 +176,53 @@ const ProfilePageBody = (props) => {
                   type="text"
                   value={username || ""}
                   onChange={(e) => setUsername(e.target.value)}
+                  className="form-control form-control-lg m-auto"
+                ></input>
+                <div className="mt-8">
+                  <h2>Gender</h2>
+                </div>
+                <div class="form-check form-check-inline px-10">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="inlineRadioOptions"
+                    id="inlineRadio1"
+                    value="Male"
+                    checked={gender === "Male" ? true : ""}
+                    onChange={(e) => setGender(e.target.value)}
+                  />
+                  <label
+                    class="form-check-label inter-medium-sapphire-20px "
+                    for="inlineRadio1"
+                  >
+                    Male
+                  </label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="inlineRadioOptions"
+                    id="inlineRadio2"
+                    value="Female"
+                    checked={gender === "Female" ? true : ""}
+                    onChange={(e) => setGender(e.target.value)}
+                  />
+                  <label
+                    class="form-check-label inter-medium-red-20px"
+                    for="inlineRadio2"
+                  >
+                    Female
+                  </label>
+                </div>
+
+                <div className="mt-8">
+                  <h2>Bio</h2>
+                </div>
+                <input
+                  type="text"
+                  placeholder={bio || ""}
+                  onChange={(e) => setBio(e.target.value)}
                   className="form-control form-control-lg m-auto"
                 ></input>
                 <div className="row-lg-2 m-5">

@@ -102,6 +102,31 @@
   font-weight: 500;
   font-style: normal;
 }
+
+.inter-medium-red-20px {
+  color: #DC143C;
+  font-family: var(--font-family-inter);
+  font-size: var(--font-size-s);
+  font-weight: 500;
+  font-style: normal;
+}
+
+.poppins-normal-sapphire-24px {
+  color: var(--sapphire);
+  font-family: var(--font-family-poppins);
+  font-size: var(--font-size-m);
+  font-weight: 400;
+  font-style: normal;
+}
+
+.poppins-normal-red-24px {
+  color: #DC143C;
+  font-family: var(--font-family-poppins);
+  font-size: var(--font-size-m);
+  font-weight: 400;
+  font-style: normal;
+}
+
 .text-smregular {
   font-family: var(--font-family-inter);
   font-size: var(--font-size-xxs);

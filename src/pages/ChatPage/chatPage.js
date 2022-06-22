@@ -16,6 +16,7 @@ import {
   ConversationHeader,
   Conversation,
   MessageList,
+  MessageSeparator,
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import chatPageStyles from "./chatPage.module.css";
@@ -81,6 +82,55 @@ const ChatPageBody = (props) => {
     if (!elem || elem.className.includes(name)) return;
 
     elem.className += ` ${name}`;
+  };
+
+  const generateSingleMessage = (msgData, position) => {
+    const { time, content, type, isOwnMessage } = msgData;
+    const lastOrSingle = position === "last" || position === "single";
+    return (
+      <Message
+        key={"message" + time}
+        model={{
+          message: content,
+          direction: isOwnMessage ? "outgoing" : "incoming",
+          position,
+        }}
+        type={type}
+        avatarSpacer={!isOwnMessage && !lastOrSingle}
+      >
+        {!isOwnMessage && lastOrSingle && (
+          <Avatar src={conversations[activeChatId].src} className="mb-3" />
+        )}
+        {lastOrSingle && (
+          <Message.Footer
+            sentTime={moment(time).format("LT")}
+            className={chatPageStyles["msg-footer"]}
+          />
+        )}
+      </Message>
+    );
+  };
+
+  // Helper function to generate array of Messsages from a single sender
+  const generateMessages = (msgList) => {
+    if (msgList.length === 0) return [];
+
+    if (msgList.length === 1) {
+      return [generateSingleMessage(msgList[0], "single")];
+    } else {
+      // Initialise result array with first message
+      const res = [generateSingleMessage(msgList[0], "first")];
+
+      // Add messages between first and last message
+      for (let i = 1; i < msgList.length - 1; i++) {
+        res.push(generateSingleMessage(msgList[i]), "normal");
+      }
+
+      // Add last message
+      res.push(generateSingleMessage(msgList[msgList.length - 1], "last"));
+
+      return res;
+    }
   };
 
   // Handles the onClick event for the Conversation items (the left sidebar)
@@ -333,21 +383,40 @@ const ChatPageBody = (props) => {
               </MessageList>
             ) : (
               <MessageList className="py-2">
-                {messages.map(({ time, type, content, isOwnMessage }) => (
-                  <Message
-                    key={time}
-                    model={{
-                      message: content,
-                      direction: isOwnMessage ? "outgoing" : "incoming",
-                    }}
-                    type={type}
-                  >
-                    <Message.Footer
-                      sentTime={moment(time).format("LT")}
-                      className={chatPageStyles["msg-footer"]}
-                    />
-                  </Message>
-                ))}
+                {(() => {
+                  const msgElems = [];
+                  let currentDate = null;
+                  let msgGroup = [];
+
+                  for (let i = 0; i < messages.length; i++) {
+                    const { time, isOwnMessage } = messages[i];
+                    const date = moment(time).format("L");
+                    if (date !== currentDate) {
+                      msgElems.push(...generateMessages(msgGroup));
+                      msgElems.push(
+                        <MessageSeparator
+                          content={moment(time).format("LL")}
+                          key={time}
+                        />
+                      );
+                      msgGroup = [messages[i]];
+                    } else {
+                      if (
+                        i === 0 ||
+                        isOwnMessage === messages[i - 1].isOwnMessage
+                      ) {
+                        msgGroup.push(messages[i]);
+                      } else {
+                        msgElems.push(...generateMessages(msgGroup));
+                        msgGroup = [messages[i]];
+                      }
+                    }
+                  }
+                  if (msgGroup.length > 0)
+                    msgElems.push(...generateMessages(msgGroup));
+
+                  return msgElems;
+                })()}
               </MessageList>
             )}
 

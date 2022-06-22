@@ -1,0 +1,25 @@
+.card {
+    box-shadow: 0px 4px 4px #00000040;
+    width: 300px;
+}
+
+.avatar {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0px 4px 4px #00000040;
+    margin-bottom: 4px;
+}
+
+.listingImg {
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+    margin-bottom: 4px;
+}
+
+.level {
+    font-family: "Nunito";
+    font-size: 100%;
+}

@@ -33,8 +33,8 @@ const ProjectRoutes = () => {
         <Route path="/loginmainpage" element={<LoginMainPage />} />
         <Route path="/formpage" element={<ReviewForm />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/chat" element={<ChatPage />} />
         <Route path="/review" element={<ReviewPage />} />
+        <Route path="/chats" element={<ChatPage />} />
       </Routes>
     </Router>
   );

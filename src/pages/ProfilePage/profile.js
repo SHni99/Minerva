@@ -43,6 +43,19 @@ const ProfilePageBody = (props) => {
   const checkId = supabaseClient.auth.user().id;
   const ratinghover = useState(true);
 
+  //log user out and redirect to landing page
+  const handleLogout = async (navigate, e) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) throw error;
+      alert("Logged out");
+      navigate("/loginpage");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   useEffect(() => {
     const getUserProfile = async () => {
       try {
@@ -141,7 +154,11 @@ const ProfilePageBody = (props) => {
                   </label>
                 </h3>
 
-                <div className="row m-auto">
+                <div
+                  className="row m-auto"
+                  onClick={() => navigate("/formpage")}
+                  style={{ cursor: "pointer" }}
+                >
                   <div className="col-4 ml-auto">
                     <Rating
                       setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
@@ -153,10 +170,12 @@ const ProfilePageBody = (props) => {
 
                 <div className="my-5 poppins-normal-black-24px">
                   Gender:{" "}
-                  {profileData.gender === "Male" ? (
+                  {profileData.gender === "Female" ? (
+                    <div className="poppins-normal-red-24px">Female</div>
+                  ) : profileData.gender === "Male" ? (
                     <div className="poppins-normal-sapphire-24px">Male</div>
                   ) : (
-                    <div className="poppins-normal-red-24px">Female</div>
+                    <div className="poppins-normal-black-24px">User has not set a gender</div>
                   )}
                 </div>
                 <label className="poppins-normal-black-24px">BIO:</label>
@@ -177,7 +196,7 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <Listings checkId={creator_id || checkId}/>
+                      <Listings checkId={creator_id || checkId} />
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
                       gsy
@@ -197,7 +216,7 @@ const ProfilePageBody = (props) => {
                           navigate("/loginmainpage");
                         }}
                       >
-                        {" Edit my profile"}
+                        Edit my profile
                       </Button>
                     </div>
 
@@ -206,11 +225,10 @@ const ProfilePageBody = (props) => {
                         <Button
                           className="bg-primary"
                           onClick={(e) => {
-                            e.preventDefault();
-                            navigate("/formpage");
+                            handleLogout(navigate, e);
                           }}
                         >
-                          View my reviews
+                          Log out
                         </Button>
                       </div>
                     </div>
@@ -222,7 +240,7 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <UserListings checkId={checkId} checkUser={checkUser}/>
+                      <UserListings checkId={checkId} checkUser={checkUser} />
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
                       ...

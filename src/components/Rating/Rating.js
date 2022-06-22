@@ -8,9 +8,8 @@ const colors = {
 };
 
 const Rating = (props) => {
-  const { setReviews, ratinghover } = props;
+  const { setReviews, ratinghover: ratingHover } = props;
   const [currentValue, setCurrentValue] = setReviews;
-  const ratingHover = ratinghover;
   const [hoverValue, setHoverValue] = useState(0);
 
   const handleClick = (value) => {

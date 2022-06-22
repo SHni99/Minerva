@@ -123,7 +123,7 @@ const ChatPageBody = (props) => {
 
       // Add messages between first and last message
       for (let i = 1; i < msgList.length - 1; i++) {
-        res.push(generateSingleMessage(msgList[i]), "normal");
+        res.push(generateSingleMessage(msgList[i], "normal"));
       }
 
       // Add last message
@@ -133,10 +133,86 @@ const ChatPageBody = (props) => {
     }
   };
 
+  // Helper function to parse raw Supabase message data
+  const parseMessage = ({ created_at, sender_id, payload }) => {
+    // Change this to expand the number of supported message types
+    // Currently only supports image and text content
+    const type = payload.imageUrl ? "image" : "text";
+
+    // Change code here for content to expand supported content types
+    return {
+      time: created_at,
+      type,
+      content: payload[type === "image" ? "imageUrl" : "text"],
+      isOwnMessage: sender_id === supabase.auth.user().id,
+    };
+  };
+
+  // Helper function to parse raw Supabase conversation data
+  const parseConvo = async ({ id, participants, messages }) => {
+    const uid = supabase.auth.user().id;
+
+    // Get the id in `participants` that is not equal to the current user id
+    const partnerId =
+      participants[0] === uid ? participants[1] : participants[0];
+
+    // If the last message is sent by the user, prefix the message with a "You: "
+    // If the message is an image, display "(You:) sent an image" instead
+    const message = messages
+      ? `${messages.sender_id === uid ? "You: " : ""}${
+          messages.payload.imageUrl ? "sent an Image" : messages.payload.text
+        }`
+      : "";
+
+    // Fetch username and avatar url from the profiles table
+    let { data: userData, error: userError } = await supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", partnerId)
+      .single();
+    if (userError) throw userError;
+
+    // If avatar url from the profiles table is empty, set it to the default profile pic.
+    const avatarUrl =
+      userData.avatar_url === ""
+        ? "/images/img_avatarDefault.jpg"
+        : supabase.storage.from("avatars").getPublicUrl(userData.avatar_url)
+            .data.publicURL;
+
+    return {
+      chat_id: id,
+      name: userData.username,
+      user_id: partnerId,
+      message,
+      src: avatarUrl,
+    };
+  };
+
   // Handles the onClick event for the Conversation items (the left sidebar)
   const handleConvoClick = (chatId) => {
     setShowSidebar(false);
     setActiveChatId(chatId);
+  };
+
+  const handleMsgSend = async (msg) => {
+    try {
+      let { data, error } = await supabase.from("messages").insert({
+        recipient_id: conversations[activeChatId].user_id,
+        payload: {
+          text: msg,
+        },
+        convo_id: activeChatId,
+      });
+      if (error) throw error;
+
+      let { error: lastMsgError } = await supabase
+        .from("conversations")
+        .update({ last_msg: data[0].id })
+        .eq("id", activeChatId);
+      if (lastMsgError) throw lastMsgError;
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   // Fetches messages in chat
@@ -154,28 +230,29 @@ const ChatPageBody = (props) => {
           .order("created_at", { ascending: true });
         if (error) throw error;
 
-        const newMessages = data.map(({ created_at, sender_id, payload }) => {
-          // Change this to expand the number of supported message types
-          // Currently only supports image and text content
-          const type = payload.imageUrl ? "image" : "text";
-
-          // Change code here for content to expand supported content types
-          return {
-            time: created_at,
-            type,
-            content: payload[type === "image" ? "imageUrl" : "text"],
-            isOwnMessage: sender_id === supabase.auth.user().id,
-          };
-        });
+        const newMessages = data.map(parseMessage);
 
         setMessages(newMessages);
       } catch (error) {
-        console.log(error.message);
+        alert(error.message);
       } finally {
         setLoadingMessages(false);
       }
     };
     getOldMessages();
+
+    // Subscribe to INSERT events with convo_id === activeChatId
+    const msgSub = supabase
+      .from(`messages:convo_id=eq.${activeChatId}`)
+      .on("INSERT", (payload) =>
+        setMessages((oldMessages) => [
+          ...oldMessages,
+          parseMessage(payload.new),
+        ])
+      )
+      .subscribe();
+
+    return () => supabase.removeSubscription(msgSub);
   }, [activeChatId]);
 
   // Fetch all conversations and store them in `conversations`
@@ -194,46 +271,7 @@ const ChatPageBody = (props) => {
         if (convoError) throw convoError;
 
         // Convert each row of convoData into the appropriate format for `conversations`
-        let newConversations = await Promise.all(
-          convoData.map(async ({ id, participants, messages }) => {
-            const { payload, sender_id } = messages;
-            const uid = supabase.auth.user().id;
-
-            // Get the id in `participants` that is not equal to the current user id
-            const partnerId =
-              participants[0] === uid ? participants[1] : participants[0];
-
-            // If the last message is sent by the user, prefix the message with a "You: "
-            // If the message is an image, display "(You:) sent an image" instead
-            const message = `${sender_id === uid ? "You: " : ""}${
-              payload.imageUrl ? "sent an Image" : payload.text
-            }`;
-
-            // Fetch username and avatar url from the profiles table
-            let { data: userData, error: userError } = await supabase
-              .from("profiles")
-              .select("username, avatar_url")
-              .eq("id", partnerId)
-              .single();
-            if (userError) throw userError;
-
-            // If avatar url from the profiles table is empty, set it to the default profile pic.
-            const avatarUrl =
-              userData.avatar_url === ""
-                ? "/images/img_avatarDefault.jpg"
-                : supabase.storage
-                    .from("avatars")
-                    .getPublicUrl(userData.avatar_url).data.publicURL;
-
-            return {
-              chat_id: id,
-              name: userData.username,
-              user_id: partnerId,
-              message,
-              src: avatarUrl,
-            };
-          })
-        );
+        let newConversations = await Promise.all(convoData.map(parseConvo));
         newConversations = newConversations.reduce((res, convo) => {
           const { chat_id, name, user_id, message, src } = convo;
           res[chat_id] = { name, user_id, message, src };
@@ -243,13 +281,49 @@ const ChatPageBody = (props) => {
         if (Object.keys(newConversations).length === 0) setShowSidebar(false);
         setConversations(newConversations);
       } catch (error) {
-        console.log(error);
         alert(error.message);
       } finally {
         setLoadingConvos(false);
       }
     };
     fetchConvos();
+
+    // Subscribe to INSERT and UPDATE events
+    const convoSub = supabase
+      .from("conversations")
+      .on("UPDATE", async (payload) => {
+        try {
+          let { data, error } = await supabase
+            .from("messages")
+            .select("sender_id, payload")
+            .eq("id", payload.new.last_msg)
+            .single();
+          if (error) throw error;
+
+          setConversations((oldConversations) => {
+            const newConversations = { ...oldConversations };
+            newConversations[payload.new.id].message = `${
+              data.sender_id === supabase.auth.user().id ? "You: " : ""
+            }${data.payload.imageUrl ? "sent an Image" : data.payload.text}`;
+
+            return newConversations;
+          });
+        } catch (error) {
+          alert(error.message);
+        }
+      })
+      .on("INSERT", async (payload) => {
+        const newConvo = await parseConvo(payload.new);
+        setConversations((oldConvos) => {
+          const newConvos = { ...oldConvos };
+          const { chat_id, name, user_id, message, src } = newConvo;
+          newConvos[chat_id] = { name, user_id, message, src };
+          return newConvos;
+        });
+      })
+      .subscribe();
+
+    return () => supabase.removeSubscription(convoSub);
   }, []);
 
   // Add event listener to show correct layout on window resize
@@ -392,6 +466,7 @@ const ChatPageBody = (props) => {
                     const { time, isOwnMessage } = messages[i];
                     const date = moment(time).format("L");
                     if (date !== currentDate) {
+                      currentDate = date;
                       msgElems.push(...generateMessages(msgGroup));
                       msgElems.push(
                         <MessageSeparator
@@ -423,6 +498,7 @@ const ChatPageBody = (props) => {
             <MessageInput
               placeholder="Your message here..."
               className={`${chatPageStyles["message-input"]}`}
+              onSend={handleMsgSend}
             />
           </ChatContainer>
         )}

@@ -158,12 +158,7 @@ function CredentialsCorner(props) {
         </Button>
 
         {/* Chat Button */}
-        <Link
-          // Feature Flag: uncomment this to link to chat page
-          // to="/chat"
-          to="/"
-          className={navBarStyles.chat}
-        >
+        <Link to="/chats" className={navBarStyles.chat}>
           <ChatDots></ChatDots>
         </Link>
       </div>

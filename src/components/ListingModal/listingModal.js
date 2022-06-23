@@ -1,6 +1,7 @@
 import React from "react";
 import Modal from "react-bootstrap/Modal";
 import listingModalStyles from "./listingModal.module.css";
+import { Link } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Carousel from "react-bootstrap/Carousel";
 import Row from "react-bootstrap/Row";
@@ -81,9 +82,9 @@ const ListingModal = (props) => {
           alt="Avatar"
           className={listingModalStyles.avatar}
         />
-        <a href="/" className="nunito-sans">
+        <Link to="/profile" state={{ creator_id }} className="nunito-sans">
           {username}
-        </a>
+        </Link>
         {/* Add rating here! (stars) */}
       </Modal.Header>
       <Modal.Body>

@@ -117,6 +117,9 @@ const ChatPageBody = ({ creator_id }) => {
     );
   };
 
+  if (creator_id) {
+    console.log(creator_id);
+  }
   // Helper function to generate array of Messsages from a single sender
   const generateMessages = (msgList) => {
     if (msgList.length === 0) return [];

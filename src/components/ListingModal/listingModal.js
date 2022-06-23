@@ -72,7 +72,7 @@ const ListingModal = (props) => {
   };
 
   return (
-    <Modal show={show} onHide={onHide} checkUser={checkUser}>
+    <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
         <img
           src={avatarUrl || "/images/img_avatarDefault.jpg"}

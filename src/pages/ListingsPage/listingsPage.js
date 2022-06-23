@@ -194,7 +194,9 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
     `${level} ${rates} ${Object.keys(fields).reduce(
       (acc, key) => `${acc} ${fields[key].value}`,
       ""
-    )}`.includes(query);
+    )}`
+      .toLowerCase()
+      .includes(query.toLowerCase());
 
   // Fetch listings from Supabase and display using ListingCards
   useEffect(() => {

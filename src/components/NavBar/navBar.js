@@ -168,7 +168,7 @@ function CredentialsCorner(props) {
   return (
     <div className={navBarStyles.credentialsCorner}>
       <Link
-        className={`${navBarStyles["login-button"]} ${navBarStyles["button-variant-set-master-3"]} ${navBarStyles["button-master-3"]}`}
+        className={`${navBarStyles["login-button"]} ${navBarStyles["button-variant-set-master-3"]} ${navBarStyles["button-master-3"]} px-0`}
         to="/loginpage"
       >
         <div className={`inter nunitosans-normal-endeavour-20px`}>Log in</div>

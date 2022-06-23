@@ -24,7 +24,9 @@ const ListingModal = (props) => {
     creator_id,
     listing_id,
   } = data;
-  const isOwnListing = creator_id === supabase.auth.user().id;
+  const isOwnListing = supabase.auth.user()
+    ? creator_id === supabase.auth.user().id
+    : false;
   const tagNames = {
     subject: "Subjects",
     commitment: "Commitment Period",

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import moment from "moment";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import { supabaseClient as supabase } from "config/supabase-client";
@@ -24,16 +24,15 @@ import chatPageStyles from "./chatPage.module.css";
 import Spinner from "react-bootstrap/Spinner";
 
 const ChatPage = () => {
-  const {
-    state: { creator_id },
-  } = useLocation();
+  const { state } = useLocation();
+  const creator_id = state ? state.creator_id : null;
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ChatPageBody />
+      <ChatPageBody creator_id={creator_id} />
       <FooterBar />
     </div>
   );
@@ -41,7 +40,7 @@ const ChatPage = () => {
 
 export default ChatPage;
 
-const ChatPageBody = (props) => {
+const ChatPageBody = ({ creator_id }) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
@@ -74,6 +73,8 @@ const ChatPageBody = (props) => {
   // Boolean denoted whether the conversations are currently being fetched or not
   const [loadingConvos, setLoadingConvos] = useState(false);
 
+  const navigate = useNavigate();
+
   // Helper functions to add/remove classes from elements
   const removeClass = (elem, name) => {
     if (!elem || !elem.className.includes(name)) return;
@@ -96,7 +97,7 @@ const ChatPageBody = (props) => {
       <Message
         key={"message" + time}
         model={{
-          message: content,
+          message: content.replace("&nbsp; ", "\n"),
           direction: isOwnMessage ? "outgoing" : "incoming",
           position,
         }}
@@ -406,7 +407,7 @@ const ChatPageBody = (props) => {
                 />
                 <Conversation.Content
                   name={conversations[id].name}
-                  info={conversations[id].message}
+                  info={conversations[id].message.replace("&nbsp; ", "; ")}
                 />
               </Conversation>
             ))}
@@ -440,10 +441,24 @@ const ChatPageBody = (props) => {
                 <Avatar
                   src={conversations[activeChatId].src}
                   name={conversations[activeChatId].name}
+                  onClick={() =>
+                    navigate("/profile", {
+                      state: {
+                        creator_id: conversations[activeChatId].user_id,
+                      },
+                    })
+                  }
                 />
                 <ConversationHeader.Content
                   userName={conversations[activeChatId].name}
                   className={`${chatPageStyles["convo-header"]}`}
+                  onClick={() =>
+                    navigate("/profile", {
+                      state: {
+                        creator_id: conversations[activeChatId].user_id,
+                      },
+                    })
+                  }
                 />
               </ConversationHeader>
             }

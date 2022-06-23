@@ -11,8 +11,16 @@ import { useNavigate } from "react-router-dom";
 
 const ListingModal = (props) => {
   const navigate = useNavigate();
-  const { onHide, data, checkUser } = props;
-  const { show, username, avatarUrl, image_urls, fields, creator_id } = data;
+  const { onHide, data } = props;
+  const {
+    show,
+    username,
+    avatarUrl,
+    image_urls,
+    fields,
+    creator_id,
+    checkUser,
+  } = data;
   const isOwnListing = creator_id === supabase.auth.user().id;
   const tagNames = {
     subject: "Subjects",

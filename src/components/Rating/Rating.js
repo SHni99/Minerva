@@ -7,11 +7,11 @@ const colors = {
   grey: "#a9a9a9",
 };
 
-const Rating = (props) => {
-  const { setReviews, ratinghover: ratingHover } = props;
+const Rating = ({ setReviews, ratingHover, index: index1 }) => {
+
+
   const [currentValue, setCurrentValue] = setReviews;
   const [hoverValue, setHoverValue] = useState(0);
-
   const handleClick = (value) => {
     setCurrentValue(value);
   };
@@ -23,21 +23,11 @@ const Rating = (props) => {
   const handleMouseLeave = () => {
     setHoverValue(0);
   };
+
   return (
     <div className={RatingStyle["contain"]}>
       {[...Array(5)].map((_, index) => {
         if (ratingHover) {
-          return (
-            <FaStar
-              key={index}
-              size={24}
-              color={currentValue > index ? colors.orange : colors.grey}
-              style={{
-                cursor: "pointer",
-              }}
-            />
-          );
-        } else {
           return (
             <FaStar
               key={index}
@@ -53,6 +43,15 @@ const Rating = (props) => {
               style={{
                 cursor: "pointer",
               }}
+            />
+          );
+        } else {
+          setCurrentValue(index1);
+          return (
+            <FaStar
+              key={index}
+              size={24}
+              color={currentValue > index ? colors.orange : colors.grey}
             />
           );
         }

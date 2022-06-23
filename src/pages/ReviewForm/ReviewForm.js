@@ -9,7 +9,7 @@ export default function FormComponent() {
   //const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
-  const ratinghover = false;
+  const ratinghover = true;
   const [currentValue, setCurrentValue] = useState(0);
 
   //information will be registered under the table "reviews"

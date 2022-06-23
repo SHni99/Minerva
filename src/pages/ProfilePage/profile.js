@@ -5,6 +5,7 @@ import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
 import viewprofileStyles from "./profile.module.css";
 import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
 import { useLocation } from "react-router-dom";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
@@ -30,8 +31,7 @@ const ViewProfilePage = () => {
 export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = (props) => {
-  const { creator_id } = props;
+const ProfilePageBody = ({ creator_id }) => {
   const [profileData, setProfileData] = useState({
     username: "",
     avatar_url: "",
@@ -40,10 +40,13 @@ const ProfilePageBody = (props) => {
   });
   const [checkUser, setcheckUser] = useState(false);
   const [currentValue, setCurrentValue] = useState(false);
+  const [indexAll, setIndexAll] = useState("");
   const navigate = useNavigate();
   const checkId = supabaseClient.auth.user().id;
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
 
   //log user out and redirect to landing page
   const handleLogout = async (navigate, e) => {
@@ -52,7 +55,7 @@ const ProfilePageBody = (props) => {
       const { error } = await supabaseClient.auth.signOut();
       if (error) throw error;
       alert("Logged out");
-      navigate("/loginpage");
+      navigate("/");
     } catch (error) {
       alert(error.message);
     }
@@ -61,6 +64,7 @@ const ProfilePageBody = (props) => {
   useEffect(() => {
     const getReview = async () => {
       try {
+        setLoading(true);
         const {
           data: reviewAll,
           error,
@@ -68,9 +72,16 @@ const ProfilePageBody = (props) => {
         } = await supabaseClient
           .from("reviews")
           .select("index, textbox, reviewer_id")
-          .eq("reviewee_id", creator_id);
+          .eq("reviewee_id", checkId);
 
         if (error && status !== 406) throw error;
+
+        if (reviewAll.length === 0) {
+          setIsEmpty(true);
+          return;
+        }
+
+        setIsEmpty(false);
 
         const newReviewData = await Promise.all(
           reviewAll.map(async ({ index, textbox, reviewer_id }) => {
@@ -105,6 +116,67 @@ const ProfilePageBody = (props) => {
         setReviewData(newReviewData);
       } catch (error) {
         alert(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const getUserReview = async () => {
+      try {
+        setLoading(true);
+        const {
+          data: reviewAll,
+          error,
+          status,
+        } = await supabaseClient
+          .from("reviews")
+          .select("index, textbox, reviewer_id")
+          .eq("reviewee_id", creator_id);
+
+        if (error && status !== 406) throw error;
+
+        if (reviewAll.length === 0) {
+          setIsEmpty(true);
+          return;
+        }
+
+        setIsEmpty(false);
+
+        const newReviewData = await Promise.all(
+          reviewAll.map(async ({ index, textbox, reviewer_id }) => {
+            let {
+              data: { avatar_url: avatarCode, username },
+              error: avatarError,
+              status: avatarStatus,
+            } = await supabaseClient
+              .from("profiles")
+              .select("username, avatar_url")
+              .eq("id", reviewer_id)
+              .single();
+            if (avatarError && avatarStatus !== 406) throw avatarError;
+
+            const { publicURL: avatarUrl, error: urlError } =
+              avatarCode === ""
+                ? {}
+                : supabaseClient.storage
+                    .from("avatars")
+                    .getPublicUrl(avatarCode);
+            if (urlError) throw urlError;
+
+            return {
+              avatarUrl,
+              username,
+              index,
+              textbox,
+              creator_id,
+            };
+          })
+        );
+        setReviewData(newReviewData);
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -172,13 +244,62 @@ const ProfilePageBody = (props) => {
       }
     };
 
-    if (checkId === creator_id || creator_id === undefined) {
+    const getAllIndex = async () => {
+      try {
+        const {
+          data: indexData,
+          error,
+          status,
+        } = await supabaseClient
+          .from("reviews")
+          .select("index")
+          .eq("reviewee_id", creator_id);
+
+        setIndexAll(
+          Math.round(
+            indexData.reduce((x, y) => x + y.index, 0) / indexData.length
+          )
+        );
+
+        if (error && status !== 406) throw error;
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    const getAllIndex2 = async () => {
+      try {
+        const {
+          data: indexData,
+          error,
+          status,
+        } = await supabaseClient
+          .from("reviews")
+          .select("index")
+          .eq("reviewee_id", checkId);
+
+        setIndexAll(
+          Math.round(
+            indexData.reduce((x, y) => x + y.index, 0) / indexData.length
+          )
+        );
+
+        if (error && status !== 406) throw error;
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    if (creator_id === undefined || checkId === creator_id) {
       setcheckUser(false);
       getProfile();
+      getReview();
+      getAllIndex2();
     } else {
       setcheckUser(true);
       getUserProfile();
-      getReview();
+      getUserReview();
+      getAllIndex();
     }
   }, [creator_id, checkId]);
 
@@ -213,6 +334,7 @@ const ProfilePageBody = (props) => {
                 >
                   <div className="col-5 ml-auto">
                     <Rating
+                      index={indexAll}
                       setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
                       ratinghover={ratinghover}
                     />
@@ -243,40 +365,12 @@ const ProfilePageBody = (props) => {
                 </div>
               </div>
             </div>
-            {checkUser ? (
-              <div className="col-8">
-                <div className="row">
-                  <Tabs
-                    defaultActiveKey="listings"
-                    transition={false}
-                    id="noanim-tab-example"
-                    className="mb-3"
-                  >
-                    <Tab eventKey="listings" title="Listings">
-                      <Listings checkId={creator_id || checkId} />
-                    </Tab>
-                    <Tab eventKey="reviews" title="Reviews">
-                     
-                        {reviewData.map(
-                          ({ avatarUrl, username, textbox, creator_id }) => {
-                            return (
-                              <ReviewCard
-                                avatarUrl={avatarUrl}
-                                username={username}
-                                textbox={textbox}
-                                creator_id={creator_id}
-                              />
-                            );
-                          }
-                        )}
-                   
-                    </Tab>
-                  </Tabs>
-                </div>
-              </div>
-            ) : (
-              <div className="col-8">
-                <div className="row ">
+
+            <div className="col-8">
+              <div className="row">
+                {checkUser ? (
+                  " "
+                ) : (
                   <div className="row-lg-3 text-right">
                     <div>
                       <Button
@@ -303,27 +397,58 @@ const ProfilePageBody = (props) => {
                       </div>
                     </div>
                   </div>
-                  <Tabs
-                    defaultActiveKey="listings"
-                    transition={false}
-                    id="noanim-tab-example"
-                    className="mb-3"
-                  >
-                    <Tab eventKey="listings" title="Listings">
+                )}
+
+                <Tabs
+                  defaultActiveKey="listings"
+                  transition={false}
+                  id="noanim-tab-example"
+                  className="mb-3"
+                >
+                  {" "}
+                  <Tab eventKey="listings" title="Listings">
+                    {checkUser ? (
+                      <Listings checkId={creator_id || checkId} />
+                    ) : (
                       <UserListings checkId={checkId} checkUser={checkUser} />
-                    </Tab>
-                    <Tab eventKey="reviews" title="Reviews">
-                      <ReviewCard
-                        avatarUrl={profileData.avatar_url}
-                        username={profileData.username}
-                        textbox={reviewData.textbox}
-                        creator_id={creator_id}
+                    )}
+                  </Tab>
+                  <Tab eventKey="reviews" title="Reviews">
+                    {isEmpty ? (
+                      <h1>No Review!</h1>
+                    ) : loading ? (
+                      <Spinner
+                        animation="border"
+                        role="status"
+                        aria-label="Loading"
                       />
-                    </Tab>
-                  </Tabs>
-                </div>
+                    ) : (
+                      <React.Fragment>
+                        {reviewData.map(
+                          ({
+                            avatarUrl,
+                            username,
+                            textbox,
+                            creator_id,
+                            index,
+                          }) => {
+                            return (
+                              <ReviewCard
+                                avatarUrl={avatarUrl}
+                                username={username}
+                                textbox={textbox}
+                                creator_id={creator_id}
+                                index={index}
+                              />
+                            );
+                          }
+                        )}
+                      </React.Fragment>
+                    )}
+                  </Tab>
+                </Tabs>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

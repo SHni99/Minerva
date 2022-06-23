@@ -85,9 +85,10 @@ const ListingModal = (props) => {
       default:
         return (
           <>
-            <Button variant="primary" className="px-5">
+            {/* Edit button hidden due to incomplete development */}
+            {/* <Button variant="primary" className="px-5">
               Edit
-            </Button>
+            </Button> */}
             <Button
               variant="danger"
               className="px-5"

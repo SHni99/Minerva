@@ -25,14 +25,14 @@ import Spinner from "react-bootstrap/Spinner";
 
 const ChatPage = () => {
   const { state } = useLocation();
-  const creator_id = state ? state.creator_id : null;
+  const startChatData = state ? state.startChatData : null;
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ChatPageBody creator_id={creator_id} />
+      <ChatPageBody startChatData={startChatData} />
       <FooterBar />
     </div>
   );
@@ -40,7 +40,7 @@ const ChatPage = () => {
 
 export default ChatPage;
 
-const ChatPageBody = ({ creator_id }) => {
+const ChatPageBody = ({ startChatData }) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
@@ -74,6 +74,7 @@ const ChatPageBody = ({ creator_id }) => {
   const [loadingConvos, setLoadingConvos] = useState(false);
 
   const navigate = useNavigate();
+  const uid = supabase.auth.user().id;
 
   // Helper functions to add/remove classes from elements
   const removeClass = (elem, name) => {
@@ -117,9 +118,6 @@ const ChatPageBody = ({ creator_id }) => {
     );
   };
 
-  if (creator_id) {
-    console.log(creator_id);
-  }
   // Helper function to generate array of Messsages from a single sender
   const generateMessages = (msgList) => {
     if (msgList.length === 0) return [];
@@ -153,14 +151,12 @@ const ChatPageBody = ({ creator_id }) => {
       time: created_at,
       type,
       content: payload[type === "image" ? "imageUrl" : "text"],
-      isOwnMessage: sender_id === supabase.auth.user().id,
+      isOwnMessage: sender_id === uid,
     };
   };
 
   // Helper function to parse raw Supabase conversation data
   const parseConvo = async ({ id, participants, messages }) => {
-    const uid = supabase.auth.user().id;
-
     // Get the id in `participants` that is not equal to the current user id
     const partnerId =
       participants[0] === uid ? participants[1] : participants[0];
@@ -205,28 +201,66 @@ const ChatPageBody = ({ creator_id }) => {
 
   const handleMsgSend = async (msg) => {
     try {
-      let { data, error } = await supabase.from("messages").insert({
-        recipient_id: conversations[activeChatId].user_id,
-        payload: {
-          text: msg,
-        },
-        convo_id: activeChatId,
-      });
-      if (error) throw error;
+      // Handle starting of new chat
+      if (activeChatId.includes("temp-")) {
+        // Create new conversation in Supabase
+        let { data: newConvoData, error: newConvoError } = await supabase
+          .from("conversations")
+          .insert({
+            participants: [uid, startChatData.user_id],
+          })
+          .single();
+        if (newConvoError) throw newConvoError;
 
-      let { error: lastMsgError } = await supabase
-        .from("conversations")
-        .update({ last_msg: data[0].id })
-        .eq("id", activeChatId);
-      if (lastMsgError) throw lastMsgError;
+        // Upload new message into supabase, with previous conversation id as convo_id
+        let { data: uploadMsgData, error: uploadMsgError } = await supabase
+          .from("messages")
+          .insert({
+            recipient_id: activeChatId.substr(5),
+            payload: {
+              text: msg,
+            },
+            convo_id: newConvoData.id,
+          })
+          .single();
+        if (uploadMsgError) throw uploadMsgError;
+
+        // Update conversation last_msg to previously uploaded message id
+        let { error: updateConvoError } = await supabase
+          .from("conversations")
+          .update({ last_msg: uploadMsgData.id })
+          .eq("id", newConvoData.id);
+        if (updateConvoError) throw updateConvoError;
+      }
+      // Handle normal message sending
+      else {
+        let { data, error } = await supabase.from("messages").insert({
+          recipient_id: conversations[activeChatId].user_id,
+          payload: {
+            text: msg,
+          },
+          convo_id: activeChatId,
+        });
+        if (error) throw error;
+
+        let { error: lastMsgError } = await supabase
+          .from("conversations")
+          .update({ last_msg: data[0].id })
+          .eq("id", activeChatId);
+        if (lastMsgError) throw lastMsgError;
+      }
     } catch (error) {
       alert(error.message);
     }
   };
 
   // Fetches messages in chat
+  // Runs whenever activeChatId changes
   useEffect(() => {
-    if (!activeChatId) return;
+    if (!activeChatId || activeChatId.includes("temp-")) {
+      setMessages({});
+      return;
+    }
     // Loads old messages and listens for any new messages
     const getOldMessages = async () => {
       try {
@@ -262,6 +296,11 @@ const ChatPageBody = ({ creator_id }) => {
       .subscribe();
 
     return () => supabase.removeSubscription(msgSub);
+
+    // We are disabling warnings regarding missing dependency
+    // `parseMessage` as it is a helper function that will
+    // never change. (i.e. redundant dependancy)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChatId]);
 
   // Fetch all conversations and store them in `conversations`
@@ -287,10 +326,29 @@ const ChatPageBody = ({ creator_id }) => {
           return res;
         }, {});
 
+        if (startChatData) {
+          const { user_id, name, src } = startChatData;
+          const existingConvo = convoData.filter(({ participants }) =>
+            participants.includes(user_id)
+          );
+          const hasExistingConvo = existingConvo.length > 0;
+          const tempChatId = `temp-${user_id}`;
+          if (!hasExistingConvo) {
+            newConversations[tempChatId] = {
+              name,
+              user_id,
+              src,
+              message: "",
+            };
+          }
+          setConversations(newConversations);
+          setActiveChatId(hasExistingConvo ? existingConvo[0].id : tempChatId);
+        } else {
+          setConversations(newConversations);
+        }
         if (Object.keys(newConversations).length === 0) setShowSidebar(false);
-        setConversations(newConversations);
       } catch (error) {
-        alert(error.message);
+        console.log(error);
       } finally {
         setLoadingConvos(false);
       }
@@ -312,7 +370,7 @@ const ChatPageBody = ({ creator_id }) => {
           setConversations((oldConversations) => {
             const newConversations = { ...oldConversations };
             newConversations[payload.new.id].message = `${
-              data.sender_id === supabase.auth.user().id ? "You: " : ""
+              data.sender_id === uid ? "You: " : ""
             }${data.payload.imageUrl ? "sent an Image" : data.payload.text}`;
 
             return newConversations;
@@ -323,16 +381,34 @@ const ChatPageBody = ({ creator_id }) => {
       })
       .on("INSERT", async (payload) => {
         const newConvo = await parseConvo(payload.new);
+        const { chat_id, name, user_id, message, src } = newConvo;
+        const tempChatId = `temp-${user_id}`;
+
         setConversations((oldConvos) => {
           const newConvos = { ...oldConvos };
-          const { chat_id, name, user_id, message, src } = newConvo;
           newConvos[chat_id] = { name, user_id, message, src };
           return newConvos;
+        });
+
+        setActiveChatId((oldChatId) => {
+          if (oldChatId === tempChatId) {
+            setConversations((oldConvos) => {
+              const newConvos = { ...oldConvos };
+              delete newConvos[tempChatId];
+              return newConvos;
+            });
+            return chat_id;
+          } else return oldChatId;
         });
       })
       .subscribe();
 
     return () => supabase.removeSubscription(convoSub);
+
+    // We are disabling warnings regarding missing dependencies as this
+    // hook is meant to only be run once at the start,
+    // regardless of any other state changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Add event listener to show correct layout on window resize

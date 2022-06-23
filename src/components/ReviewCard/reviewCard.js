@@ -4,10 +4,10 @@ import Card from "react-bootstrap/Card";
 import reviewCardStyles from "./reviewCard.module.css";
 import Rating from "components/Rating/Rating"
 
-const ReviewCard = ({ avatarUrl, username, textbox, creator_id }) => {
+const ReviewCard = ({ avatarUrl, username, textbox, creator_id, index }) => {
 
     const [currentValue, setCurrentValue] = useState(" ");
-    const ratinghover = useState("false")
+    const ratinghover = false
 
   return (
     <Card className={reviewCardStyles.card + " mx-sm-3 my-3 py-4 rounded-3"}>
@@ -25,8 +25,9 @@ const ReviewCard = ({ avatarUrl, username, textbox, creator_id }) => {
 
             <div className="row-3 m-auto">
         <Rating
+          index={index}
           setReviews={[currentValue, setCurrentValue]}
-          ratinghover={ratinghover}
+          ratingHover={ratinghover}
         />
       </div>
         </div>

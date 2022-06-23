@@ -82,8 +82,8 @@ const IntroSection = () => {
           >
             {supabaseClient.auth.user()? "My Profile" : "Login"}
           </Button>
-          <Button variant="light m-2" href="/registerpage">
-          {supabaseClient.auth.user()? "My Reviews" : "Register"}
+          <Button variant="light m-2" href="/create-listing">
+          {supabaseClient.auth.user()? "Create Listings" : "Register"}
           </Button>
         </Col>
       </Row>

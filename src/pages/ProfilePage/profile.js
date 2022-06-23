@@ -11,6 +11,7 @@ import Tab from "react-bootstrap/Tab";
 import UserListings from "components/UserListing/userlistings";
 import Listings from "components/UserListing/userlistings";
 import Rating from "components/Rating/Rating";
+import ReviewCard from "components/ReviewCard/reviewCard";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
@@ -42,8 +43,71 @@ const ProfilePageBody = (props) => {
   const navigate = useNavigate();
   const checkId = supabaseClient.auth.user().id;
   const ratinghover = useState(true);
+  const [reviewData, setReviewData] = useState([]);
+
+  //log user out and redirect to landing page
+  const handleLogout = async (navigate, e) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) throw error;
+      alert("Logged out");
+      navigate("/loginpage");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   useEffect(() => {
+    const getReview = async () => {
+      try {
+        const {
+          data: reviewAll,
+          error,
+          status,
+        } = await supabaseClient
+          .from("reviews")
+          .select("index, textbox, reviewer_id")
+          .eq("reviewee_id", creator_id);
+
+        if (error && status !== 406) throw error;
+
+        const newReviewData = await Promise.all(
+          reviewAll.map(async ({ index, textbox, reviewer_id }) => {
+            let {
+              data: { avatar_url: avatarCode, username },
+              error: avatarError,
+              status: avatarStatus,
+            } = await supabaseClient
+              .from("profiles")
+              .select("username, avatar_url")
+              .eq("id", reviewer_id)
+              .single();
+            if (avatarError && avatarStatus !== 406) throw avatarError;
+
+            const { publicURL: avatarUrl, error: urlError } =
+              avatarCode === ""
+                ? {}
+                : supabaseClient.storage
+                    .from("avatars")
+                    .getPublicUrl(avatarCode);
+            if (urlError) throw urlError;
+
+            return {
+              avatarUrl,
+              username,
+              index,
+              textbox,
+              creator_id,
+            };
+          })
+        );
+        setReviewData(newReviewData);
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
     const getUserProfile = async () => {
       try {
         const { data, error } = await supabaseClient
@@ -114,6 +178,7 @@ const ProfilePageBody = (props) => {
     } else {
       setcheckUser(true);
       getUserProfile();
+      getReview();
     }
   }, [creator_id, checkId]);
 
@@ -141,22 +206,33 @@ const ProfilePageBody = (props) => {
                   </label>
                 </h3>
 
-                <div className="row m-auto">
-                  <div className="col-4 ml-auto">
+                <div
+                  className="row"
+                  onClick={() => navigate("/formpage")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="col-5 ml-auto">
                     <Rating
                       setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
                       ratinghover={ratinghover}
                     />
                   </div>
-                  <div className="col-4 text-left mr-5">{"--->"}</div>
+
+                  <div className="col-3 text-left">
+                    {"(" + reviewData.length + ")"}
+                  </div>
                 </div>
 
-                <div className="my-5 poppins-normal-black-24px">
+                <div className="my-4 poppins-normal-black-24px">
                   Gender:{" "}
-                  {profileData.gender === "Male" ? (
+                  {profileData.gender === "Female" ? (
+                    <div className="poppins-normal-red-24px">Female</div>
+                  ) : profileData.gender === "Male" ? (
                     <div className="poppins-normal-sapphire-24px">Male</div>
                   ) : (
-                    <div className="poppins-normal-red-24px">Female</div>
+                    <div className="poppins-normal-black-24px">
+                      User has not set a gender
+                    </div>
                   )}
                 </div>
                 <label className="poppins-normal-black-24px">BIO:</label>
@@ -177,10 +253,23 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <Listings checkId={creator_id || checkId}/>
+                      <Listings checkId={creator_id || checkId} />
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
-                      gsy
+                     
+                        {reviewData.map(
+                          ({ avatarUrl, username, textbox, creator_id }) => {
+                            return (
+                              <ReviewCard
+                                avatarUrl={avatarUrl}
+                                username={username}
+                                textbox={textbox}
+                                creator_id={creator_id}
+                              />
+                            );
+                          }
+                        )}
+                   
                     </Tab>
                   </Tabs>
                 </div>
@@ -197,7 +286,7 @@ const ProfilePageBody = (props) => {
                           navigate("/loginmainpage");
                         }}
                       >
-                        {" Edit my profile"}
+                        Edit my profile
                       </Button>
                     </div>
 
@@ -206,11 +295,10 @@ const ProfilePageBody = (props) => {
                         <Button
                           className="bg-primary"
                           onClick={(e) => {
-                            e.preventDefault();
-                            navigate("/formpage");
+                            handleLogout(navigate, e);
                           }}
                         >
-                          View my reviews
+                          Log out
                         </Button>
                       </div>
                     </div>
@@ -222,10 +310,15 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <UserListings checkId={checkId} checkUser={checkUser}/>
+                      <UserListings checkId={checkId} checkUser={checkUser} />
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
-                      ...
+                      <ReviewCard
+                        avatarUrl={profileData.avatar_url}
+                        username={profileData.username}
+                        textbox={reviewData.textbox}
+                        creator_id={creator_id}
+                      />
                     </Tab>
                   </Tabs>
                 </div>

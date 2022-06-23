@@ -17,7 +17,7 @@ export default function LoginMainPage() {
   }, []);
 
   return (
-    // if there is a session exists, it will direct to profile page, else login page
+    // if there is a session exists, it will direct to updateprofile page, else login page
     <div>
       {!session ? (
         <Login />

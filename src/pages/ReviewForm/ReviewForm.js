@@ -60,7 +60,7 @@ export default function FormComponent() {
               <div>
                 <Rating //user can review the quality of his dealer by awarding the number of stars (out of 5)
                 setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
-                ratinghover={ratinghover}
+                ratingHover={ratinghover}
                 />
               </div>
               <div className="form-group">

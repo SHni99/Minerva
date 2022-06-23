@@ -17,7 +17,6 @@ const UserListingsPage = (props) => {
     image_urls: [],
     fields: [],
     creator_id: "",
-    checkUser: false,
   };
   const [modalState, setModalState] = useState(unusedModalState);
 
@@ -179,7 +178,6 @@ const Listings = ({ checkId, listingDataState, setModalState }) => {
                     fields={fields}
                     setModalState={setModalState}
                     creator_id={creator_id}
-                    checkUser={false}
                   />
                 ) || <h1>Nothing here!</h1>
               );

@@ -24,7 +24,6 @@ const ListingsPage = () => {
     image_urls: [],
     fields: [],
     creator_id: "",
-    checkUser: true,
   };
   const [modalState, setModalState] = useState(unusedModalState);
 
@@ -282,7 +281,6 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
                     fields={fields}
                     setModalState={setModalState}
                     creator_id={creator_id}
-                    checkUser={true}
                   />
                 ) || <h1>Nothing here!</h1>
               );

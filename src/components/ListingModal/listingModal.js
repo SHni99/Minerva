@@ -12,15 +12,7 @@ import { useNavigate } from "react-router-dom";
 const ListingModal = (props) => {
   const navigate = useNavigate();
   const { onHide, data } = props;
-  const {
-    show,
-    username,
-    avatarUrl,
-    image_urls,
-    fields,
-    creator_id,
-    checkUser,
-  } = data;
+  const { show, username, avatarUrl, image_urls, fields, creator_id } = data;
   const isOwnListing = creator_id === supabase.auth.user().id;
   const tagNames = {
     subject: "Subjects",
@@ -134,7 +126,7 @@ const ListingModal = (props) => {
           </Row>
         ))}
       </Modal.Body>
-      {checkUser && generateModalFooter()}
+      {generateModalFooter()}
     </Modal>
   );
 };

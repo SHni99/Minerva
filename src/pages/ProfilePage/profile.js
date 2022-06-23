@@ -256,20 +256,18 @@ const ProfilePageBody = (props) => {
                       <Listings checkId={creator_id || checkId} />
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
-                     
-                        {reviewData.map(
-                          ({ avatarUrl, username, textbox, creator_id }) => {
-                            return (
-                              <ReviewCard
-                                avatarUrl={avatarUrl}
-                                username={username}
-                                textbox={textbox}
-                                creator_id={creator_id}
-                              />
-                            );
-                          }
-                        )}
-                   
+                      {reviewData.map(
+                        ({ avatarUrl, username, textbox, creator_id }) => {
+                          return (
+                            <ReviewCard
+                              avatarUrl={avatarUrl}
+                              username={username}
+                              textbox={textbox}
+                              creator_id={creator_id}
+                            />
+                          );
+                        }
+                      )}
                     </Tab>
                   </Tabs>
                 </div>
@@ -310,7 +308,7 @@ const ProfilePageBody = (props) => {
                     className="mb-3"
                   >
                     <Tab eventKey="listings" title="Listings">
-                      <UserListings checkId={checkId} checkUser={checkUser} />
+                      <UserListings checkId={checkId} />
                     </Tab>
                     <Tab eventKey="reviews" title="Reviews">
                       <ReviewCard

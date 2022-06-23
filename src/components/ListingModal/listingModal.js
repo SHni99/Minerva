@@ -6,11 +6,14 @@ import Carousel from "react-bootstrap/Carousel";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import FieldTag from "components/FieldTag/fieldTag";
+import { supabaseClient as supabase } from "config/supabase-client";
 import { useNavigate } from "react-router-dom";
 
 const ListingModal = (props) => {
+  const navigate = useNavigate();
   const { onHide, data, checkUser } = props;
   const { show, username, avatarUrl, image_urls, fields, creator_id } = data;
+  const isOwnListing = creator_id === supabase.auth.user().id;
   const tagNames = {
     subject: "Subjects",
     commitment: "Commitment Period",
@@ -24,7 +27,42 @@ const ListingModal = (props) => {
     acc[key] = [...(acc[key] || []), obj.value];
     return acc;
   }, {});
-  const navigate = useNavigate();
+
+  const generateModalFooter = () => {
+    return (
+      <Modal.Footer className="px-4 d-flex justify-content-evenly">
+        {isOwnListing ? (
+          <>
+            <Button variant="primary" className="px-5">
+              Edit
+            </Button>
+            <Button variant="danger" className="px-5">
+              Delete
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="outline-secondary"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/profile", { state: { creator_id } });
+              }}
+            >
+              View Profile
+            </Button>
+            <Button
+              className="px-5"
+              onClick={() => navigate("/chats", { state: { creator_id } })}
+            >
+              Chat
+            </Button>
+          </>
+        )}
+      </Modal.Footer>
+    );
+  };
+
   return (
     <Modal show={show} onHide={onHide} checkUser={checkUser}>
       <Modal.Header closeButton>
@@ -78,22 +116,7 @@ const ListingModal = (props) => {
           </Row>
         ))}
       </Modal.Body>
-      {checkUser ? (
-        <Modal.Footer className="px-4 d-flex justify-content-evenly">
-        <Button
-          variant="outline-secondary"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate("/profile", { state: { creator_id } });
-          }}
-        >
-          View Profile
-        </Button>
-        <Button className="px-5">Chat</Button>
-      </Modal.Footer>
-      ) : (
-        <div></div>
-      )}
+      {checkUser && generateModalFooter()}
     </Modal>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import moment from "moment";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import { supabaseClient as supabase } from "config/supabase-client";
@@ -23,6 +24,10 @@ import chatPageStyles from "./chatPage.module.css";
 import Spinner from "react-bootstrap/Spinner";
 
 const ChatPage = () => {
+  const {
+    state: { creator_id },
+  } = useLocation();
+
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}

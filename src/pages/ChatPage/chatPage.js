@@ -70,8 +70,12 @@ const ChatPageBody = ({ startChatData }) => {
      } 
   */
   const [conversations, setConversations] = useState([]);
-  // Boolean denoted whether the conversations are currently being fetched or not
+
+  // Boolean denoting whether the conversations are currently being fetched or not
   const [loadingConvos, setLoadingConvos] = useState(false);
+
+  // String representing the query passed into the searchbar on the left sidebar
+  const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
   const uid = supabase.auth.user().id;
@@ -436,16 +440,20 @@ const ChatPageBody = ({ startChatData }) => {
   useEffect(() => {
     const sidebarElem = document.getElementsByClassName("cs-sidebar")[0];
     const searchBarElem = document.getElementsByClassName("cs-search")[0];
-    const convoAvatarElem = document.getElementsByClassName("cs-avatar")[0];
     const chatContainerElem =
       document.getElementsByClassName("cs-chat-container")[0];
+    const convoAvatarElems = Array.from(
+      document.getElementsByClassName("cs-avatar")
+    );
     const convoContentElems = Array.from(
       document.getElementsByClassName("cs-conversation__content")
     );
 
     if (window.innerWidth < 768 && showSidebar) {
       addClass(sidebarElem, chatPageStyles["sidebar-visible"]);
-      addClass(convoAvatarElem, chatPageStyles["convoAvatar-visible"]);
+      convoAvatarElems.forEach((convoAvatar) =>
+        addClass(convoAvatar, chatPageStyles["convoAvatar-visible"])
+      );
       addClass(searchBarElem, chatPageStyles["convoContent-visible"]);
       addClass(chatContainerElem, chatPageStyles["chatContainer-invisible"]);
       convoContentElems.forEach((convoContent) =>
@@ -457,7 +465,9 @@ const ChatPageBody = ({ startChatData }) => {
     ) {
       removeClass(sidebarElem, chatPageStyles["sidebar-visible"]);
       removeClass(searchBarElem, chatPageStyles["convoContent-visible"]);
-      removeClass(convoAvatarElem, chatPageStyles["convoAvatar-visible"]);
+      convoAvatarElems.forEach((convoAvatar) =>
+        removeClass(convoAvatar, chatPageStyles["convoAvatar-visible"])
+      );
       removeClass(chatContainerElem, chatPageStyles["chatContainer-invisible"]);
       convoContentElems.forEach((convoContent) =>
         removeClass(convoContent, chatPageStyles["convoContent-visible"])
@@ -472,24 +482,32 @@ const ChatPageBody = ({ startChatData }) => {
           <Search
             placeholder="Search..."
             className={`${chatPageStyles["cs-search"]} py-0`}
+            onChange={(query) => setSearchQuery(query)}
+            onClearClick={() => setSearchQuery("")}
           />
           <ConversationList>
-            {Object.keys(conversations).map((id) => (
-              <Conversation
-                onClick={() => handleConvoClick(id)}
-                key={id}
-                active={activeChatId === id}
-              >
-                <Avatar
-                  src={conversations[id].src}
-                  name={conversations[id].name}
-                />
-                <Conversation.Content
-                  name={conversations[id].name}
-                  info={conversations[id].message.replace("&nbsp; ", "; ")}
-                />
-              </Conversation>
-            ))}
+            {Object.keys(conversations)
+              .filter((id) =>
+                `${conversations[id].name.toLowerCase()} ${conversations[
+                  id
+                ].message.toLowerCase()}`.includes(searchQuery.toLowerCase())
+              )
+              .map((id) => (
+                <Conversation
+                  onClick={() => handleConvoClick(id)}
+                  key={id}
+                  active={activeChatId === id}
+                >
+                  <Avatar
+                    src={conversations[id].src}
+                    name={conversations[id].name}
+                  />
+                  <Conversation.Content
+                    name={conversations[id].name}
+                    info={conversations[id].message.replace("&nbsp; ", "; ")}
+                  />
+                </Conversation>
+              ))}
           </ConversationList>
         </Sidebar>
         {!activeChatId ? (

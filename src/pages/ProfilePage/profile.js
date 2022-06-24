@@ -41,12 +41,13 @@ const ProfilePageBody = ({ creator_id }) => {
   const [checkUser, setcheckUser] = useState(false);
   const [currentValue, setCurrentValue] = useState(false);
   const [indexAll, setIndexAll] = useState("");
-  const navigate = useNavigate();
   const checkId = supabaseClient.auth.user().id;
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
+  const navigate = useNavigate();
 
   //log user out and redirect to landing page
   const handleLogout = async (navigate, e) => {
@@ -62,7 +63,7 @@ const ProfilePageBody = ({ creator_id }) => {
   };
 
   useEffect(() => {
-    const getReview = async () => {
+    const getReview = async (id) => {
       try {
         setLoading(true);
         const {
@@ -72,7 +73,7 @@ const ProfilePageBody = ({ creator_id }) => {
         } = await supabaseClient
           .from("reviews")
           .select("index, textbox, reviewer_id")
-          .eq("reviewee_id", checkId);
+          .eq("reviewee_id", id);
 
         if (error && status !== 406) throw error;
 
@@ -100,8 +101,8 @@ const ProfilePageBody = ({ creator_id }) => {
               avatarCode === ""
                 ? {}
                 : supabaseClient.storage
-                    .from("avatars")
-                    .getPublicUrl(avatarCode);
+                  .from("avatars")
+                  .getPublicUrl(avatarCode);
             if (urlError) throw urlError;
 
             return {
@@ -121,102 +122,13 @@ const ProfilePageBody = ({ creator_id }) => {
       }
     };
 
-    const getUserReview = async () => {
+    const getProfile = async (id) => {
       try {
-        setLoading(true);
-        const {
-          data: reviewAll,
-          error,
-          status,
-        } = await supabaseClient
-          .from("reviews")
-          .select("index, textbox, reviewer_id")
-          .eq("reviewee_id", creator_id);
-
-        if (error && status !== 406) throw error;
-
-        if (reviewAll.length === 0) {
-          setIsEmpty(true);
-          return;
-        }
-
-        setIsEmpty(false);
-
-        const newReviewData = await Promise.all(
-          reviewAll.map(async ({ index, textbox, reviewer_id }) => {
-            let {
-              data: { avatar_url: avatarCode, username },
-              error: avatarError,
-              status: avatarStatus,
-            } = await supabaseClient
-              .from("profiles")
-              .select("username, avatar_url")
-              .eq("id", reviewer_id)
-              .single();
-            if (avatarError && avatarStatus !== 406) throw avatarError;
-
-            const { publicURL: avatarUrl, error: urlError } =
-              avatarCode === ""
-                ? {}
-                : supabaseClient.storage
-                    .from("avatars")
-                    .getPublicUrl(avatarCode);
-            if (urlError) throw urlError;
-
-            return {
-              avatarUrl,
-              username,
-              index,
-              textbox,
-              creator_id,
-            };
-          })
-        );
-        setReviewData(newReviewData);
-      } catch (error) {
-        alert(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const getUserProfile = async () => {
-      try {
-        const { data, error } = await supabaseClient
-          .from("profiles")
-          .select("avatar_url, username, bio, gender")
-          .eq("id", creator_id)
-          .single();
-
-        if (error) throw error;
-
-        if (data.avatar_url === "") return;
-
-        const { publicURL, error: publicUrlError } = supabaseClient.storage
-          .from("avatars")
-          .getPublicUrl(data.avatar_url);
-
-        if (publicUrlError) throw publicUrlError;
-
-        if (data) {
-          setProfileData({
-            username: data.username,
-            avatar_url: publicURL,
-            bio: data.bio,
-            gender: data.gender,
-          });
-        }
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-
-    const getProfile = async () => {
-      try {
+        setLoading2(true);
         let { data, error, status } = await supabaseClient
           .from("profiles")
           .select(`username, avatar_url, bio, gender `)
-          .eq("id", checkId)
+          .eq("id", id)
           .single();
 
         if (error && status !== 406) {
@@ -241,10 +153,12 @@ const ProfilePageBody = ({ creator_id }) => {
         }
       } catch (error) {
         alert(error.message);
+      } finally{
+        setLoading2(false);
       }
     };
 
-    const getAllIndex = async () => {
+    const getAllIndex = async (id) => {
       try {
         const {
           data: indexData,
@@ -253,7 +167,7 @@ const ProfilePageBody = ({ creator_id }) => {
         } = await supabaseClient
           .from("reviews")
           .select("index")
-          .eq("reviewee_id", creator_id);
+          .eq("reviewee_id", id);
 
         setIndexAll(
           Math.round(
@@ -267,41 +181,18 @@ const ProfilePageBody = ({ creator_id }) => {
       }
     };
 
-    const getAllIndex2 = async () => {
-      try {
-        const {
-          data: indexData,
-          error,
-          status,
-        } = await supabaseClient
-          .from("reviews")
-          .select("index")
-          .eq("reviewee_id", checkId);
-
-        setIndexAll(
-          Math.round(
-            indexData.reduce((x, y) => x + y.index, 0) / indexData.length
-          )
-        );
-
-        if (error && status !== 406) throw error;
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-
-    if (creator_id === undefined || checkId === creator_id) {
+    if (checkId === creator_id || creator_id === undefined) {
       setcheckUser(false);
-      getProfile();
-      getReview();
-      getAllIndex2();
+      getProfile(checkId);
+      getReview(checkId);
+      getAllIndex(checkId);
     } else {
       setcheckUser(true);
-      getUserProfile();
-      getUserReview();
-      getAllIndex();
+      getProfile(creator_id);
+      getReview(creator_id);
+      getAllIndex(creator_id);
     }
-  }, [creator_id, checkId]);
+  }, []);
 
   return (
     <div className="text-center">

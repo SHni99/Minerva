@@ -334,24 +334,36 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       const fileExt = file.name.split(".").pop();
       const filePath = `${supabase.auth.user().id}/${Math.random()}.${fileExt}`;
 
+      // Upload image file
       let { error: uploadError } = await supabase.storage
         .from("chat-images")
         .upload(filePath, file);
       if (uploadError) throw uploadError;
 
+      // Get image public URL
       let { publicURL, error: downloadError } = supabase.storage
         .from("chat-images")
         .getPublicUrl(filePath);
       if (downloadError) throw downloadError;
 
-      let { error: msgError } = await supabase.from("messages").insert({
-        recipient_id: conversations[activeChatId].user_id,
-        convo_id: activeChatId,
-        payload: {
-          image: publicURL,
-        },
-      });
+      // Send image as message
+      let { data: msgData, error: msgError } = await supabase
+        .from("messages")
+        .insert({
+          recipient_id: conversations[activeChatId].user_id,
+          convo_id: activeChatId,
+          payload: {
+            image: publicURL,
+          },
+        })
+        .single();
       if (msgError) throw msgError;
+
+      let { error: convoError } = await supabase
+        .from("conversations")
+        .update({ last_msg: msgData.id })
+        .eq("id", activeChatId);
+      if (convoError) throw convoError;
     } catch (error) {
       alert(error.message);
     }
@@ -515,8 +527,13 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
 
   // Handles image upload event
   const handleImgUpload = (event) => {
-    if (!event.target.files || event.target.files.length === 0) {
-      alert("Please select an image to upload.");
+    if (
+      !event.target.files ||
+      event.target.files.length === 0 ||
+      !event.target.files[0].type.match(/image-*/)
+    ) {
+      alert("Please select a valid image to upload.");
+      return;
     }
     const file = event.target.files[0];
     const modalStateTemplate = {
@@ -973,6 +990,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         ref={fileInput}
         style={{ display: "none" }}
         onChange={handleImgUpload}
+        accept="image/*"
       />
     </div>
   );

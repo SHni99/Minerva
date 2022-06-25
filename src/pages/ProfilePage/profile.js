@@ -42,12 +42,13 @@ const ProfilePageBody = ({ creator_id }) => {
   const [checkUser, setcheckUser] = useState(false);
   const [currentValue, setCurrentValue] = useState(false);
   const [indexAll, setIndexAll] = useState("");
-  const navigate = useNavigate();
   const checkId = supabaseClient.auth.user().id;
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
+  const navigate = useNavigate();
 
   //log user out and redirect to landing page
   const handleLogout = async (navigate, e) => {
@@ -101,8 +102,8 @@ const ProfilePageBody = ({ creator_id }) => {
               avatarCode === ""
                 ? {}
                 : supabaseClient.storage
-                    .from("avatars")
-                    .getPublicUrl(avatarCode);
+                  .from("avatars")
+                  .getPublicUrl(avatarCode);
             if (urlError) throw urlError;
 
             return {
@@ -124,6 +125,7 @@ const ProfilePageBody = ({ creator_id }) => {
 
     const getProfile = async (id) => {
       try {
+        setLoading2(true);
         let { data, error, status } = await supabaseClient
           .from("profiles")
           .select(`username, avatar_url, bio, gender `)
@@ -152,6 +154,8 @@ const ProfilePageBody = ({ creator_id }) => {
         }
       } catch (error) {
         alert(error.message);
+      } finally{
+        setLoading2(false);
       }
     };
 

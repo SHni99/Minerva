@@ -21,18 +21,36 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import chatPageStyles from "./chatPage.module.css";
+import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import Modal from "react-bootstrap/Modal";
 
 const ChatPage = () => {
   const { state } = useLocation();
   const startChatData = state ? state.startChatData : null;
+
+  const unusedModalState = {
+    show: false,
+    title: "",
+    body: "",
+    footer: "",
+  };
+  const [modalState, setModalState] = useState(unusedModalState);
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ChatPageBody startChatData={startChatData} />
+      <ChatModal
+        handleClose={() => setModalState(unusedModalState)}
+        data={modalState}
+      />
+      <ChatPageBody
+        startChatData={startChatData}
+        setModalState={setModalState}
+        unusedModalState={unusedModalState}
+      />
       <FooterBar />
     </div>
   );
@@ -40,7 +58,7 @@ const ChatPage = () => {
 
 export default ChatPage;
 
-const ChatPageBody = ({ startChatData }) => {
+const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
@@ -50,7 +68,7 @@ const ChatPageBody = ({ startChatData }) => {
   /* Array of objects which represent a message each.
      Structure: {
        time (ISO format),
-       type (text/image),
+       type (text/image/offer),
        content,
        isOwnMessage (true if sent by current user)
      }
@@ -64,9 +82,11 @@ const ChatPageBody = ({ startChatData }) => {
      Value:
      {
        user_id,
+       self_pos (0 or 1 -- position in `participants`/`acknowledgement`),
        name,
        src,
-       message
+       message,
+       actionState
      } 
   */
   const [conversations, setConversations] = useState([]);
@@ -98,28 +118,79 @@ const ChatPageBody = ({ startChatData }) => {
   const generateSingleMessage = (msgData, position) => {
     const { time, content, type, isOwnMessage } = msgData;
     const lastOrSingle = position === "last" || position === "single";
-    return (
-      <Message
-        key={"message" + time}
-        model={{
-          message: content.replace("&nbsp; ", "\n"),
-          direction: isOwnMessage ? "outgoing" : "incoming",
-          position,
-        }}
-        type={type}
-        avatarSpacer={!isOwnMessage && !lastOrSingle}
-      >
-        {!isOwnMessage && lastOrSingle && (
-          <Avatar src={conversations[activeChatId].src} className="mb-3" />
-        )}
-        {lastOrSingle && (
-          <Message.Footer
-            sentTime={moment(time).format("LT")}
-            className={chatPageStyles["msg-footer"]}
-          />
-        )}
-      </Message>
-    );
+    switch (type) {
+      case "text":
+        return (
+          <Message
+            key={"text-" + time}
+            model={{
+              message: content.replace("&nbsp; ", "\n"),
+              direction: isOwnMessage ? "outgoing" : "incoming",
+              position,
+            }}
+            type={"text"}
+            avatarSpacer={!isOwnMessage && !lastOrSingle}
+          >
+            {!isOwnMessage && lastOrSingle && (
+              <Avatar src={conversations[activeChatId].src} className="mb-3" />
+            )}
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={chatPageStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
+      case "offer":
+        return (
+          <Message
+            key={"offer-" + time}
+            model={{
+              direction: isOwnMessage ? "outgoing" : "incoming",
+              position,
+            }}
+            type={"custom"}
+            avatarSpacer={!isOwnMessage && !lastOrSingle}
+          >
+            {!isOwnMessage && lastOrSingle && (
+              <Avatar src={conversations[activeChatId].src} className="mb-3" />
+            )}
+            <Message.CustomContent className="text-center p-3">
+              <h4>
+                {content === "MAKE_OFFER"
+                  ? isOwnMessage
+                    ? "You made an offer!"
+                    : "Wants to make a deal!"
+                  : isOwnMessage
+                  ? "You accepted the offer!"
+                  : "Accepted your offer!"}
+              </h4>
+              <p className="py-0 my-1">
+                {content === "MAKE_OFFER"
+                  ? isOwnMessage
+                    ? "You can leave a review once your offer is accepted."
+                    : "Accept the deal by clicking the button above."
+                  : "You can now leave reviews for each other."}
+              </p>
+            </Message.CustomContent>
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={chatPageStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
+      default:
+        return (
+          <Message key={"unknown-" + time}>
+            <Message.CustomContent>
+              unknown_message_type: {`(${type}, ${content})`}
+            </Message.CustomContent>
+          </Message>
+        );
+    }
   };
 
   // Helper function to generate array of Messsages from a single sender
@@ -147,30 +218,57 @@ const ChatPageBody = ({ startChatData }) => {
   // Helper function to parse raw Supabase message data
   const parseMessage = ({ created_at, sender_id, payload }) => {
     // Change this to expand the number of supported message types
-    // Currently only supports image and text content
-    const type = payload.imageUrl ? "image" : "text";
+    const type = Object.keys(payload)[0];
 
     // Change code here for content to expand supported content types
     return {
       time: created_at,
       type,
-      content: payload[type === "image" ? "imageUrl" : "text"],
+      content: payload[type],
       isOwnMessage: sender_id === uid,
     };
   };
 
-  // Helper function to parse raw Supabase conversation data
-  const parseConvo = async ({ id, participants, messages }) => {
-    // Get the id in `participants` that is not equal to the current user id
-    const partnerId =
-      participants[0] === uid ? participants[1] : participants[0];
+  // Helper function to parse the latest message to be displayed
+  const parseLatestMsg = (isOwnMessage, type, content) => {
+    switch (type) {
+      case "text":
+        return `${isOwnMessage ? "You: " : ""}${content}`;
+      case "image":
+        return `${isOwnMessage ? "You" : ""} sent an Image`;
+      case "offer":
+        return `${isOwnMessage ? "You" : ""} ${
+          content === "MAKE_OFFER" ? "made an offer" : "accepted the offer"
+        }`;
+      default:
+        return "unknown_message_type: " + type;
+    }
+  };
 
-    // If the last message is sent by the user, prefix the message with a "You: "
-    // If the message is an image, display "(You:) sent an image" instead
+  // Helper function to parse raw Supabase conversation data
+  const parseConvo = async ({
+    id,
+    participants,
+    messages,
+    acknowledgement,
+  }) => {
+    let partnerId = "";
+    let selfAck = false;
+    let otherAck = false;
+    let self_pos = 0;
+
+    if (participants[0] === uid) {
+      partnerId = participants[1];
+      [selfAck, otherAck] = acknowledgement;
+    } else {
+      partnerId = participants[0];
+      [otherAck, selfAck] = acknowledgement;
+      self_pos = 1;
+    }
+
+    const type = Object.keys(messages.payload)[0];
     const message = messages
-      ? `${messages.sender_id === uid ? "You: " : ""}${
-          messages.payload.imageUrl ? "sent an Image" : messages.payload.text
-        }`
+      ? parseLatestMsg(messages.sender_id === uid, type, messages.payload[type])
       : "";
 
     // Fetch username and avatar url from the profiles table
@@ -194,6 +292,8 @@ const ChatPageBody = ({ startChatData }) => {
       user_id: partnerId,
       message,
       src: avatarUrl,
+      actionState: selfAck * 2 + otherAck,
+      self_pos,
     };
   };
 
@@ -203,6 +303,101 @@ const ChatPageBody = ({ startChatData }) => {
     setActiveChatId(chatId);
   };
 
+  const handleOffers = async (isMakingOffer) => {
+    const { user_id, self_pos, actionState } = conversations[activeChatId];
+    try {
+      // Send "message" to notify of action
+      let { data: msgData, error: msgError } = await supabase
+        .from("messages")
+        .insert({
+          recipient_id: user_id,
+          convo_id: activeChatId,
+          payload: {
+            offer: isMakingOffer ? "MAKE_OFFER" : "ACCEPT_OFFER",
+          },
+        })
+        .single();
+      if (msgError) throw msgError;
+
+      const selfAck = true;
+      const otherAck = Boolean(actionState % 2);
+
+      // Update latest message + acknowledgement state in conversations table
+      let { error: convoError } = await supabase
+        .from("conversations")
+        .update({
+          last_msg: msgData.id,
+          acknowledgement:
+            self_pos === 0 ? [selfAck, otherAck] : [otherAck, selfAck],
+        })
+        .eq("id", activeChatId);
+      if (convoError) throw convoError;
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  // Handles the onClick event for the action button on the Conversation Header
+  const handleActionClick = async (actionState) => {
+    switch (actionState) {
+      case 0:
+        setModalState({
+          show: true,
+          title: "Confirm Offer",
+          body: "You are about to make an offer. This action cannot be undone.",
+          footer: (
+            <>
+              <Button
+                onClick={() => {
+                  handleOffers(true);
+                  setModalState(unusedModalState);
+                }}
+              >
+                Confirm
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => setModalState(unusedModalState)}
+              >
+                Cancel
+              </Button>
+            </>
+          ),
+        });
+        break;
+      case 1:
+        setModalState({
+          show: true,
+          title: "Accept Offer",
+          body: "You are about to accept an offer. This action cannot be undone.",
+          footer: (
+            <>
+              <Button
+                onClick={() => {
+                  handleOffers(false);
+                  setModalState(unusedModalState);
+                }}
+              >
+                Confirm
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => setModalState(unusedModalState)}
+              >
+                Cancel
+              </Button>
+            </>
+          ),
+        });
+        break;
+      case 3:
+      default:
+        console.log("unknown action state: " + actionState);
+        break;
+    }
+  };
+
+  // Handles the sending of (text) messages
   const handleMsgSend = async (msg) => {
     try {
       // Handle starting of new chat
@@ -318,15 +513,25 @@ const ChatPageBody = ({ startChatData }) => {
         // Fetch data from conversations and messages table
         let { data: convoData, error: convoError } = await supabase
           .from("conversations")
-          .select("id, participants, messages(sender_id, payload)")
+          .select(
+            "id, participants, acknowledgement, messages(sender_id, payload)"
+          )
           .order("created_at", { ascending: false, foreignTable: "messages" });
         if (convoError) throw convoError;
 
         // Convert each row of convoData into the appropriate format for `conversations`
         let newConversations = await Promise.all(convoData.map(parseConvo));
         newConversations = newConversations.reduce((res, convo) => {
-          const { chat_id, name, user_id, message, src } = convo;
-          res[chat_id] = { name, user_id, message, src };
+          const {
+            chat_id,
+            name,
+            user_id,
+            message,
+            src,
+            actionState,
+            self_pos,
+          } = convo;
+          res[chat_id] = { name, user_id, message, src, actionState, self_pos };
           return res;
         }, {});
 
@@ -343,6 +548,8 @@ const ChatPageBody = ({ startChatData }) => {
               user_id,
               src,
               message: "",
+              actionState: 0,
+              self_pos: 0,
             };
           }
           setConversations(newConversations);
@@ -373,9 +580,23 @@ const ChatPageBody = ({ startChatData }) => {
 
           setConversations((oldConversations) => {
             const newConversations = { ...oldConversations };
-            newConversations[payload.new.id].message = `${
-              data.sender_id === uid ? "You: " : ""
-            }${data.payload.imageUrl ? "sent an Image" : data.payload.text}`;
+            const type = Object.keys(data.payload)[0];
+            let selfAck = false;
+            let otherAck = false;
+
+            newConversations[payload.new.id].message = parseLatestMsg(
+              data.sender_id === uid,
+              type,
+              data.payload[type]
+            );
+
+            if (payload.new.participants[0] === uid) {
+              [selfAck, otherAck] = payload.new.acknowledgement;
+            } else {
+              [otherAck, selfAck] = payload.new.acknowledgement;
+            }
+            newConversations[payload.new.id].actionState =
+              selfAck * 2 + otherAck;
 
             return newConversations;
           });
@@ -385,12 +606,12 @@ const ChatPageBody = ({ startChatData }) => {
       })
       .on("INSERT", async (payload) => {
         const newConvo = await parseConvo(payload.new);
-        const { chat_id, name, user_id, message, src } = newConvo;
+        const { chat_id, name, user_id, message, src, actionState } = newConvo;
         const tempChatId = `temp-${user_id}`;
 
         setConversations((oldConvos) => {
           const newConvos = { ...oldConvos };
-          newConvos[chat_id] = { name, user_id, message, src };
+          newConvos[chat_id] = { name, user_id, message, src, actionState };
           return newConvos;
         });
 
@@ -557,6 +778,23 @@ const ChatPageBody = ({ startChatData }) => {
                     })
                   }
                 />
+                <ConversationHeader.Actions>
+                  <Button
+                    onClick={() =>
+                      handleActionClick(conversations[activeChatId].actionState)
+                    }
+                    disabled={conversations[activeChatId].actionState === 2}
+                  >
+                    {
+                      [
+                        "Make Offer",
+                        "Accept Offer",
+                        "Make Offer",
+                        "Leave Review",
+                      ][conversations[activeChatId].actionState]
+                    }
+                  </Button>
+                </ConversationHeader.Actions>
               </ConversationHeader>
             }
 
@@ -621,5 +859,20 @@ const ChatPageBody = ({ startChatData }) => {
         )}
       </MainContainer>
     </div>
+  );
+};
+
+const ChatModal = (props) => {
+  const { handleClose, data } = props;
+  const { show, title, body, footer } = data;
+
+  return (
+    <Modal show={show} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>{title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>{body}</Modal.Body>
+      <Modal.Footer>{footer}</Modal.Footer>
+    </Modal>
   );
 };

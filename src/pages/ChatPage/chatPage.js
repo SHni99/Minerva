@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import moment from "moment";
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import { supabaseClient as supabase } from "config/supabase-client";
@@ -23,12 +24,15 @@ import chatPageStyles from "./chatPage.module.css";
 import Spinner from "react-bootstrap/Spinner";
 
 const ChatPage = () => {
+  const { state } = useLocation();
+  const startChatData = state ? state.startChatData : null;
+
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ChatPageBody />
+      <ChatPageBody startChatData={startChatData} />
       <FooterBar />
     </div>
   );
@@ -36,7 +40,7 @@ const ChatPage = () => {
 
 export default ChatPage;
 
-const ChatPageBody = (props) => {
+const ChatPageBody = ({ startChatData }) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
@@ -66,8 +70,15 @@ const ChatPageBody = (props) => {
      } 
   */
   const [conversations, setConversations] = useState([]);
-  // Boolean denoted whether the conversations are currently being fetched or not
+
+  // Boolean denoting whether the conversations are currently being fetched or not
   const [loadingConvos, setLoadingConvos] = useState(false);
+
+  // String representing the query passed into the searchbar on the left sidebar
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const navigate = useNavigate();
+  const uid = supabase.auth.user().id;
 
   // Helper functions to add/remove classes from elements
   const removeClass = (elem, name) => {
@@ -91,7 +102,7 @@ const ChatPageBody = (props) => {
       <Message
         key={"message" + time}
         model={{
-          message: content,
+          message: content.replace("&nbsp; ", "\n"),
           direction: isOwnMessage ? "outgoing" : "incoming",
           position,
         }}
@@ -144,14 +155,12 @@ const ChatPageBody = (props) => {
       time: created_at,
       type,
       content: payload[type === "image" ? "imageUrl" : "text"],
-      isOwnMessage: sender_id === supabase.auth.user().id,
+      isOwnMessage: sender_id === uid,
     };
   };
 
   // Helper function to parse raw Supabase conversation data
   const parseConvo = async ({ id, participants, messages }) => {
-    const uid = supabase.auth.user().id;
-
     // Get the id in `participants` that is not equal to the current user id
     const partnerId =
       participants[0] === uid ? participants[1] : participants[0];
@@ -196,28 +205,66 @@ const ChatPageBody = (props) => {
 
   const handleMsgSend = async (msg) => {
     try {
-      let { data, error } = await supabase.from("messages").insert({
-        recipient_id: conversations[activeChatId].user_id,
-        payload: {
-          text: msg,
-        },
-        convo_id: activeChatId,
-      });
-      if (error) throw error;
+      // Handle starting of new chat
+      if (activeChatId.includes("temp-")) {
+        // Create new conversation in Supabase
+        let { data: newConvoData, error: newConvoError } = await supabase
+          .from("conversations")
+          .insert({
+            participants: [uid, startChatData.user_id],
+          })
+          .single();
+        if (newConvoError) throw newConvoError;
 
-      let { error: lastMsgError } = await supabase
-        .from("conversations")
-        .update({ last_msg: data[0].id })
-        .eq("id", activeChatId);
-      if (lastMsgError) throw lastMsgError;
+        // Upload new message into supabase, with previous conversation id as convo_id
+        let { data: uploadMsgData, error: uploadMsgError } = await supabase
+          .from("messages")
+          .insert({
+            recipient_id: activeChatId.substr(5),
+            payload: {
+              text: msg,
+            },
+            convo_id: newConvoData.id,
+          })
+          .single();
+        if (uploadMsgError) throw uploadMsgError;
+
+        // Update conversation last_msg to previously uploaded message id
+        let { error: updateConvoError } = await supabase
+          .from("conversations")
+          .update({ last_msg: uploadMsgData.id })
+          .eq("id", newConvoData.id);
+        if (updateConvoError) throw updateConvoError;
+      }
+      // Handle normal message sending
+      else {
+        let { data, error } = await supabase.from("messages").insert({
+          recipient_id: conversations[activeChatId].user_id,
+          payload: {
+            text: msg,
+          },
+          convo_id: activeChatId,
+        });
+        if (error) throw error;
+
+        let { error: lastMsgError } = await supabase
+          .from("conversations")
+          .update({ last_msg: data[0].id })
+          .eq("id", activeChatId);
+        if (lastMsgError) throw lastMsgError;
+      }
     } catch (error) {
       alert(error.message);
     }
   };
 
   // Fetches messages in chat
+  // Runs whenever activeChatId changes
   useEffect(() => {
-    if (!activeChatId) return;
+    if (!activeChatId || activeChatId.includes("temp-")) {
+      setMessages({});
+      return;
+    }
     // Loads old messages and listens for any new messages
     const getOldMessages = async () => {
       try {
@@ -253,6 +300,11 @@ const ChatPageBody = (props) => {
       .subscribe();
 
     return () => supabase.removeSubscription(msgSub);
+
+    // We are disabling warnings regarding missing dependency
+    // `parseMessage` as it is a helper function that will
+    // never change. (i.e. redundant dependancy)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChatId]);
 
   // Fetch all conversations and store them in `conversations`
@@ -278,10 +330,29 @@ const ChatPageBody = (props) => {
           return res;
         }, {});
 
+        if (startChatData) {
+          const { user_id, name, src } = startChatData;
+          const existingConvo = convoData.filter(({ participants }) =>
+            participants.includes(user_id)
+          );
+          const hasExistingConvo = existingConvo.length > 0;
+          const tempChatId = `temp-${user_id}`;
+          if (!hasExistingConvo) {
+            newConversations[tempChatId] = {
+              name,
+              user_id,
+              src,
+              message: "",
+            };
+          }
+          setConversations(newConversations);
+          setActiveChatId(hasExistingConvo ? existingConvo[0].id : tempChatId);
+        } else {
+          setConversations(newConversations);
+        }
         if (Object.keys(newConversations).length === 0) setShowSidebar(false);
-        setConversations(newConversations);
       } catch (error) {
-        alert(error.message);
+        console.log(error);
       } finally {
         setLoadingConvos(false);
       }
@@ -303,7 +374,7 @@ const ChatPageBody = (props) => {
           setConversations((oldConversations) => {
             const newConversations = { ...oldConversations };
             newConversations[payload.new.id].message = `${
-              data.sender_id === supabase.auth.user().id ? "You: " : ""
+              data.sender_id === uid ? "You: " : ""
             }${data.payload.imageUrl ? "sent an Image" : data.payload.text}`;
 
             return newConversations;
@@ -314,16 +385,34 @@ const ChatPageBody = (props) => {
       })
       .on("INSERT", async (payload) => {
         const newConvo = await parseConvo(payload.new);
+        const { chat_id, name, user_id, message, src } = newConvo;
+        const tempChatId = `temp-${user_id}`;
+
         setConversations((oldConvos) => {
           const newConvos = { ...oldConvos };
-          const { chat_id, name, user_id, message, src } = newConvo;
           newConvos[chat_id] = { name, user_id, message, src };
           return newConvos;
+        });
+
+        setActiveChatId((oldChatId) => {
+          if (oldChatId === tempChatId) {
+            setConversations((oldConvos) => {
+              const newConvos = { ...oldConvos };
+              delete newConvos[tempChatId];
+              return newConvos;
+            });
+            return chat_id;
+          } else return oldChatId;
         });
       })
       .subscribe();
 
     return () => supabase.removeSubscription(convoSub);
+
+    // We are disabling warnings regarding missing dependencies as this
+    // hook is meant to only be run once at the start,
+    // regardless of any other state changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Add event listener to show correct layout on window resize
@@ -351,16 +440,20 @@ const ChatPageBody = (props) => {
   useEffect(() => {
     const sidebarElem = document.getElementsByClassName("cs-sidebar")[0];
     const searchBarElem = document.getElementsByClassName("cs-search")[0];
-    const convoAvatarElem = document.getElementsByClassName("cs-avatar")[0];
     const chatContainerElem =
       document.getElementsByClassName("cs-chat-container")[0];
+    const convoAvatarElems = Array.from(
+      document.getElementsByClassName("cs-avatar")
+    );
     const convoContentElems = Array.from(
       document.getElementsByClassName("cs-conversation__content")
     );
 
     if (window.innerWidth < 768 && showSidebar) {
       addClass(sidebarElem, chatPageStyles["sidebar-visible"]);
-      addClass(convoAvatarElem, chatPageStyles["convoAvatar-visible"]);
+      convoAvatarElems.forEach((convoAvatar) =>
+        addClass(convoAvatar, chatPageStyles["convoAvatar-visible"])
+      );
       addClass(searchBarElem, chatPageStyles["convoContent-visible"]);
       addClass(chatContainerElem, chatPageStyles["chatContainer-invisible"]);
       convoContentElems.forEach((convoContent) =>
@@ -372,7 +465,9 @@ const ChatPageBody = (props) => {
     ) {
       removeClass(sidebarElem, chatPageStyles["sidebar-visible"]);
       removeClass(searchBarElem, chatPageStyles["convoContent-visible"]);
-      removeClass(convoAvatarElem, chatPageStyles["convoAvatar-visible"]);
+      convoAvatarElems.forEach((convoAvatar) =>
+        removeClass(convoAvatar, chatPageStyles["convoAvatar-visible"])
+      );
       removeClass(chatContainerElem, chatPageStyles["chatContainer-invisible"]);
       convoContentElems.forEach((convoContent) =>
         removeClass(convoContent, chatPageStyles["convoContent-visible"])
@@ -387,24 +482,32 @@ const ChatPageBody = (props) => {
           <Search
             placeholder="Search..."
             className={`${chatPageStyles["cs-search"]} py-0`}
+            onChange={(query) => setSearchQuery(query)}
+            onClearClick={() => setSearchQuery("")}
           />
           <ConversationList>
-            {Object.keys(conversations).map((id) => (
-              <Conversation
-                onClick={() => handleConvoClick(id)}
-                key={id}
-                active={activeChatId === id}
-              >
-                <Avatar
-                  src={conversations[id].src}
-                  name={conversations[id].name}
-                />
-                <Conversation.Content
-                  name={conversations[id].name}
-                  info={conversations[id].message}
-                />
-              </Conversation>
-            ))}
+            {Object.keys(conversations)
+              .filter((id) =>
+                `${conversations[id].name.toLowerCase()} ${conversations[
+                  id
+                ].message.toLowerCase()}`.includes(searchQuery.toLowerCase())
+              )
+              .map((id) => (
+                <Conversation
+                  onClick={() => handleConvoClick(id)}
+                  key={id}
+                  active={activeChatId === id}
+                >
+                  <Avatar
+                    src={conversations[id].src}
+                    name={conversations[id].name}
+                  />
+                  <Conversation.Content
+                    name={conversations[id].name}
+                    info={conversations[id].message.replace("&nbsp; ", "; ")}
+                  />
+                </Conversation>
+              ))}
           </ConversationList>
         </Sidebar>
         {!activeChatId ? (
@@ -435,10 +538,24 @@ const ChatPageBody = (props) => {
                 <Avatar
                   src={conversations[activeChatId].src}
                   name={conversations[activeChatId].name}
+                  onClick={() =>
+                    navigate("/profile", {
+                      state: {
+                        creator_id: conversations[activeChatId].user_id,
+                      },
+                    })
+                  }
                 />
                 <ConversationHeader.Content
                   userName={conversations[activeChatId].name}
                   className={`${chatPageStyles["convo-header"]}`}
+                  onClick={() =>
+                    navigate("/profile", {
+                      state: {
+                        creator_id: conversations[activeChatId].user_id,
+                      },
+                    })
+                  }
                 />
               </ConversationHeader>
             }

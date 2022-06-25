@@ -173,6 +173,7 @@ const Listings = ({ check, listingDataState, setModalState }) => {
                     avatarUrl={avatarUrl}
                     username={username}
                     key={listing_id}
+                    listing_id={listing_id}
                     level={level}
                     rates={rates}
                     image_urls={image_urls}

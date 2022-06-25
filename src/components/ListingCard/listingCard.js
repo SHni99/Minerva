@@ -13,6 +13,7 @@ const ListingCard = ({
   fields,
   setModalState,
   creator_id,
+  listing_id,
 }) => {
   const levelParams = {
     primary: "Primary",
@@ -32,6 +33,7 @@ const ListingCard = ({
       image_urls,
       fields,
       creator_id,
+      listing_id,
     });
   };
   return (

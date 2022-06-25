@@ -268,9 +268,7 @@ const ProfilePageBody = ({ creator_id }) => {
 
             <div className="col-8">
               <div className="row">
-                {checkUser ? (
-                  " "
-                ) : (
+                {checkUser || (
                   <div className="row-lg-3 text-right">
                     <div>
                       <Button
@@ -305,7 +303,6 @@ const ProfilePageBody = ({ creator_id }) => {
                   id="noanim-tab-example"
                   className="mb-3"
                 >
-                  {" "}
                   <Tab eventKey="listings" title="Listings">
                     <UserListings
                       check={creator_id || checkId}

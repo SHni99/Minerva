@@ -33,7 +33,6 @@ const ListingsPage = () => {
     >
       <NavBar />
       <ListingModal
-        checkUser={true}
         data={modalState}
         onHide={() => setModalState(unusedModalState)}
       />
@@ -151,11 +150,53 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
-  // Set to true if there are no results, after filtering using given query
-  const [isEmpty, setIsEmpty] = useState(false);
-
   // Array of objects containing the data of each listing
   const [listingData, setListingData] = listingDataState;
+
+  const parseListing = async ({
+    creator_id,
+    level,
+    rates,
+    fields,
+    image_urls,
+    listing_id,
+  }) => {
+    let {
+      data: { avatar_url: avatarTitle, username },
+      error: avatarError,
+      status: avatarStatus,
+    } = await supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", creator_id)
+      .single();
+    if (avatarError && avatarStatus !== 406) throw avatarError;
+
+    const { publicURL: avatarUrl, error: urlError } =
+      avatarTitle === ""
+        ? {}
+        : supabase.storage.from("avatars").getPublicUrl(avatarTitle);
+    if (urlError) throw urlError;
+
+    return {
+      avatarUrl,
+      username,
+      level,
+      rates,
+      fields,
+      image_urls,
+      listing_id,
+      creator_id,
+    };
+  };
+
+  const filterListing = ({ level, rates, fields }) =>
+    `${level} ${rates} ${Object.keys(fields).reduce(
+      (acc, key) => `${acc} ${fields[key].value}`,
+      ""
+    )}`
+      .toLowerCase()
+      .includes(query.toLowerCase());
 
   // Fetch listings from Supabase and display using ListingCards
   useEffect(() => {
@@ -175,65 +216,12 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
         if (listingError && listingStatus !== 406) throw listingError;
 
         // Filter using the entered query (set to "" by default/on clearing the textbox)
-        listingDb = listingDb.filter(({ level, rates, fields }) =>
-          `${level} ${rates} ${Object.keys(fields).reduce(
-            (acc, key) => `${acc} ${fields[key].value}`,
-            ""
-          )}`.includes(query)
-        );
-
-        // Indicate no results and useEffect call here, if filtered results array is empty
-        if (listingDb.length === 0) {
-          setIsEmpty(true);
-          return;
-        }
-
-        // Results found. Continue with rendering them using ListingCards
-        setIsEmpty(false);
+        listingDb = listingDb.filter(filterListing);
 
         // Map each of the fetched rows into an async call to obtain each listing creators'
         // avatar URL. After all asynchronous calls have been resolved, set the result to
         // the listingData state/hook.
-        const newListingData = await Promise.all(
-          listingDb.map(
-            async ({
-              creator_id,
-              level,
-              rates,
-              fields,
-              image_urls,
-              listing_id,
-            }) => {
-              let {
-                data: { avatar_url: avatarTitle, username },
-                error: avatarError,
-                status: avatarStatus,
-              } = await supabase
-                .from("profiles")
-                .select("username, avatar_url")
-                .eq("id", creator_id)
-                .single();
-              if (avatarError && avatarStatus !== 406) throw avatarError;
-
-              const { publicURL: avatarUrl, error: urlError } =
-                avatarTitle === ""
-                  ? {}
-                  : supabase.storage.from("avatars").getPublicUrl(avatarTitle);
-              if (urlError) throw urlError;
-
-              return {
-                avatarUrl,
-                username,
-                level,
-                rates,
-                fields,
-                image_urls,
-                listing_id,
-                creator_id,
-              };
-            }
-          )
-        );
+        const newListingData = await Promise.all(listingDb.map(parseListing));
         setListingData(newListingData);
       } catch (error) {
         alert(error.error);
@@ -251,12 +239,39 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorTutee, query]);
 
+  // Listen for live changes to listings
+  useState(() => {
+    const listingSub = supabase
+      .from("listings")
+      .on("INSERT", async (payload) => {
+        console.log(payload);
+        const newListingData = await parseListing(payload.new);
+        console.log(newListingData);
+        if (filterListing(newListingData)) {
+          setListingData((oldListingData) => [
+            ...oldListingData,
+            newListingData,
+          ]);
+        }
+      })
+      .on("DELETE", (payload) => {
+        setListingData((oldListingData) =>
+          oldListingData.filter(
+            (data) => data.listing_id !== payload.old.listing_id
+          )
+        );
+      })
+      .subscribe();
+
+    return () => supabase.removeSubscription(listingSub);
+  }, []);
+
   return (
     <div className={listingsPageStyles["listings"]}>
-      {isEmpty ? (
-        <h1>Nothing here!</h1>
-      ) : loading ? (
+      {loading ? (
         <Spinner animation="border" role="status" aria-label="Loading" />
+      ) : listingData.length === 0 ? (
+        <h1>Nothing here!</h1>
       ) : (
         <React.Fragment>
           {listingData.map(
@@ -271,19 +286,18 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
               creator_id,
             }) => {
               return (
-                (
-                  <ListingCard
-                    avatarUrl={avatarUrl}
-                    username={username}
-                    key={listing_id}
-                    level={level}
-                    rates={rates}
-                    image_urls={image_urls}
-                    fields={fields}
-                    setModalState={setModalState}
-                    creator_id={creator_id}
-                  />
-                ) || <h1>Nothing here!</h1>
+                <ListingCard
+                  avatarUrl={avatarUrl}
+                  username={username}
+                  key={listing_id}
+                  listing_id={listing_id}
+                  level={level}
+                  rates={rates}
+                  image_urls={image_urls}
+                  fields={fields}
+                  setModalState={setModalState}
+                  creator_id={creator_id}
+                />
               );
             }
           )}

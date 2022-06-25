@@ -46,7 +46,6 @@ const ProfilePageBody = ({ creator_id }) => {
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loading2, setLoading2] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
   const navigate = useNavigate();
 
@@ -125,7 +124,6 @@ const ProfilePageBody = ({ creator_id }) => {
 
     const getProfile = async (id) => {
       try {
-        setLoading2(true);
         let { data, error, status } = await supabaseClient
           .from("profiles")
           .select(`username, avatar_url, bio, gender `)
@@ -154,8 +152,6 @@ const ProfilePageBody = ({ creator_id }) => {
         }
       } catch (error) {
         alert(error.message);
-      } finally{
-        setLoading2(false);
       }
     };
 

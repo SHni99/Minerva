@@ -163,10 +163,60 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                 width={window.innerWidth / (window.innerWidth < 768 ? 2 : 4)}
                 alt="Sent message"
                 onClick={() => {
+                  const modalStateTemplate = {
+                    show: true,
+                    title: "View Image",
+                    body: <img src={content} alt="Preview" />,
+                  };
+                  const footers = [
+                    <Button
+                      variant="danger"
+                      className="px-3"
+                      onClick={() =>
+                        setModalState({
+                          ...modalStateTemplate,
+                          footer: footers[1],
+                          centerFooter: true,
+                        })
+                      }
+                    >
+                      Delete
+                    </Button>,
+                    <p className="text-center">
+                      Are you sure? <br />
+                      <Button
+                        variant="danger"
+                        onClick={() => {
+                          setModalState({
+                            ...modalStateTemplate,
+                            footer: footers[2],
+                            centerFooter: true,
+                          });
+                        }}
+                        className="px-4 mx-2"
+                      >
+                        Yes
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() =>
+                          setModalState({
+                            ...modalStateTemplate,
+                            footer: footers[0],
+                          })
+                        }
+                        className="px-4 mx-2"
+                      >
+                        No
+                      </Button>
+                    </p>,
+                    <Spinner animation="border" />,
+                  ];
                   setModalState({
                     show: true,
                     title: "View Image",
                     body: <img src={content} alt="Preview" />,
+                    footer: isOwnMessage && footers[0],
                   });
                 }}
                 style={{ cursor: "pointer" }}
@@ -558,6 +608,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                 footer: (
                   <Spinner animation="border" className="justify-self-center" />
                 ),
+                centerFooter: true,
               });
               await uploadImg(file);
               setModalState(unusedModalState);
@@ -998,7 +1049,8 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
 
 const ChatModal = (props) => {
   const { handleClose, data } = props;
-  const { show, title, body, footer } = data;
+  const { show, title, body, footer, centerFooter } = data;
+  console.log(centerFooter);
 
   return (
     <Modal show={show} onHide={handleClose}>
@@ -1006,7 +1058,9 @@ const ChatModal = (props) => {
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body className="d-flex justify-center">{body}</Modal.Body>
-      <Modal.Footer>{footer}</Modal.Footer>
+      <Modal.Footer className={centerFooter && "d-flex justify-content-center"}>
+        {footer}
+      </Modal.Footer>
     </Modal>
   );
 };

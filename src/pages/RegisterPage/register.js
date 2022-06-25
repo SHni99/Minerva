@@ -96,7 +96,7 @@ const RegisterPagePage = () => {
         );
         if (error) throw error;
 
-        alert("Signed up");
+       //input popup
         navigate("/listingspage");
       } catch (error) {
         alert(error.message);

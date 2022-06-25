@@ -84,7 +84,7 @@ const UpdateProfilePage = ({ session }) => {
       setLoading(true);
       const { error } = await supabaseClient.auth.signOut();
       if (error) throw error;
-      alert("Logged out");
+      // input logout popup
       navigate("/");
     } catch (error) {
       alert(error.message);

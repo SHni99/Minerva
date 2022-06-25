@@ -7,7 +7,7 @@ import ListingModal from "components/ListingModal/listingModal";
 import userListingsStyles from "./userlistings.module.css";
 
 const UserListingsPage = (props) => {
-  const { checkId } = props;
+  const { check, checkUser } = props;
 
   const [listingData, setListingData] = useState([]);
   const unusedModalState = {
@@ -27,9 +27,10 @@ const UserListingsPage = (props) => {
       <ListingModal
         data={modalState}
         onHide={() => setModalState(unusedModalState)}
+        checkUser={checkUser}
       />
       <UserListingBody
-        checkId={checkId}
+        check={check}
         listingDataState={[listingData, setListingData]}
         setModalState={setModalState}
       />
@@ -39,11 +40,11 @@ const UserListingsPage = (props) => {
 
 export default UserListingsPage;
 
-const UserListingBody = ({ checkId, listingDataState, setModalState }) => {
+const UserListingBody = ({ check, listingDataState, setModalState }) => {
   return (
     <Container className={`${userListingsStyles["body"]}`}>
       <Listings
-        checkId={checkId}
+        check={check}
         listingDataState={listingDataState}
         setModalState={setModalState}
       />
@@ -51,7 +52,7 @@ const UserListingBody = ({ checkId, listingDataState, setModalState }) => {
   );
 };
 
-const Listings = ({ checkId, listingDataState, setModalState }) => {
+const Listings = ({ check, listingDataState, setModalState }) => {
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
@@ -75,7 +76,7 @@ const Listings = ({ checkId, listingDataState, setModalState }) => {
         } = await supabase
           .from("listings")
           .select("creator_id, level, rates, fields, image_urls, listing_id")
-          .eq("creator_id", checkId);
+          .eq("creator_id", check);
         if (listingError && listingStatus !== 406) throw listingError;
 
         // Indicate no results and useEffect call here, if filtered results array is empty
@@ -107,7 +108,7 @@ const Listings = ({ checkId, listingDataState, setModalState }) => {
               } = await supabase
                 .from("profiles")
                 .select("username, avatar_url")
-                .eq("id", checkId)
+                .eq("id", check)
                 .single();
               if (avatarError && avatarStatus !== 406) throw avatarError;
 
@@ -145,7 +146,7 @@ const Listings = ({ checkId, listingDataState, setModalState }) => {
     // (because we are actively mutating `listingData` on each call!)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkId]);
+  }, [check]);
 
   return (
     <div className={userListingsStyles["listings"]}>

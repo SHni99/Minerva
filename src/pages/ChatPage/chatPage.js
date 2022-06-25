@@ -143,6 +143,37 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             )}
           </Message>
         );
+      case "image":
+        return (
+          <Message
+            key={"image-" + time}
+            model={{
+              direction: isOwnMessage ? "outgoing" : "incoming",
+              position,
+            }}
+            type={"image"}
+            avatarSpacer={!isOwnMessage && !lastOrSingle}
+          >
+            {!isOwnMessage && lastOrSingle && (
+              <Avatar src={conversations[activeChatId].src} className="mb-3" />
+            )}
+            <Message.CustomContent>
+              <img
+                src={content}
+                width={window.innerWidth / (window.innerWidth < 768 ? 2 : 4)}
+                alt="Sent message"
+                onClick={() => {
+                  setModalState({
+                    show: true,
+                    title: "View Image",
+                    body: <img src={content} alt="Preview" />,
+                  });
+                }}
+                style={{ cursor: "pointer" }}
+              />
+            </Message.CustomContent>
+          </Message>
+        );
       case "offer":
         return (
           <Message

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import moment from "moment";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -75,6 +75,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
   */
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const fileInput = useRef(null);
 
   /* The data containing the conversations to be loaded under the ConversationList.
      Stored as an object of objects.
@@ -297,6 +298,34 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     };
   };
 
+  const uploadImg = async (file) => {
+    try {
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${supabase.auth.user().id}/${Math.random()}.${fileExt}`;
+
+      let { error: uploadError } = await supabase.storage
+        .from("chat-images")
+        .upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      let { publicURL, error: downloadError } = supabase.storage
+        .from("chat-images")
+        .getPublicUrl(filePath);
+      if (downloadError) throw downloadError;
+
+      let { error: msgError } = await supabase.from("messages").insert({
+        recipient_id: conversations[activeChatId].user_id,
+        convo_id: activeChatId,
+        payload: {
+          image: publicURL,
+        },
+      });
+      if (msgError) throw msgError;
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   // Handles the onClick event for the Conversation items (the left sidebar)
   const handleConvoClick = (chatId) => {
     setShowSidebar(false);
@@ -451,6 +480,52 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     } catch (error) {
       alert(error.message);
     }
+  };
+
+  // Handles image upload event
+  const handleImgUpload = (event) => {
+    if (!event.target.files || event.target.files.length === 0) {
+      alert("Please select an image to upload.");
+    }
+    const file = event.target.files[0];
+    const modalStateTemplate = {
+      show: true,
+      title: "Image Preview",
+      body: (
+        <img
+          src={URL.createObjectURL(file)}
+          alt="Preview"
+          className="justify-self-center"
+        />
+      ),
+    };
+    setModalState({
+      ...modalStateTemplate,
+      footer: (
+        <>
+          <Button
+            onClick={async () => {
+              setModalState({
+                ...modalStateTemplate,
+                footer: (
+                  <Spinner animation="border" className="justify-self-center" />
+                ),
+              });
+              await uploadImg(file);
+              setModalState(unusedModalState);
+            }}
+          >
+            Send
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => setModalState(unusedModalState)}
+          >
+            Cancel
+          </Button>
+        </>
+      ),
+    });
   };
 
   // Fetches messages in chat
@@ -854,10 +929,20 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
               placeholder="Your message here..."
               className={`${chatPageStyles["message-input"]}`}
               onSend={handleMsgSend}
-            />
+              onAttachClick={() => fileInput.current.click()}
+            ></MessageInput>
           </ChatContainer>
         )}
       </MainContainer>
+
+      {/* File selector used to upload images.
+      Hidden from view, only accessible via the attach image icon on the input bar. */}
+      <input
+        type="file"
+        ref={fileInput}
+        style={{ display: "none" }}
+        onChange={handleImgUpload}
+      />
     </div>
   );
 };
@@ -871,7 +956,7 @@ const ChatModal = (props) => {
       <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>{body}</Modal.Body>
+      <Modal.Body className="d-flex justify-center">{body}</Modal.Body>
       <Modal.Footer>{footer}</Modal.Footer>
     </Modal>
   );

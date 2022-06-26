@@ -51,7 +51,7 @@ const PasswordPage = () => {
           >
             {" "}
             <div className="card-body p-5">
-              <div className="row" >
+              <div className="row justify-end" >
               <CloseButton
                 onClick={login}
                

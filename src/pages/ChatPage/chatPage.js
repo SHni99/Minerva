@@ -1209,6 +1209,7 @@ const ChatModal = (props) => {
               convo_id: presetData.chat_id,
             })
             .single();
+          if (msgError) throw msgError;
 
           // Update conversations to indicate completion of review
           let { error: convoError } = await supabase

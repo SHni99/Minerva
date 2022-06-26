@@ -212,7 +212,7 @@ const RegisterPagePage = () => {
                 <div className="text-left">
                   <OverlayTrigger
                     trigger="click"
-                    placement="right"
+                    placement="bottom"
                     overlay={popover}
                   >
                     <Button variant="success" className="">

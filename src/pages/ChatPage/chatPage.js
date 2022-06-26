@@ -275,6 +275,36 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             )}
           </Message>
         );
+      case "review":
+        return (
+          <Message
+            key={"review-" + time}
+            model={{
+              direction: isOwnMessage ? "outgoing" : "incoming",
+              position,
+            }}
+            type={"custom"}
+            avatarSpacer={!isOwnMessage && !lastOrSingle}
+          >
+            {!isOwnMessage && lastOrSingle && (
+              <Avatar src={conversations[activeChatId].src} className="mb-3" />
+            )}
+            <Message.CustomContent className="text-center p-3">
+              <h4>{isOwnMessage ? "You left a review!" : "Left a review!"}</h4>
+              <p className="py-0 my-1">
+                {isOwnMessage
+                  ? "Your review can be found under their profile."
+                  : "The review can be found under your profile."}
+              </p>
+            </Message.CustomContent>
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={chatPageStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
       default:
         return (
           <Message key={"unknown-" + time}>

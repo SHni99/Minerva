@@ -96,7 +96,8 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
        src,
        message,
        actionState,
-       hasReviewed
+       hasReviewed,
+       otherHasReviewed
      } 
   */
   const [conversations, setConversations] = useState([]);
@@ -351,6 +352,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     const selfAck = acknowledgement[self_pos];
     const otherAck = acknowledgement[1 - self_pos];
     const hasReviewed = reviewed[self_pos];
+    const otherHasReviewed = reviewed[1 - self_pos];
 
     const type = Object.keys(messages.payload)[0];
     const message = messages
@@ -381,6 +383,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       actionState: selfAck * 2 + otherAck,
       self_pos,
       hasReviewed,
+      otherHasReviewed,
     };
   };
 
@@ -563,6 +566,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
           presetData: {
             type: "review",
             convo: conversations[activeChatId],
+            chat_id: activeChatId,
           },
         });
         break;
@@ -764,6 +768,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             actionState,
             self_pos,
             hasReviewed,
+            otherHasReviewed,
           } = convo;
           res[chat_id] = {
             name,
@@ -773,6 +778,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             actionState,
             self_pos,
             hasReviewed,
+            otherHasReviewed,
           };
           return res;
         }, {});
@@ -836,6 +842,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             newConversations[id].actionState =
               acknowledgement[self_pos] * 2 + acknowledgement[1 - self_pos];
             newConversations[id].hasReviewed = reviewed[self_pos];
+            newConversations[id].otherHasReviewed = reviewed[1 - self_pos];
 
             return newConversations;
           });
@@ -1137,7 +1144,8 @@ const ChatModal = (props) => {
 
   if (presetData) {
     if (presetData.type === "review") {
-      const { user_id, name, src } = presetData.convo;
+      const { user_id, name, src, self_pos, otherHasReviewed } =
+        presetData.convo;
       const setRating = getStateSetter("rating");
       const setReviewText = getStateSetter("reviewText");
       const setFooterState = getStateSetter("footerState");
@@ -1147,7 +1155,32 @@ const ChatModal = (props) => {
         handleClose();
       };
 
-      const insertReview = async () => {};
+      const insertReview = async () => {
+        const { rating, reviewText } = modalState;
+        try {
+          // Insert to reviews table
+          let { error: reviewError } = await supabase.from("reviews").insert({
+            index: rating,
+            textbox: reviewText,
+            reviewee_id: user_id,
+          });
+          if (reviewError) throw reviewError;
+
+          // Update conversations to indicate completion of review
+          let { error: convoError } = await supabase
+            .from("conversations")
+            .update({
+              reviewed:
+                self_pos === 0
+                  ? [true, otherHasReviewed]
+                  : [otherHasReviewed, true],
+            })
+            .eq("id", presetData.chat_id);
+          if (convoError) throw convoError;
+        } catch (error) {
+          alert(error.message);
+        }
+      };
 
       const footers = [
         <>

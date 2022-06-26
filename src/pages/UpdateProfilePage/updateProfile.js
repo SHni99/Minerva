@@ -7,6 +7,7 @@ import profileStyles from "./updateProfile.module.css";
 import PersonalAvatar from "components/Avatar/avatar";
 import Button from "react-bootstrap/Button";
 
+
 //retrieve session from loginmain page and call getProfile method if session is read
 const UpdateProfilePage = ({ session }) => {
   const navigate = useNavigate();
@@ -165,6 +166,7 @@ const ProfilePageBody = (props) => {
                   });
                 }}
               />
+             
               <div className="mt-4">
                 <h4>Email: {session.user.email} </h4>
                 <div className="mt-8">
@@ -225,38 +227,37 @@ const ProfilePageBody = (props) => {
                   onChange={(e) => setBio(e.target.value)}
                   className="form-control form-control-lg m-auto"
                 ></input>
-                
-                  <Button //logout button: supabase logout function
-                    className={` col-lg-5 col-sm-6 rounded-4 p-2 mr-5 my-5 border-dark text-dark`}
-                    style={{
-                      fontSize: "15px",
-                      backgroundColor: "#D5DED9",
-                    }}
-                    onClick={(e) => {
-                      handleLogout(navigate, e);
-                    }}
-                  >
-                    <strong>Log out</strong>
-                  </Button>
 
-                  <Button //update button: triggers three events when run successfully
-                    className={`col-lg-5 col-sm-6 rounded-4 p-2 ml-5 m-auto border-dark text-dark`}
-                    style={{
-                      fontSize: "15px",
-                      backgroundColor: "#42d38b",
-                    }}
-                    onClick={() => {
-                      updateProfile({
-                        username,
-                        avatar_url,
-                      });
-                      alert("updated");
-                      navigate("/listingspage");
-                    }}
-                  >
-                    <strong>{loading ? "Updating" : "Update"}</strong>
-                  </Button>
-                
+                <Button //logout button: supabase logout function
+                  className={` col-lg-5 col-sm-6 rounded-4 p-2 mr-5 my-5 border-dark text-dark`}
+                  style={{
+                    fontSize: "15px",
+                    backgroundColor: "#D5DED9",
+                  }}
+                  onClick={(e) => {
+                    handleLogout(navigate, e);
+                  }}
+                >
+                  <strong>Log out</strong>
+                </Button>
+
+                <Button //update button: triggers three events when run successfully
+                  className={`col-lg-5 col-sm-6 rounded-4 p-2 ml-5 m-auto border-dark text-dark`}
+                  style={{
+                    fontSize: "15px",
+                    backgroundColor: "#42d38b",
+                  }}
+                  onClick={() => {
+                    updateProfile({
+                      username,
+                      avatar_url,
+                    });
+                    alert("updated");
+                    navigate("/listingspage");
+                  }}
+                >
+                  <strong>{loading ? "Updating" : "Update"}</strong>
+                </Button>
               </form>
             </div>
           </div>

@@ -18,11 +18,10 @@ const PasswordPage = () => {
     try {
       setLoading(true);
       const { error } = await supabaseClient.auth.api.resetPasswordForEmail(
-        email
+        email, {redirectTo: "http://localhost:3000/resetpage"}
       );
       if (error) throw error;
       alert("Sent");
-      navigate("/resetpage");
     } catch (error) {
       alert(error.message);
     } finally {

@@ -364,6 +364,8 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         return `${isOwnMessage ? "You" : ""} ${
           content === "MAKE_OFFER" ? "made an offer" : "accepted the offer"
         }`;
+      case "review":
+        return `${isOwnMessage ? "You" : ""} left a review`;
       default:
         return "unknown_message_type: " + type;
     }
@@ -1196,6 +1198,18 @@ const ChatModal = (props) => {
           });
           if (reviewError) throw reviewError;
 
+          // Send review "message"
+          let { data: msgData, error: msgError } = await supabase
+            .from("messages")
+            .insert({
+              recipient_id: user_id,
+              payload: {
+                review: true,
+              },
+              convo_id: presetData.chat_id,
+            })
+            .single();
+
           // Update conversations to indicate completion of review
           let { error: convoError } = await supabase
             .from("conversations")
@@ -1204,6 +1218,7 @@ const ChatModal = (props) => {
                 self_pos === 0
                   ? [true, otherHasReviewed]
                   : [otherHasReviewed, true],
+              last_msg: msgData.id,
             })
             .eq("id", presetData.chat_id);
           if (convoError) throw convoError;

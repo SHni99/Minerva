@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import moment from "moment";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
+import Rating from "components/Rating/Rating";
 import { supabaseClient as supabase } from "config/supabase-client";
 import {
   Avatar,
@@ -21,18 +22,42 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import chatPageStyles from "./chatPage.module.css";
+import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import Modal from "react-bootstrap/Modal";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 const ChatPage = () => {
   const { state } = useLocation();
   const startChatData = state ? state.startChatData : null;
+
+  const unusedModalState = {
+    show: false,
+    title: "",
+    body: "",
+    footer: "",
+    centerBody: false,
+    centerFooter: false,
+    presetData: null,
+  };
+  const [modalState, setModalState] = useState(unusedModalState);
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ChatPageBody startChatData={startChatData} />
+      <ChatModal
+        handleClose={() => setModalState(unusedModalState)}
+        data={modalState}
+      />
+      <ChatPageBody
+        startChatData={startChatData}
+        setModalState={setModalState}
+        unusedModalState={unusedModalState}
+      />
       <FooterBar />
     </div>
   );
@@ -40,7 +65,7 @@ const ChatPage = () => {
 
 export default ChatPage;
 
-const ChatPageBody = ({ startChatData }) => {
+const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
@@ -49,14 +74,16 @@ const ChatPageBody = ({ startChatData }) => {
 
   /* Array of objects which represent a message each.
      Structure: {
+       id,
        time (ISO format),
-       type (text/image),
+       type (text/image/offer),
        content,
        isOwnMessage (true if sent by current user)
      }
   */
   const [messages, setMessages] = useState([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const fileInput = useRef(null);
 
   /* The data containing the conversations to be loaded under the ConversationList.
      Stored as an object of objects.
@@ -64,9 +91,13 @@ const ChatPageBody = ({ startChatData }) => {
      Value:
      {
        user_id,
+       self_pos (0 or 1 -- position in `participants`/`acknowledgement`),
        name,
        src,
-       message
+       message,
+       actionState,
+       hasReviewed,
+       otherHasReviewed
      } 
   */
   const [conversations, setConversations] = useState([]);
@@ -96,30 +127,193 @@ const ChatPageBody = ({ startChatData }) => {
   };
 
   const generateSingleMessage = (msgData, position) => {
-    const { time, content, type, isOwnMessage } = msgData;
+    const { id, time, content, type, isOwnMessage } = msgData;
     const lastOrSingle = position === "last" || position === "single";
-    return (
-      <Message
-        key={"message" + time}
-        model={{
-          message: content.replace("&nbsp; ", "\n"),
-          direction: isOwnMessage ? "outgoing" : "incoming",
-          position,
-        }}
-        type={type}
-        avatarSpacer={!isOwnMessage && !lastOrSingle}
-      >
-        {!isOwnMessage && lastOrSingle && (
-          <Avatar src={conversations[activeChatId].src} className="mb-3" />
-        )}
-        {lastOrSingle && (
-          <Message.Footer
-            sentTime={moment(time).format("LT")}
-            className={chatPageStyles["msg-footer"]}
-          />
-        )}
-      </Message>
-    );
+    switch (type) {
+      case "text":
+        return (
+          <Message
+            key={"text-" + time}
+            model={{
+              message: content.replace("&nbsp; ", "\n"),
+              direction: isOwnMessage ? "outgoing" : "incoming",
+              position,
+            }}
+            type={"text"}
+            avatarSpacer={!isOwnMessage && !lastOrSingle}
+          >
+            {!isOwnMessage && lastOrSingle && (
+              <Avatar src={conversations[activeChatId].src} className="mb-3" />
+            )}
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={chatPageStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
+      case "image":
+        return (
+          <Message
+            key={"image-" + time}
+            model={{
+              direction: isOwnMessage ? "outgoing" : "incoming",
+              position,
+            }}
+            type={"image"}
+            avatarSpacer={!isOwnMessage && !lastOrSingle}
+          >
+            {!isOwnMessage && lastOrSingle && (
+              <Avatar src={conversations[activeChatId].src} className="mb-3" />
+            )}
+            <Message.CustomContent>
+              <img
+                src={content}
+                width={window.innerWidth / (window.innerWidth < 768 ? 2 : 4)}
+                alt="Sent message"
+                onClick={() => {
+                  const modalStateTemplate = {
+                    show: true,
+                    title: "View Image",
+                    body: <img src={content} alt="Preview" />,
+                    centerBody: true,
+                  };
+                  const footers = [
+                    <Button
+                      variant="danger"
+                      className="px-3"
+                      onClick={() =>
+                        setModalState({
+                          ...modalStateTemplate,
+                          footer: footers[1],
+                          centerFooter: true,
+                        })
+                      }
+                    >
+                      Delete
+                    </Button>,
+                    <p className="text-center">
+                      Are you sure? <br />
+                      <Button
+                        variant="danger"
+                        onClick={async () => {
+                          setModalState({
+                            ...modalStateTemplate,
+                            footer: footers[2],
+                            centerFooter: true,
+                          });
+                          await deleteImg(content, id);
+                          setModalState(unusedModalState);
+                        }}
+                        className="px-4 mx-2"
+                      >
+                        Yes
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() =>
+                          setModalState({
+                            ...modalStateTemplate,
+                            footer: footers[0],
+                          })
+                        }
+                        className="px-4 mx-2"
+                      >
+                        No
+                      </Button>
+                    </p>,
+                    <Spinner animation="border" />,
+                  ];
+                  setModalState({
+                    ...modalStateTemplate,
+                    footer: isOwnMessage && footers[0],
+                  });
+                }}
+                style={{ cursor: "pointer" }}
+              />
+            </Message.CustomContent>
+          </Message>
+        );
+      case "offer":
+        return (
+          <Message
+            key={"offer-" + time}
+            model={{
+              direction: isOwnMessage ? "outgoing" : "incoming",
+              position,
+            }}
+            type={"custom"}
+            avatarSpacer={!isOwnMessage && !lastOrSingle}
+          >
+            {!isOwnMessage && lastOrSingle && (
+              <Avatar src={conversations[activeChatId].src} className="mb-3" />
+            )}
+            <Message.CustomContent className="text-center p-3">
+              <h4>
+                {content === "MAKE_OFFER"
+                  ? isOwnMessage
+                    ? "You made an offer!"
+                    : "Wants to make a deal!"
+                  : isOwnMessage
+                  ? "You accepted the offer!"
+                  : "Accepted your offer!"}
+              </h4>
+              <p className="py-0 my-1">
+                {content === "MAKE_OFFER"
+                  ? isOwnMessage
+                    ? "You can leave a review once your offer is accepted."
+                    : "Accept the deal by clicking the button above."
+                  : "You can now leave reviews for each other."}
+              </p>
+            </Message.CustomContent>
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={chatPageStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
+      case "review":
+        return (
+          <Message
+            key={"review-" + time}
+            model={{
+              direction: isOwnMessage ? "outgoing" : "incoming",
+              position,
+            }}
+            type={"custom"}
+            avatarSpacer={!isOwnMessage && !lastOrSingle}
+          >
+            {!isOwnMessage && lastOrSingle && (
+              <Avatar src={conversations[activeChatId].src} className="mb-3" />
+            )}
+            <Message.CustomContent className="text-center p-3">
+              <h4>{isOwnMessage ? "You left a review!" : "Left a review!"}</h4>
+              <p className="py-0 my-1">
+                {isOwnMessage
+                  ? "Your review can be found under their profile."
+                  : "The review can be found under your profile."}
+              </p>
+            </Message.CustomContent>
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={chatPageStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
+      default:
+        return (
+          <Message key={"unknown-" + time}>
+            <Message.CustomContent>
+              unknown_message_type: {`(${type}, ${content})`}
+            </Message.CustomContent>
+          </Message>
+        );
+    }
   };
 
   // Helper function to generate array of Messsages from a single sender
@@ -145,32 +339,56 @@ const ChatPageBody = ({ startChatData }) => {
   };
 
   // Helper function to parse raw Supabase message data
-  const parseMessage = ({ created_at, sender_id, payload }) => {
+  const parseMessage = ({ id, created_at, sender_id, payload }) => {
     // Change this to expand the number of supported message types
-    // Currently only supports image and text content
-    const type = payload.imageUrl ? "image" : "text";
+    const type = Object.keys(payload)[0];
 
     // Change code here for content to expand supported content types
     return {
+      id,
       time: created_at,
       type,
-      content: payload[type === "image" ? "imageUrl" : "text"],
+      content: payload[type],
       isOwnMessage: sender_id === uid,
     };
   };
 
-  // Helper function to parse raw Supabase conversation data
-  const parseConvo = async ({ id, participants, messages }) => {
-    // Get the id in `participants` that is not equal to the current user id
-    const partnerId =
-      participants[0] === uid ? participants[1] : participants[0];
+  // Helper function to parse the latest message to be displayed
+  const parseLatestMsg = (isOwnMessage, type, content) => {
+    switch (type) {
+      case "text":
+        return `${isOwnMessage ? "You: " : ""}${content}`;
+      case "image":
+        return `${isOwnMessage ? "You" : ""} sent an Image`;
+      case "offer":
+        return `${isOwnMessage ? "You" : ""} ${
+          content === "MAKE_OFFER" ? "made an offer" : "accepted the offer"
+        }`;
+      case "review":
+        return `${isOwnMessage ? "You" : ""} left a review`;
+      default:
+        return "unknown_message_type: " + type;
+    }
+  };
 
-    // If the last message is sent by the user, prefix the message with a "You: "
-    // If the message is an image, display "(You:) sent an image" instead
+  // Helper function to parse raw Supabase conversation data
+  const parseConvo = async ({
+    id,
+    participants,
+    messages,
+    acknowledgement,
+    reviewed,
+  }) => {
+    const self_pos = participants.indexOf(uid);
+    const partnerId = participants[1 - self_pos];
+    const selfAck = acknowledgement[self_pos];
+    const otherAck = acknowledgement[1 - self_pos];
+    const hasReviewed = reviewed[self_pos];
+    const otherHasReviewed = reviewed[1 - self_pos];
+
+    const type = Object.keys(messages.payload)[0];
     const message = messages
-      ? `${messages.sender_id === uid ? "You: " : ""}${
-          messages.payload.imageUrl ? "sent an Image" : messages.payload.text
-        }`
+      ? parseLatestMsg(messages.sender_id === uid, type, messages.payload[type])
       : "";
 
     // Fetch username and avatar url from the profiles table
@@ -194,7 +412,91 @@ const ChatPageBody = ({ startChatData }) => {
       user_id: partnerId,
       message,
       src: avatarUrl,
+      actionState: selfAck * 2 + otherAck,
+      self_pos,
+      hasReviewed,
+      otherHasReviewed,
     };
+  };
+
+  const uploadImg = async (file) => {
+    try {
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${supabase.auth.user().id}/${Math.random()}.${fileExt}`;
+
+      // Upload image file
+      let { error: uploadError } = await supabase.storage
+        .from("chat-images")
+        .upload(filePath, file);
+      if (uploadError) throw uploadError;
+
+      // Get image public URL
+      let { publicURL, error: downloadError } = supabase.storage
+        .from("chat-images")
+        .getPublicUrl(filePath);
+      if (downloadError) throw downloadError;
+
+      // Send image as message
+      let { data: msgData, error: msgError } = await supabase
+        .from("messages")
+        .insert({
+          recipient_id: conversations[activeChatId].user_id,
+          convo_id: activeChatId,
+          payload: {
+            image: publicURL,
+          },
+        })
+        .single();
+      if (msgError) throw msgError;
+
+      let { error: convoError } = await supabase
+        .from("conversations")
+        .update({ last_msg: msgData.id })
+        .eq("id", activeChatId);
+      if (convoError) throw convoError;
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const deleteImg = async (publicURL, msgId) => {
+    const filePath = publicURL.split("/").slice(-2).join("/");
+    try {
+      let { data: msgData, error: msgError } = await supabase
+        .from("messages")
+        .select("id, payload")
+        .eq("convo_id", activeChatId)
+        .limit(2)
+        .order("created_at", { ascending: false });
+      if (msgError) throw msgError;
+
+      if (msgData[0].id === msgId) {
+        // Latest message to be deleted
+        // Need to roll back latest message by 1
+
+        // Update conversations to reflect latest message
+        let { error: convoError } = await supabase
+          .from("conversations")
+          .update({ last_msg: (msgData[1] || { id: "" }).id })
+          .eq("id", activeChatId);
+        if (convoError) throw convoError;
+      }
+
+      // Delete message
+      let { error: deleteMsgError } = await supabase
+        .from("messages")
+        .delete()
+        .match({ id: msgId });
+      if (deleteMsgError) throw deleteMsgError;
+
+      // Delete image from storage
+      let { error: deleteImgError } = await supabase.storage
+        .from("chat-images")
+        .remove([filePath]);
+      if (deleteImgError) throw deleteImgError;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // Handles the onClick event for the Conversation items (the left sidebar)
@@ -203,6 +505,110 @@ const ChatPageBody = ({ startChatData }) => {
     setActiveChatId(chatId);
   };
 
+  const handleOffers = async (isMakingOffer) => {
+    const { user_id, self_pos, actionState } = conversations[activeChatId];
+    try {
+      // Send "message" to notify of action
+      let { data: msgData, error: msgError } = await supabase
+        .from("messages")
+        .insert({
+          recipient_id: user_id,
+          convo_id: activeChatId,
+          payload: {
+            offer: isMakingOffer ? "MAKE_OFFER" : "ACCEPT_OFFER",
+          },
+        })
+        .single();
+      if (msgError) throw msgError;
+
+      const selfAck = true;
+      const otherAck = Boolean(actionState % 2);
+
+      // Update latest message + acknowledgement state in conversations table
+      let { error: convoError } = await supabase
+        .from("conversations")
+        .update({
+          last_msg: msgData.id,
+          acknowledgement:
+            self_pos === 0 ? [selfAck, otherAck] : [otherAck, selfAck],
+        })
+        .eq("id", activeChatId);
+      if (convoError) throw convoError;
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  // Handles the onClick event for the action button on the Conversation Header
+  const handleActionClick = async (actionState) => {
+    switch (actionState) {
+      case 0:
+        setModalState({
+          show: true,
+          title: "Confirm Offer",
+          body: "You are about to make an offer. This action cannot be undone.",
+          footer: (
+            <>
+              <Button
+                onClick={() => {
+                  handleOffers(true);
+                  setModalState(unusedModalState);
+                }}
+              >
+                Confirm
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => setModalState(unusedModalState)}
+              >
+                Cancel
+              </Button>
+            </>
+          ),
+        });
+        break;
+      case 1:
+        setModalState({
+          show: true,
+          title: "Accept Offer",
+          body: "You are about to accept an offer. This action cannot be undone.",
+          footer: (
+            <>
+              <Button
+                onClick={() => {
+                  handleOffers(false);
+                  setModalState(unusedModalState);
+                }}
+              >
+                Confirm
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => setModalState(unusedModalState)}
+              >
+                Cancel
+              </Button>
+            </>
+          ),
+        });
+        break;
+      case 3:
+        setModalState({
+          show: true,
+          presetData: {
+            type: "review",
+            convo: conversations[activeChatId],
+            chat_id: activeChatId,
+          },
+        });
+        break;
+      default:
+        console.log("unknown action state: " + actionState);
+        break;
+    }
+  };
+
+  // Handles the sending of (text) messages
   const handleMsgSend = async (msg) => {
     try {
       // Handle starting of new chat
@@ -258,6 +664,59 @@ const ChatPageBody = ({ startChatData }) => {
     }
   };
 
+  // Handles image upload event
+  const handleImgUpload = (event) => {
+    if (
+      !event.target.files ||
+      event.target.files.length === 0 ||
+      !event.target.files[0].type.match(/image-*/)
+    ) {
+      alert("Please select a valid image to upload.");
+      return;
+    }
+    const file = event.target.files[0];
+    const modalStateTemplate = {
+      show: true,
+      title: "Image Preview",
+      body: (
+        <img
+          src={URL.createObjectURL(file)}
+          alt="Preview"
+          className="justify-self-center"
+        />
+      ),
+      centerBody: true,
+    };
+    setModalState({
+      ...modalStateTemplate,
+      footer: (
+        <>
+          <Button
+            onClick={async () => {
+              setModalState({
+                ...modalStateTemplate,
+                footer: (
+                  <Spinner animation="border" className="justify-self-center" />
+                ),
+                centerFooter: true,
+              });
+              await uploadImg(file);
+              setModalState(unusedModalState);
+            }}
+          >
+            Send
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => setModalState(unusedModalState)}
+          >
+            Cancel
+          </Button>
+        </>
+      ),
+    });
+  };
+
   // Fetches messages in chat
   // Runs whenever activeChatId changes
   useEffect(() => {
@@ -265,14 +724,14 @@ const ChatPageBody = ({ startChatData }) => {
       setMessages({});
       return;
     }
-    // Loads old messages and listens for any new messages
+    // Loads old messages and listens for any new/deleted messages
     const getOldMessages = async () => {
       try {
         setLoadingMessages(true);
 
         let { data, error } = await supabase
           .from("messages")
-          .select("created_at, sender_id, payload")
+          .select("id, created_at, sender_id, payload")
           .eq("convo_id", activeChatId)
           .order("created_at", { ascending: true });
         if (error) throw error;
@@ -297,6 +756,11 @@ const ChatPageBody = ({ startChatData }) => {
           parseMessage(payload.new),
         ])
       )
+      .on("DELETE", (payload) =>
+        setMessages((oldMessages) =>
+          [...oldMessages].filter((oldMsg) => oldMsg.id !== payload.old.id)
+        )
+      )
       .subscribe();
 
     return () => supabase.removeSubscription(msgSub);
@@ -318,15 +782,36 @@ const ChatPageBody = ({ startChatData }) => {
         // Fetch data from conversations and messages table
         let { data: convoData, error: convoError } = await supabase
           .from("conversations")
-          .select("id, participants, messages(sender_id, payload)")
+          .select(
+            "id, participants, acknowledgement, reviewed, messages(sender_id, payload)"
+          )
           .order("created_at", { ascending: false, foreignTable: "messages" });
         if (convoError) throw convoError;
 
         // Convert each row of convoData into the appropriate format for `conversations`
         let newConversations = await Promise.all(convoData.map(parseConvo));
         newConversations = newConversations.reduce((res, convo) => {
-          const { chat_id, name, user_id, message, src } = convo;
-          res[chat_id] = { name, user_id, message, src };
+          const {
+            chat_id,
+            name,
+            user_id,
+            message,
+            src,
+            actionState,
+            self_pos,
+            hasReviewed,
+            otherHasReviewed,
+          } = convo;
+          res[chat_id] = {
+            name,
+            user_id,
+            message,
+            src,
+            actionState,
+            self_pos,
+            hasReviewed,
+            otherHasReviewed,
+          };
           return res;
         }, {});
 
@@ -343,6 +828,9 @@ const ChatPageBody = ({ startChatData }) => {
               user_id,
               src,
               message: "",
+              actionState: 0,
+              self_pos: 0,
+              hasReviewed: false,
             };
           }
           setConversations(newConversations);
@@ -362,20 +850,31 @@ const ChatPageBody = ({ startChatData }) => {
     // Subscribe to INSERT and UPDATE events
     const convoSub = supabase
       .from("conversations")
-      .on("UPDATE", async (payload) => {
+      .on("UPDATE", async (updated) => {
+        const { id, participants, last_msg, acknowledgement, reviewed } =
+          updated.new;
+        const self_pos = participants.indexOf(uid);
         try {
-          let { data, error } = await supabase
+          let { data: message, error: msgError } = await supabase
             .from("messages")
             .select("sender_id, payload")
-            .eq("id", payload.new.last_msg)
+            .eq("id", last_msg)
             .single();
-          if (error) throw error;
+          if (msgError) throw msgError;
 
           setConversations((oldConversations) => {
             const newConversations = { ...oldConversations };
-            newConversations[payload.new.id].message = `${
-              data.sender_id === uid ? "You: " : ""
-            }${data.payload.imageUrl ? "sent an Image" : data.payload.text}`;
+
+            const type = Object.keys(message.payload)[0];
+            newConversations[id].message = parseLatestMsg(
+              message.sender_id === uid,
+              type,
+              message.payload[type]
+            );
+            newConversations[id].actionState =
+              acknowledgement[self_pos] * 2 + acknowledgement[1 - self_pos];
+            newConversations[id].hasReviewed = reviewed[self_pos];
+            newConversations[id].otherHasReviewed = reviewed[1 - self_pos];
 
             return newConversations;
           });
@@ -385,12 +884,12 @@ const ChatPageBody = ({ startChatData }) => {
       })
       .on("INSERT", async (payload) => {
         const newConvo = await parseConvo(payload.new);
-        const { chat_id, name, user_id, message, src } = newConvo;
+        const { chat_id, name, user_id, message, src, actionState } = newConvo;
         const tempChatId = `temp-${user_id}`;
 
         setConversations((oldConvos) => {
           const newConvos = { ...oldConvos };
-          newConvos[chat_id] = { name, user_id, message, src };
+          newConvos[chat_id] = { name, user_id, message, src, actionState };
           return newConvos;
         });
 
@@ -545,6 +1044,7 @@ const ChatPageBody = ({ startChatData }) => {
                       },
                     })
                   }
+                  style={{ cursor: "pointer" }}
                 />
                 <ConversationHeader.Content
                   userName={conversations[activeChatId].name}
@@ -556,7 +1056,28 @@ const ChatPageBody = ({ startChatData }) => {
                       },
                     })
                   }
+                  style={{ cursor: "pointer" }}
                 />
+                <ConversationHeader.Actions>
+                  <Button
+                    onClick={() =>
+                      handleActionClick(conversations[activeChatId].actionState)
+                    }
+                    disabled={
+                      conversations[activeChatId].actionState === 2 ||
+                      conversations[activeChatId].hasReviewed
+                    }
+                  >
+                    {
+                      [
+                        "Make Offer",
+                        "Accept Offer",
+                        "Make Offer",
+                        "Leave Review",
+                      ][conversations[activeChatId].actionState]
+                    }
+                  </Button>
+                </ConversationHeader.Actions>
               </ConversationHeader>
             }
 
@@ -616,10 +1137,220 @@ const ChatPageBody = ({ startChatData }) => {
               placeholder="Your message here..."
               className={`${chatPageStyles["message-input"]}`}
               onSend={handleMsgSend}
-            />
+              onAttachClick={() => fileInput.current.click()}
+            ></MessageInput>
           </ChatContainer>
         )}
       </MainContainer>
+
+      {/* File selector used to upload images.
+      Hidden from view, only accessible via the attach image icon on the input bar. */}
+      <input
+        type="file"
+        ref={fileInput}
+        style={{ display: "none" }}
+        onChange={handleImgUpload}
+        accept="image/*"
+      />
     </div>
+  );
+};
+
+const ChatModal = (props) => {
+  const { handleClose, data } = props;
+  const { show, title, body, centerBody, footer, centerFooter, presetData } =
+    data;
+  const unusedModalState = {
+    rating: 0,
+    reviewText: "",
+    footerState: 0,
+    validation: {},
+  };
+  const [modalState, setModalState] = useState(unusedModalState);
+  const getStateSetter = (stateKey) => (stateVal) =>
+    setModalState((oldState) => {
+      const newState = { ...oldState };
+      newState[stateKey] = stateVal;
+      return newState;
+    });
+
+  if (presetData) {
+    if (presetData.type === "review") {
+      const { user_id, name, src, self_pos, otherHasReviewed } =
+        presetData.convo;
+      const setRating = getStateSetter("rating");
+      const setReviewText = getStateSetter("reviewText");
+      const setFooterState = getStateSetter("footerState");
+      const setValidation = getStateSetter("validation");
+      const exitModal = () => {
+        setModalState(unusedModalState);
+        handleClose();
+      };
+
+      const insertReview = async () => {
+        const { rating, reviewText } = modalState;
+        try {
+          // Insert to reviews table
+          let { error: reviewError } = await supabase.from("reviews").insert({
+            index: rating,
+            textbox: reviewText,
+            reviewee_id: user_id,
+          });
+          if (reviewError) throw reviewError;
+
+          // Send review "message"
+          let { data: msgData, error: msgError } = await supabase
+            .from("messages")
+            .insert({
+              recipient_id: user_id,
+              payload: {
+                review: true,
+              },
+              convo_id: presetData.chat_id,
+            })
+            .single();
+          if (msgError) throw msgError;
+
+          // Update conversations to indicate completion of review
+          let { error: convoError } = await supabase
+            .from("conversations")
+            .update({
+              reviewed:
+                self_pos === 0
+                  ? [true, otherHasReviewed]
+                  : [otherHasReviewed, true],
+              last_msg: msgData.id,
+            })
+            .eq("id", presetData.chat_id);
+          if (convoError) throw convoError;
+        } catch (error) {
+          alert(error.message);
+        }
+      };
+
+      const footers = [
+        <>
+          <Button onClick={() => setFooterState(1)}>Submit</Button>
+          <Button variant="secondary" onClick={exitModal}>
+            Cancel
+          </Button>
+        </>,
+        <p className="text-center">
+          Confirm submission? <br />
+          <Button
+            className="mx-2 px-3"
+            onClick={async () => {
+              const { rating, reviewText } = modalState;
+              // Input validation
+              if (!rating || !reviewText) {
+                setValidation({
+                  ...modalState.validation,
+                  rating: rating > 0 || "This is a required field",
+                  reviewText: reviewText !== "" || "This is a required field",
+                });
+                return;
+              }
+
+              // Show loading spinner
+              setFooterState(2);
+
+              // Insert review to Supabase
+              await insertReview();
+
+              // Clear modal and exit
+              exitModal();
+            }}
+          >
+            Yes
+          </Button>
+          <Button
+            variant="secondary"
+            className="mx-2"
+            onClick={() => setFooterState(0)}
+          >
+            No
+          </Button>
+        </p>,
+        <Spinner animation="border" />,
+      ];
+
+      return (
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Leave Review</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Container fluid>
+              <Row className="pb-3">
+                <Col xs="auto" className="ps-2">
+                  <Avatar src={src} size="lg" />
+                </Col>
+                <Col xs="auto" className="align-center py-1">
+                  <Row className="nunito font-weight-bold text-lg">{name}</Row>
+                  <Row>
+                    <Rating
+                      setReviews={[modalState.rating, setRating]}
+                      ratingHover={true}
+                      className="px-0"
+                    />
+                  </Row>
+                  <Row>
+                    <p className="m-0 p-0 nunito text-danger">
+                      {!modalState.rating && modalState.validation?.rating}
+                    </p>
+                  </Row>
+                </Col>
+              </Row>
+              <Row className="px-1">
+                <textarea
+                  style={{
+                    borderRadius: "12px",
+                    resize: "none",
+                    height: "120px",
+                    borderColor: "var(--gray500---98a2b3)",
+                    padding: "12px 16px",
+                  }}
+                  placeholder={`What do you think of ${name}?`}
+                  value={modalState.reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  maxLength={200}
+                ></textarea>
+                <p
+                  className="text-end text-xs mb-0"
+                  style={{
+                    color:
+                      modalState.reviewText.length < 200
+                        ? "var(--gray600---667085)"
+                        : "red",
+                  }}
+                >
+                  Characters remaining: {200 - modalState.reviewText.length}
+                </p>
+              </Row>
+              <Row>
+                <p className="m-0 nunito text-danger">
+                  {!modalState.reviewText && modalState.validation?.reviewText}
+                </p>
+              </Row>
+            </Container>
+          </Modal.Body>
+          <Modal.Footer>{footers[modalState.footerState]}</Modal.Footer>
+        </Modal>
+      );
+    }
+  }
+
+  return (
+    <Modal show={show} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>{title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body className={centerBody && "d-flex justify-center"}>
+        {body}
+      </Modal.Body>
+      <Modal.Footer className={centerFooter && "d-flex justify-content-center"}>
+        {footer}
+      </Modal.Footer>
+    </Modal>
   );
 };

@@ -7,9 +7,7 @@ const colors = {
   grey: "#a9a9a9",
 };
 
-const Rating = ({ setReviews, ratingHover, index: index1 }) => {
-
-
+const Rating = ({ setReviews, ratingHover, index: index1, className }) => {
   const [currentValue, setCurrentValue] = setReviews;
   const [hoverValue, setHoverValue] = useState(0);
   const handleClick = (value) => {
@@ -25,7 +23,7 @@ const Rating = ({ setReviews, ratingHover, index: index1 }) => {
   };
 
   return (
-    <div className={RatingStyle["contain"]}>
+    <div className={`${RatingStyle["contain"]} ${className}`}>
       {[...Array(5)].map((_, index) => {
         if (ratingHover) {
           return (

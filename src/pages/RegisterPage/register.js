@@ -244,14 +244,14 @@ const RegisterPagePage = () => {
                   )}
                 </div>
 
-                <div className=" row m-auto">
-                  <div className=" col-lg-7 nunitosans-normal-black-28px  text-right">
+                <div className=" row">
+                  <div className=" col-lg-7 col-sm-12 nunitosans-normal-black-28px text-right">
                     {`Have an account?`}
                   </div>
 
                   <button
                     className={
-                      "col-lg-4 nunitosans-bold-licorice-28px text-left"
+                      "col-lg-2 col-sm-12 nunitosans-bold-licorice-28px"
                     }
                     onClick={loginpage} //redirects to login page
                   >{`Log In`}</button>

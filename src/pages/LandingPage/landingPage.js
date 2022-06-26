@@ -113,7 +113,7 @@ const IntroSection = () => {
         >
           <Row>
             <h1 className={landingPageStyles["intro-header"]}>
-              Can't find suitable tutors/tutees?
+              Can't find suitable tutors or tutees?
             </h1>
           </Row>
           <Row>

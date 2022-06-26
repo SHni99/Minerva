@@ -225,9 +225,9 @@ const ProfilePageBody = (props) => {
                   onChange={(e) => setBio(e.target.value)}
                   className="form-control form-control-lg m-auto"
                 ></input>
-                <div className="row-lg-2 m-5">
+                
                   <Button //logout button: supabase logout function
-                    className={` col-lg-5 rounded-4 p-2 mr-5  w-1 border-dark text-dark`}
+                    className={` col-lg-5 col-sm-6 rounded-4 p-2 mr-5 my-5 border-dark text-dark`}
                     style={{
                       fontSize: "15px",
                       backgroundColor: "#D5DED9",
@@ -240,7 +240,7 @@ const ProfilePageBody = (props) => {
                   </Button>
 
                   <Button //update button: triggers three events when run successfully
-                    className={`col-lg-5 rounded-4 p-2 ml-5  w-1 border-dark text-dark`}
+                    className={`col-lg-5 col-sm-6 rounded-4 p-2 ml-5 m-auto border-dark text-dark`}
                     style={{
                       fontSize: "15px",
                       backgroundColor: "#42d38b",
@@ -256,7 +256,7 @@ const ProfilePageBody = (props) => {
                   >
                     <strong>{loading ? "Updating" : "Update"}</strong>
                   </Button>
-                </div>
+                
               </form>
             </div>
           </div>

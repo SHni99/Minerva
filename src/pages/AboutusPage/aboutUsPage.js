@@ -48,44 +48,44 @@ function AboutUsBody(props) {
 
   return (
     <div className={aboutUsStyles["body"]}>
-      <div
-        className={`${aboutUsStyles["about-us"]} poppins-semi-bold-black-64px`}
-      >
+      <div className={"row row-sm-12 mb-5 text-center poppins-semi-bold-black-64px"}>
         About Us
       </div>
 
-      <div className={aboutUsStyles["team-particulars"]}>
-        <div className={aboutUsStyles["ni-shenghan"]}>
+      <div className={`row text-center`}>
+        <div className={`col-lg-4 col-sm-12 mr-auto `}>
           <div
-            className={aboutUsStyles["avatarmaster"]}
+            className={`${aboutUsStyles["avatarmaster"]}`}
             style={{ backgroundImage: `url(${shenghanImgUrl})` }}
           />
+          <div className="row">
           <div
-            className={`${aboutUsStyles["ni-shenghan-1"]} poppins-semi-bold-black-24px`}
+            className={` poppins-semi-bold-black-24px`}
           >
             Ni Shenghan
           </div>
           <div
-            className={`${aboutUsStyles["ni-shenghan-2"]} poppins-normal-black-24px`}
+            className={` poppins-normal-black-24px`}
           >
             Telegram: @boba_fatt
             <br />
             GitHub: SHni99
           </div>
+          </div>
         </div>
 
-        <div className={aboutUsStyles["kok-chun-zhi"]}>
+        <div className={`col-lg-4 col-sm-12 ml-auto `}>
           <div
-            className={aboutUsStyles["avatarmaster"]}
+            className={`${aboutUsStyles["avatarmaster"]}`}
             style={{ backgroundImage: `url(${chunzhiImgUrl})` }}
           />
           <div
-            className={`${aboutUsStyles["kok-chun-zhi-1"]} poppins-semi-bold-black-24px`}
+            className={`poppins-semi-bold-black-24px`}
           >
-            Kok Chun Zhi
+           Kok Chun Zhi
           </div>
           <div
-            className={`${aboutUsStyles["kok-chun-zhi-2"]} poppins-normal-black-24px`}
+            className={`poppins-normal-black-24px`}
           >
             Telegram: @kokcz
             <br />
@@ -96,13 +96,13 @@ function AboutUsBody(props) {
 
       <div className={aboutUsStyles["divider-master"]}></div>
 
-      <div className={`${aboutUsStyles["intro-text"]} inter-normal-black-24px`}>
+      <div className={`row-sm-12 text-center inter-normal-black-24px`}>
         {introText}
       </div>
 
       <div className={aboutUsStyles["divider-master"]}></div>
 
-      <div className={aboutUsStyles["mission-text"]}>
+      <div className={"row-sm-12 text-center"}>
         <span className={`poppins-semi-bold-black-64px`}>
           Our mission
           <br />

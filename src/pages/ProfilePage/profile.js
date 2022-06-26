@@ -207,9 +207,10 @@ const ProfilePageBody = ({ creator_id }) => {
       <div className={viewprofileStyles["container-center-horizontal"]}>
         <div className={`${viewprofileStyles["home-inner"]} container-fluid`}>
           <div className="row align-self-center">
-            <div className="col-3 ">
+            <div className="col-lg-3 col-sm-12">
               <div className="col">
                 <img
+                  
                   src={
                     profileData.avatar_url || "/images/img_avatarDefault.jpg"
                   }
@@ -266,11 +267,11 @@ const ProfilePageBody = ({ creator_id }) => {
               </div>
             </div>
 
-            <div className="col-8">
+            <div className="col-lg-8 col-sm-12">
               <div className="row">
                 {checkUser || (
-                  <div className="row-lg-3 text-right">
-                    <div>
+                  <div className="row-lg-3">
+                    <div className="row-lg-3 text-right my-3">
                       <Button
                         className="bg-primary"
                         onClick={(e) => {
@@ -282,7 +283,7 @@ const ProfilePageBody = ({ creator_id }) => {
                       </Button>
                     </div>
 
-                    <div className="row-lg-3 my-7">
+                    <div className="row-lg-3 text-right my-3">
                       <div>
                         <Button
                           className="bg-primary"

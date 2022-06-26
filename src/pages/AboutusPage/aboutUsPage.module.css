@@ -133,9 +133,9 @@
   background-position: 50% 50%;
   background-size: cover;
   border-radius: 200px;
-  height: 256px;
-  margin-top: -293px;
-  width: 256px;
+  height: 200px;
+  width: 200px;
+  align-items: center;
 }
 
 .avatarmaster.avatarmaster-1 {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
+import Rating from "components/Rating/Rating";
 import { supabaseClient as supabase } from "config/supabase-client";
 import {
   Avatar,
@@ -24,6 +25,9 @@ import chatPageStyles from "./chatPage.module.css";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Modal from "react-bootstrap/Modal";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 const ChatPage = () => {
   const { state } = useLocation();
@@ -34,6 +38,9 @@ const ChatPage = () => {
     title: "",
     body: "",
     footer: "",
+    centerBody: false,
+    centerFooter: false,
+    presetData: null,
   };
   const [modalState, setModalState] = useState(unusedModalState);
 
@@ -67,6 +74,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
 
   /* Array of objects which represent a message each.
      Structure: {
+       id,
        time (ISO format),
        type (text/image/offer),
        content,
@@ -87,7 +95,8 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
        name,
        src,
        message,
-       actionState
+       actionState,
+       hasReviewed
      } 
   */
   const [conversations, setConversations] = useState([]);
@@ -117,7 +126,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
   };
 
   const generateSingleMessage = (msgData, position) => {
-    const { time, content, type, isOwnMessage } = msgData;
+    const { id, time, content, type, isOwnMessage } = msgData;
     const lastOrSingle = position === "last" || position === "single";
     switch (type) {
       case "text":
@@ -167,6 +176,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                     show: true,
                     title: "View Image",
                     body: <img src={content} alt="Preview" />,
+                    centerBody: true,
                   };
                   const footers = [
                     <Button
@@ -186,12 +196,14 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       Are you sure? <br />
                       <Button
                         variant="danger"
-                        onClick={() => {
+                        onClick={async () => {
                           setModalState({
                             ...modalStateTemplate,
                             footer: footers[2],
                             centerFooter: true,
                           });
+                          await deleteImg(content, id);
+                          setModalState(unusedModalState);
                         }}
                         className="px-4 mx-2"
                       >
@@ -213,9 +225,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                     <Spinner animation="border" />,
                   ];
                   setModalState({
-                    show: true,
-                    title: "View Image",
-                    body: <img src={content} alt="Preview" />,
+                    ...modalStateTemplate,
                     footer: isOwnMessage && footers[0],
                   });
                 }}
@@ -298,12 +308,13 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
   };
 
   // Helper function to parse raw Supabase message data
-  const parseMessage = ({ created_at, sender_id, payload }) => {
+  const parseMessage = ({ id, created_at, sender_id, payload }) => {
     // Change this to expand the number of supported message types
     const type = Object.keys(payload)[0];
 
     // Change code here for content to expand supported content types
     return {
+      id,
       time: created_at,
       type,
       content: payload[type],
@@ -333,20 +344,13 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     participants,
     messages,
     acknowledgement,
+    reviewed,
   }) => {
-    let partnerId = "";
-    let selfAck = false;
-    let otherAck = false;
-    let self_pos = 0;
-
-    if (participants[0] === uid) {
-      partnerId = participants[1];
-      [selfAck, otherAck] = acknowledgement;
-    } else {
-      partnerId = participants[0];
-      [otherAck, selfAck] = acknowledgement;
-      self_pos = 1;
-    }
+    const self_pos = participants.indexOf(uid);
+    const partnerId = participants[1 - self_pos];
+    const selfAck = acknowledgement[self_pos];
+    const otherAck = acknowledgement[1 - self_pos];
+    const hasReviewed = reviewed[self_pos];
 
     const type = Object.keys(messages.payload)[0];
     const message = messages
@@ -376,6 +380,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       src: avatarUrl,
       actionState: selfAck * 2 + otherAck,
       self_pos,
+      hasReviewed,
     };
   };
 
@@ -416,6 +421,46 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       if (convoError) throw convoError;
     } catch (error) {
       alert(error.message);
+    }
+  };
+
+  const deleteImg = async (publicURL, msgId) => {
+    const filePath = publicURL.split("/").slice(-2).join("/");
+    try {
+      let { data: msgData, error: msgError } = await supabase
+        .from("messages")
+        .select("id, payload")
+        .eq("convo_id", activeChatId)
+        .limit(2)
+        .order("created_at", { ascending: false });
+      if (msgError) throw msgError;
+
+      if (msgData[0].id === msgId) {
+        // Latest message to be deleted
+        // Need to roll back latest message by 1
+
+        // Update conversations to reflect latest message
+        let { error: convoError } = await supabase
+          .from("conversations")
+          .update({ last_msg: (msgData[1] || { id: "" }).id })
+          .eq("id", activeChatId);
+        if (convoError) throw convoError;
+      }
+
+      // Delete message
+      let { error: deleteMsgError } = await supabase
+        .from("messages")
+        .delete()
+        .match({ id: msgId });
+      if (deleteMsgError) throw deleteMsgError;
+
+      // Delete image from storage
+      let { error: deleteImgError } = await supabase.storage
+        .from("chat-images")
+        .remove([filePath]);
+      if (deleteImgError) throw deleteImgError;
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -513,6 +558,14 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         });
         break;
       case 3:
+        setModalState({
+          show: true,
+          presetData: {
+            type: "review",
+            convo: conversations[activeChatId],
+          },
+        });
+        break;
       default:
         console.log("unknown action state: " + actionState);
         break;
@@ -596,6 +649,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
           className="justify-self-center"
         />
       ),
+      centerBody: true,
     };
     setModalState({
       ...modalStateTemplate,
@@ -634,14 +688,14 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       setMessages({});
       return;
     }
-    // Loads old messages and listens for any new messages
+    // Loads old messages and listens for any new/deleted messages
     const getOldMessages = async () => {
       try {
         setLoadingMessages(true);
 
         let { data, error } = await supabase
           .from("messages")
-          .select("created_at, sender_id, payload")
+          .select("id, created_at, sender_id, payload")
           .eq("convo_id", activeChatId)
           .order("created_at", { ascending: true });
         if (error) throw error;
@@ -666,6 +720,11 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
           parseMessage(payload.new),
         ])
       )
+      .on("DELETE", (payload) =>
+        setMessages((oldMessages) =>
+          [...oldMessages].filter((oldMsg) => oldMsg.id !== payload.old.id)
+        )
+      )
       .subscribe();
 
     return () => supabase.removeSubscription(msgSub);
@@ -688,7 +747,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         let { data: convoData, error: convoError } = await supabase
           .from("conversations")
           .select(
-            "id, participants, acknowledgement, messages(sender_id, payload)"
+            "id, participants, acknowledgement, reviewed, messages(sender_id, payload)"
           )
           .order("created_at", { ascending: false, foreignTable: "messages" });
         if (convoError) throw convoError;
@@ -704,8 +763,17 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             src,
             actionState,
             self_pos,
+            hasReviewed,
           } = convo;
-          res[chat_id] = { name, user_id, message, src, actionState, self_pos };
+          res[chat_id] = {
+            name,
+            user_id,
+            message,
+            src,
+            actionState,
+            self_pos,
+            hasReviewed,
+          };
           return res;
         }, {});
 
@@ -724,6 +792,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
               message: "",
               actionState: 0,
               self_pos: 0,
+              hasReviewed: false,
             };
           }
           setConversations(newConversations);
@@ -743,34 +812,30 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     // Subscribe to INSERT and UPDATE events
     const convoSub = supabase
       .from("conversations")
-      .on("UPDATE", async (payload) => {
+      .on("UPDATE", async (updated) => {
+        const { id, participants, last_msg, acknowledgement, reviewed } =
+          updated.new;
+        const self_pos = participants.indexOf(uid);
         try {
-          let { data, error } = await supabase
+          let { data: message, error: msgError } = await supabase
             .from("messages")
             .select("sender_id, payload")
-            .eq("id", payload.new.last_msg)
+            .eq("id", last_msg)
             .single();
-          if (error) throw error;
+          if (msgError) throw msgError;
 
           setConversations((oldConversations) => {
             const newConversations = { ...oldConversations };
-            const type = Object.keys(data.payload)[0];
-            let selfAck = false;
-            let otherAck = false;
 
-            newConversations[payload.new.id].message = parseLatestMsg(
-              data.sender_id === uid,
+            const type = Object.keys(message.payload)[0];
+            newConversations[id].message = parseLatestMsg(
+              message.sender_id === uid,
               type,
-              data.payload[type]
+              message.payload[type]
             );
-
-            if (payload.new.participants[0] === uid) {
-              [selfAck, otherAck] = payload.new.acknowledgement;
-            } else {
-              [otherAck, selfAck] = payload.new.acknowledgement;
-            }
-            newConversations[payload.new.id].actionState =
-              selfAck * 2 + otherAck;
+            newConversations[id].actionState =
+              acknowledgement[self_pos] * 2 + acknowledgement[1 - self_pos];
+            newConversations[id].hasReviewed = reviewed[self_pos];
 
             return newConversations;
           });
@@ -940,6 +1005,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       },
                     })
                   }
+                  style={{ cursor: "pointer" }}
                 />
                 <ConversationHeader.Content
                   userName={conversations[activeChatId].name}
@@ -951,13 +1017,17 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       },
                     })
                   }
+                  style={{ cursor: "pointer" }}
                 />
                 <ConversationHeader.Actions>
                   <Button
                     onClick={() =>
                       handleActionClick(conversations[activeChatId].actionState)
                     }
-                    disabled={conversations[activeChatId].actionState === 2}
+                    disabled={
+                      conversations[activeChatId].actionState === 2 ||
+                      conversations[activeChatId].hasReviewed
+                    }
                   >
                     {
                       [
@@ -1049,15 +1119,156 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
 
 const ChatModal = (props) => {
   const { handleClose, data } = props;
-  const { show, title, body, footer, centerFooter } = data;
-  console.log(centerFooter);
+  const { show, title, body, centerBody, footer, centerFooter, presetData } =
+    data;
+  const unusedModalState = {
+    rating: 0,
+    reviewText: "",
+    footerState: 0,
+    validation: {},
+  };
+  const [modalState, setModalState] = useState(unusedModalState);
+  const getStateSetter = (stateKey) => (stateVal) =>
+    setModalState((oldState) => {
+      const newState = { ...oldState };
+      newState[stateKey] = stateVal;
+      return newState;
+    });
+
+  if (presetData) {
+    if (presetData.type === "review") {
+      const { user_id, name, src } = presetData.convo;
+      const setRating = getStateSetter("rating");
+      const setReviewText = getStateSetter("reviewText");
+      const setFooterState = getStateSetter("footerState");
+      const setValidation = getStateSetter("validation");
+      const exitModal = () => {
+        setModalState(unusedModalState);
+        handleClose();
+      };
+
+      const insertReview = async () => {};
+
+      const footers = [
+        <>
+          <Button onClick={() => setFooterState(1)}>Submit</Button>
+          <Button variant="secondary" onClick={exitModal}>
+            Cancel
+          </Button>
+        </>,
+        <p className="text-center">
+          Confirm submission? <br />
+          <Button
+            className="mx-2 px-3"
+            onClick={async () => {
+              const { rating, reviewText } = modalState;
+              // Input validation
+              if (!rating || !reviewText) {
+                setValidation({
+                  ...modalState.validation,
+                  rating: rating > 0 || "This is a required field",
+                  reviewText: reviewText !== "" || "This is a required field",
+                });
+                return;
+              }
+
+              // Show loading spinner
+              setFooterState(2);
+
+              // Insert review to Supabase
+              await insertReview();
+
+              // Clear modal and exit
+              exitModal();
+            }}
+          >
+            Yes
+          </Button>
+          <Button
+            variant="secondary"
+            className="mx-2"
+            onClick={() => setFooterState(0)}
+          >
+            No
+          </Button>
+        </p>,
+        <Spinner animation="border" />,
+      ];
+
+      return (
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Leave Review</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Container fluid>
+              <Row className="pb-3">
+                <Col xs="auto" className="ps-2">
+                  <Avatar src={src} size="lg" />
+                </Col>
+                <Col xs="auto" className="align-center py-1">
+                  <Row className="nunito font-weight-bold text-lg">{name}</Row>
+                  <Row>
+                    <Rating
+                      setReviews={[modalState.rating, setRating]}
+                      ratingHover={true}
+                      className="px-0"
+                    />
+                  </Row>
+                  <Row>
+                    <p className="m-0 p-0 nunito text-danger">
+                      {!modalState.rating && modalState.validation?.rating}
+                    </p>
+                  </Row>
+                </Col>
+              </Row>
+              <Row className="px-1">
+                <textarea
+                  style={{
+                    borderRadius: "12px",
+                    resize: "none",
+                    height: "120px",
+                    borderColor: "var(--gray500---98a2b3)",
+                    padding: "12px 16px",
+                  }}
+                  placeholder={`What do you think of ${name}?`}
+                  value={modalState.reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  maxLength={200}
+                ></textarea>
+                <p
+                  className="text-end text-xs mb-0"
+                  style={{
+                    color:
+                      modalState.reviewText.length < 200
+                        ? "var(--gray600---667085)"
+                        : "red",
+                  }}
+                >
+                  Characters remaining: {200 - modalState.reviewText.length}
+                </p>
+              </Row>
+              <Row>
+                <p className="m-0 nunito text-danger">
+                  {!modalState.reviewText && modalState.validation?.reviewText}
+                </p>
+              </Row>
+            </Container>
+          </Modal.Body>
+          <Modal.Footer>{footers[modalState.footerState]}</Modal.Footer>
+        </Modal>
+      );
+    }
+  }
 
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
-      <Modal.Body className="d-flex justify-center">{body}</Modal.Body>
+      <Modal.Body className={centerBody && "d-flex justify-center"}>
+        {body}
+      </Modal.Body>
       <Modal.Footer className={centerFooter && "d-flex justify-content-center"}>
         {footer}
       </Modal.Footer>

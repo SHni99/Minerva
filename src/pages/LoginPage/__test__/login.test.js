@@ -107,13 +107,13 @@ describe("Form components", () => {
     const submitBtnElement = screen.getByRole("button", { name: /Log in/i });
     const passwordInputElement = screen.getByTestId("findpassword");
     const passwordErrorElement = screen.queryByText(
-      /Please enter a password with special case/i
+      /Please enter a password containing at least one SPECIAL CASE/i
     );
     expect(passwordErrorElement).not.toBeInTheDocument();
     userEvent.type(passwordInputElement, "123456");
     userEvent.click(submitBtnElement);
     const passwordErrorElementAgain = screen.queryByText(
-      /Please enter a password with special case/i
+      /Please enter a password containing at least one SPECIAL CASE/i
     );
     expect(passwordErrorElementAgain).toBeInTheDocument();
   });

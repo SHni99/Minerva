@@ -110,7 +110,7 @@ describe("Form components", () => {
       /Please enter a password containing at least one SPECIAL CASE/i
     );
     expect(passwordErrorElement).not.toBeInTheDocument();
-    userEvent.type(passwordInputElement, "123456");
+    userEvent.type(passwordInputElement, "1Exaam23456");
     userEvent.click(submitBtnElement);
     const passwordErrorElementAgain = screen.queryByText(
       /Please enter a password containing at least one SPECIAL CASE/i

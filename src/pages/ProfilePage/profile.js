@@ -229,15 +229,13 @@ const ProfilePageBody = ({ creator_id }) => {
                   overlay={popover}
                 >
                   <div className="row" style={{ cursor: "pointer" }}>
-                    <div className="col-5 ml-auto">
+                    <div className="d-flex flex-row text-xl justify-center">
                       <Rating
                         index={indexAll}
                         setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
                         ratinghover={ratinghover}
+                        className="px-2"
                       />
-                    </div>
-
-                    <div className="col-3 text-left">
                       {"(" + reviewData.length + ")"}
                     </div>
                   </div>

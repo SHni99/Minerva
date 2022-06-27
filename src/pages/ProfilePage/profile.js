@@ -41,7 +41,7 @@ const ProfilePageBody = ({ creator_id }) => {
   const [checkUser, setcheckUser] = useState(false);
   const [currentValue, setCurrentValue] = useState(false);
   const [indexAll, setIndexAll] = useState("");
-  const checkId = supabaseClient.auth.user().id;
+  const checkId = supabaseClient.auth.user()?.id || "";
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);

@@ -161,16 +161,15 @@ const LoginPage = () => {
                   )}
                 </div>
                 <div className="row m-3">
-                  <div className=" col-lg-7 nunitosans-normal-black-28px d-flex justify-center justify-content-lg-end">
-                    {`Don’t have an account?`}
-                  </div>
-
-                  <button
-                    className={
-                      "col-lg-2 nunitosans-bold-licorice-28px d-flex justify-center"
-                    }
-                    onClick={registerPage} //redirects to register page
-                  >{`Sign up`}</button>
+                  <p className="nunitosans-normal-black-28px">
+                    Don’t have an account?
+                    <button
+                      className={"nunitosans-bold-licorice-28px px-2"}
+                      onClick={registerPage} //redirects to register page
+                    >
+                      Sign up
+                    </button>
+                  </p>
                 </div>
               </div>
             </div>

@@ -89,7 +89,7 @@ const IntroSection = () => {
               switchPageLogin(navigate, e);
             }}
           >
-            {supabaseClient.auth.user()? "My Profile" : "Login"}
+            {supabaseClient.auth.user() ? "My Profile" : "Login"}
           </Button>
           <Button variant="light m-2" onClick={(e) => {
               switchPageRegister(navigate, e);
@@ -126,7 +126,11 @@ const IntroSection = () => {
           </Row>
           <Row>
             <Col xs={12} md="auto" className="d-flex justify-center my-2">
-              <Button className="p-3 border" style={{ borderRadius: "10px" }}>
+              <Button
+                className="p-3 border"
+                style={{ borderRadius: "10px" }}
+                href="#GetStarted"
+              >
                 See How It Works
               </Button>
             </Col>
@@ -283,6 +287,7 @@ const GetStartedSection = () => {
         backgroundSize: "cover",
       }}
       className="p-5"
+      id="GetStarted"
     >
       {/* White overlay  */}
       <Row

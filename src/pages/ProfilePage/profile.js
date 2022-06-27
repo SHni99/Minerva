@@ -35,7 +35,6 @@ export default ViewProfilePage;
 const ProfilePageBody = ({ creator_id }) => {
   const [profileData, setProfileData] = useState({
     username: "",
-    avatar_url: "",
     bio: "",
     gender: "",
   });
@@ -46,6 +45,7 @@ const ProfilePageBody = ({ creator_id }) => {
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [avatar_url, setAvatarurl] = useState("");
   const [isEmpty, setIsEmpty] = useState(false);
   const navigate = useNavigate();
 
@@ -55,7 +55,7 @@ const ProfilePageBody = ({ creator_id }) => {
     try {
       const { error } = await supabaseClient.auth.signOut();
       if (error) throw error;
-     //input logout popup
+      //input logout popup
       navigate("/");
     } catch (error) {
       alert(error.message);
@@ -101,8 +101,8 @@ const ProfilePageBody = ({ creator_id }) => {
               avatarCode === ""
                 ? {}
                 : supabaseClient.storage
-                  .from("avatars")
-                  .getPublicUrl(avatarCode);
+                    .from("avatars")
+                    .getPublicUrl(avatarCode);
             if (urlError) throw urlError;
 
             return {
@@ -134,6 +134,14 @@ const ProfilePageBody = ({ creator_id }) => {
           throw error;
         }
 
+        if (data) {
+          setProfileData({
+            username: data.username,
+            bio: data.bio,
+            gender: data.gender,
+          });
+        }
+
         if (data.avatar_url === "") return;
 
         const { publicURL, error: publicUrlError } = supabaseClient.storage
@@ -141,15 +149,7 @@ const ProfilePageBody = ({ creator_id }) => {
           .getPublicUrl(data.avatar_url);
 
         if (publicUrlError) throw publicUrlError;
-
-        if (data) {
-          setProfileData({
-            username: data.username,
-            avatar_url: publicURL,
-            bio: data.bio,
-            gender: data.gender,
-          });
-        }
+        setAvatarurl(publicURL);
       } catch (error) {
         alert(error.message);
       }
@@ -210,10 +210,7 @@ const ProfilePageBody = ({ creator_id }) => {
             <div className="col-lg-3 col-sm-12">
               <div className="col">
                 <img
-                  
-                  src={
-                    profileData.avatar_url || "/images/img_avatarDefault.jpg"
-                  }
+                  src={avatar_url || "/images/img_avatarDefault.jpg"}
                   className={`${viewprofileStyles["avatar"]} rounded-pill`}
                   alt="avatar"
                 ></img>
@@ -223,7 +220,7 @@ const ProfilePageBody = ({ creator_id }) => {
                 <h3>
                   {"@"}
                   <label className="text-dark poppins-normal-black-24px">
-                    {"" || profileData.username}
+                    {profileData.username}
                   </label>
                 </h3>
                 <OverlayTrigger

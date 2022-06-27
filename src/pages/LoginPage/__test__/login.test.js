@@ -102,4 +102,19 @@ describe("Form components", () => {
     );
     expect(passwordErrorElementAgain).toBeInTheDocument();
   });
+
+  test("should show password error message on password that does not contain special case", () => {
+    const submitBtnElement = screen.getByRole("button", { name: /Log in/i });
+    const passwordInputElement = screen.getByTestId("findpassword");
+    const passwordErrorElement = screen.queryByText(
+      /Please enter a password containing at least one SPECIAL CASE/i
+    );
+    expect(passwordErrorElement).not.toBeInTheDocument();
+    userEvent.type(passwordInputElement, "1Exaam23456");
+    userEvent.click(submitBtnElement);
+    const passwordErrorElementAgain = screen.queryByText(
+      /Please enter a password containing at least one SPECIAL CASE/i
+    );
+    expect(passwordErrorElementAgain).toBeInTheDocument();
+  });
 });

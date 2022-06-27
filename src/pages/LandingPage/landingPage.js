@@ -32,12 +32,21 @@ const srcImgLink = (imgName) => {
   return `url("${require("assets/images/" + imgName)}")`;
 };
 
-const switchPage = (navigate, e) => {
+const switchPageLogin = (navigate, e) => {
   e.preventDefault();
   if (supabaseClient.auth.user()) {
     navigate("/profile");
   } else {
     navigate("/loginpage");
+  }
+};
+
+const switchPageRegister = (navigate, e) => {
+  e.preventDefault();
+  if (supabaseClient.auth.user()) {
+    navigate("/create-listing");
+  } else {
+    navigate("/registerpage");
   }
 };
 
@@ -77,13 +86,15 @@ const IntroSection = () => {
           <Button
             variant="outline-light border-0 m-2"
             onClick={(e) => {
-              switchPage(navigate, e);
+              switchPageLogin(navigate, e);
             }}
           >
             {supabaseClient.auth.user() ? "My Profile" : "Login"}
           </Button>
-          <Button variant="light m-2" href="/create-listing">
-            {supabaseClient.auth.user() ? "Create Listings" : "Register"}
+          <Button variant="light m-2" onClick={(e) => {
+              switchPageRegister(navigate, e);
+            }}>
+          {supabaseClient.auth.user()? "Create Listings" : "Register"}
           </Button>
         </Col>
       </Row>
@@ -102,7 +113,7 @@ const IntroSection = () => {
         >
           <Row>
             <h1 className={landingPageStyles["intro-header"]}>
-              Can't find suitable tutors/tutees?
+              Can't find suitable tutors or tutees?
             </h1>
           </Row>
           <Row>

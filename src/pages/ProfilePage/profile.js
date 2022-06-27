@@ -10,9 +10,10 @@ import { useLocation } from "react-router-dom";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import UserListings from "components/UserListing/userlistings";
-import Listings from "components/UserListing/userlistings";
 import Rating from "components/Rating/Rating";
 import ReviewCard from "components/ReviewCard/reviewCard";
+import Popover from "react-bootstrap/Popover";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
@@ -41,12 +42,12 @@ const ProfilePageBody = ({ creator_id }) => {
   const [checkUser, setcheckUser] = useState(false);
   const [currentValue, setCurrentValue] = useState(false);
   const [indexAll, setIndexAll] = useState("");
-  const navigate = useNavigate();
   const checkId = supabaseClient.auth.user().id;
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
+  const navigate = useNavigate();
 
   //log user out and redirect to landing page
   const handleLogout = async (navigate, e) => {
@@ -54,7 +55,7 @@ const ProfilePageBody = ({ creator_id }) => {
     try {
       const { error } = await supabaseClient.auth.signOut();
       if (error) throw error;
-      alert("Logged out");
+     //input logout popup
       navigate("/");
     } catch (error) {
       alert(error.message);
@@ -62,7 +63,7 @@ const ProfilePageBody = ({ creator_id }) => {
   };
 
   useEffect(() => {
-    const getReview = async () => {
+    const getReview = async (id) => {
       try {
         setLoading(true);
         const {
@@ -72,7 +73,7 @@ const ProfilePageBody = ({ creator_id }) => {
         } = await supabaseClient
           .from("reviews")
           .select("index, textbox, reviewer_id")
-          .eq("reviewee_id", checkId);
+          .eq("reviewee_id", id);
 
         if (error && status !== 406) throw error;
 
@@ -100,8 +101,8 @@ const ProfilePageBody = ({ creator_id }) => {
               avatarCode === ""
                 ? {}
                 : supabaseClient.storage
-                    .from("avatars")
-                    .getPublicUrl(avatarCode);
+                  .from("avatars")
+                  .getPublicUrl(avatarCode);
             if (urlError) throw urlError;
 
             return {
@@ -121,102 +122,12 @@ const ProfilePageBody = ({ creator_id }) => {
       }
     };
 
-    const getUserReview = async () => {
-      try {
-        setLoading(true);
-        const {
-          data: reviewAll,
-          error,
-          status,
-        } = await supabaseClient
-          .from("reviews")
-          .select("index, textbox, reviewer_id")
-          .eq("reviewee_id", creator_id);
-
-        if (error && status !== 406) throw error;
-
-        if (reviewAll.length === 0) {
-          setIsEmpty(true);
-          return;
-        }
-
-        setIsEmpty(false);
-
-        const newReviewData = await Promise.all(
-          reviewAll.map(async ({ index, textbox, reviewer_id }) => {
-            let {
-              data: { avatar_url: avatarCode, username },
-              error: avatarError,
-              status: avatarStatus,
-            } = await supabaseClient
-              .from("profiles")
-              .select("username, avatar_url")
-              .eq("id", reviewer_id)
-              .single();
-            if (avatarError && avatarStatus !== 406) throw avatarError;
-
-            const { publicURL: avatarUrl, error: urlError } =
-              avatarCode === ""
-                ? {}
-                : supabaseClient.storage
-                    .from("avatars")
-                    .getPublicUrl(avatarCode);
-            if (urlError) throw urlError;
-
-            return {
-              avatarUrl,
-              username,
-              index,
-              textbox,
-              creator_id,
-            };
-          })
-        );
-        setReviewData(newReviewData);
-      } catch (error) {
-        alert(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const getUserProfile = async () => {
-      try {
-        const { data, error } = await supabaseClient
-          .from("profiles")
-          .select("avatar_url, username, bio, gender")
-          .eq("id", creator_id)
-          .single();
-
-        if (error) throw error;
-
-        if (data.avatar_url === "") return;
-
-        const { publicURL, error: publicUrlError } = supabaseClient.storage
-          .from("avatars")
-          .getPublicUrl(data.avatar_url);
-
-        if (publicUrlError) throw publicUrlError;
-
-        if (data) {
-          setProfileData({
-            username: data.username,
-            avatar_url: publicURL,
-            bio: data.bio,
-            gender: data.gender,
-          });
-        }
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-
-    const getProfile = async () => {
+    const getProfile = async (id) => {
       try {
         let { data, error, status } = await supabaseClient
           .from("profiles")
           .select(`username, avatar_url, bio, gender `)
-          .eq("id", checkId)
+          .eq("id", id)
           .single();
 
         if (error && status !== 406) {
@@ -244,7 +155,7 @@ const ProfilePageBody = ({ creator_id }) => {
       }
     };
 
-    const getAllIndex = async () => {
+    const getAllIndex = async (id) => {
       try {
         const {
           data: indexData,
@@ -253,12 +164,12 @@ const ProfilePageBody = ({ creator_id }) => {
         } = await supabaseClient
           .from("reviews")
           .select("index")
-          .eq("reviewee_id", creator_id);
+          .eq("reviewee_id", id);
 
         setIndexAll(
-          Math.round(
+          (
             indexData.reduce((x, y) => x + y.index, 0) / indexData.length
-          )
+          ).toPrecision(3)
         );
 
         if (error && status !== 406) throw error;
@@ -267,50 +178,39 @@ const ProfilePageBody = ({ creator_id }) => {
       }
     };
 
-    const getAllIndex2 = async () => {
-      try {
-        const {
-          data: indexData,
-          error,
-          status,
-        } = await supabaseClient
-          .from("reviews")
-          .select("index")
-          .eq("reviewee_id", checkId);
-
-        setIndexAll(
-          Math.round(
-            indexData.reduce((x, y) => x + y.index, 0) / indexData.length
-          )
-        );
-
-        if (error && status !== 406) throw error;
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-
-    if (creator_id === undefined || checkId === creator_id) {
+    if (checkId === creator_id || creator_id === undefined) {
       setcheckUser(false);
-      getProfile();
-      getReview();
-      getAllIndex2();
+      getProfile(checkId);
+      getReview(checkId);
+      getAllIndex(checkId);
     } else {
       setcheckUser(true);
-      getUserProfile();
-      getUserReview();
-      getAllIndex();
+      getProfile(creator_id);
+      getReview(creator_id);
+      getAllIndex(creator_id);
     }
-  }, [creator_id, checkId]);
+  }, [checkId, creator_id]);
+
+  const popover = (
+    <Popover>
+      <Popover.Body>
+        <div className="nunito-medium-black-48px">
+          {indexAll === "NaN" ? "0" : indexAll}
+        </div>
+        out of 5
+      </Popover.Body>
+    </Popover>
+  );
 
   return (
     <div className="text-center">
       <div className={viewprofileStyles["container-center-horizontal"]}>
         <div className={`${viewprofileStyles["home-inner"]} container-fluid`}>
           <div className="row align-self-center">
-            <div className="col-3 ">
+            <div className="col-lg-3 col-sm-12">
               <div className="col">
                 <img
+                  
                   src={
                     profileData.avatar_url || "/images/img_avatarDefault.jpg"
                   }
@@ -326,24 +226,25 @@ const ProfilePageBody = ({ creator_id }) => {
                     {"" || profileData.username}
                   </label>
                 </h3>
-
-                <div
-                  className="row"
-                  onClick={() => navigate("/formpage")}
-                  style={{ cursor: "pointer" }}
+                <OverlayTrigger
+                  trigger="click"
+                  placement="right"
+                  overlay={popover}
                 >
-                  <div className="col-5 ml-auto">
-                    <Rating
-                      index={indexAll}
-                      setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
-                      ratinghover={ratinghover}
-                    />
-                  </div>
+                  <div className="row" style={{ cursor: "pointer" }}>
+                    <div className="col-5 ml-auto">
+                      <Rating
+                        index={indexAll}
+                        setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
+                        ratinghover={ratinghover}
+                      />
+                    </div>
 
-                  <div className="col-3 text-left">
-                    {"(" + reviewData.length + ")"}
+                    <div className="col-3 text-left">
+                      {"(" + reviewData.length + ")"}
+                    </div>
                   </div>
-                </div>
+                </OverlayTrigger>
 
                 <div className="my-4 poppins-normal-black-24px">
                   Gender:{" "}
@@ -366,11 +267,11 @@ const ProfilePageBody = ({ creator_id }) => {
               </div>
             </div>
 
-            <div className="col-8">
+            <div className="col-lg-8 col-sm-12">
               <div className="row">
                 {checkUser || (
-                  <div className="row-lg-3 text-right">
-                    <div>
+                  <div className="row-lg-3">
+                    <div className="row-lg-3 text-right my-3">
                       <Button
                         className="bg-primary"
                         onClick={(e) => {
@@ -382,7 +283,7 @@ const ProfilePageBody = ({ creator_id }) => {
                       </Button>
                     </div>
 
-                    <div className="row-lg-3 my-7">
+                    <div className="row-lg-3 text-right my-3">
                       <div>
                         <Button
                           className="bg-primary"
@@ -404,11 +305,10 @@ const ProfilePageBody = ({ creator_id }) => {
                   className="mb-3"
                 >
                   <Tab eventKey="listings" title="Listings">
-                    {checkUser ? (
-                      <Listings checkId={creator_id || checkId} />
-                    ) : (
-                      <UserListings checkId={checkId} checkUser={checkUser} />
-                    )}
+                    <UserListings
+                      check={creator_id || checkId}
+                      checkUser={checkUser}
+                    />
                   </Tab>
                   <Tab eventKey="reviews" title="Reviews">
                     {isEmpty ? (

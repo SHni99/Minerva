@@ -45,7 +45,7 @@ const LoginPage = () => {
           password,
         });
         if (error) throw error;
-        alert("Logged in");
+
         navigate("/listingspage");
       } catch (error) {
         alert("You have entered an invalid email or password");
@@ -56,130 +56,124 @@ const LoginPage = () => {
   };
 
   return (
-    <div className={loginPageStyles["container-center-horizontal"]}>
-      <div
-        style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
-        className={loginPageStyles["overlap-group1"]}
+    <div
+      className={`${loginPageStyles["container-center-horizontal"]} py-20`}
+      style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
+    >
+      <form
+        onSubmit={(e) => {
+          handleLogin(email, password, navigate, e);
+        }}
+        className={`${loginPageStyles["home-inner"]} container my-20`}
       >
-        <form
-          onSubmit={(e) => {
-            handleLogin(email, password, navigate, e);
-          }}
-          className={`${loginPageStyles["home-inner"]} container mt-20`}
-        >
-          <div className="col-lg-18 w-150">
-            <div
-              className={"card text-center rounded-5"}
-              style={{
-                backgroundColor: "#abc1c5",
-                boxShadow: "0px 6px 4px #00000040",
-              }}
-            >
+        <div className={"row"}>
+          <div
+            className={"card text-center rounded-5"}
+            style={{
+              backgroundColor: "#abc1c5",
+              boxShadow: "0px 6px 4px #00000040",
+            }}
+          >
+            {" "}
+            <div className="row">
               <div className="card-body p-5">
                 <img
-                  className={"col-sm-6  h-20"}
+                  className={"row-lg-6 row-sm-12 h-20"}
                   style={{ cursor: "pointer" }}
                   src={"/images/img_minervaLogo.png"}
                   alt="minerva"
                   onClick={home} //redirects to home
                 />
 
-                <div className="col-md-12">
-                  <div className={`row-lg-8`}>
-                    <div className={` nunitosans-normal-mirage-28px`}>
-                      <h3
-                        className={`poppins-semi-bold-black-24px text-left pt-5`}
-                      >{`Email`}</h3>
-                      <div className="form-group">
-                        <input
-                          className="form-control form-control-lg h-20"
-                          style={{
-                            backgroundColor: "#E7E4DE",
-                          }}
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)} //email changes everytime an input change is made
-                          placeholder="Enter username or email"
-                          data-testid="findemail"
-                        ></input>
-                      </div>
-                    </div>
-
-                    <div className={`nunitosans-normal-mirage-28px`}>
-                      <h3
-                        className={`poppins-semi-bold-black-24px text-left pt-5`}
-                      >{`Password`}</h3>
+                <div className={`row-lg-8 row-sm-12`}>
+                  <div className={` nunitosans-normal-mirage-28px`}>
+                    <h3
+                      className={`poppins-semi-bold-black-24px text-left pt-5`}
+                    >{`Email`}</h3>
+                    <div className="form-group">
                       <input
                         className="form-control form-control-lg h-20"
                         style={{
                           backgroundColor: "#E7E4DE",
                         }}
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)} //password changes everytime an input change is made
-                        placeholder="Enter password"
-                        data-testid="findpassword"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)} //email changes everytime an input change is made
+                        placeholder="Enter username or email"
+                        data-testid="findemail"
                       ></input>
                     </div>
-                    <h4
-                      className={`nunitosans-bold-endeavour-24px mt-3 text-left`}
-                      onClick={passwordPage} //redirects to password reset page
+                  </div>
+
+                  <div className={`nunitosans-normal-mirage-28px row-sm-12`}>
+                    <h3
+                      className={`poppins-semi-bold-black-24px text-left pt-5`}
+                    >{`Password`}</h3>
+                    <input
+                      className="form-control form-control-lg h-20"
                       style={{
-                        cursor: "pointer",
+                        backgroundColor: "#E7E4DE",
                       }}
-                    >
-                      {`Forgot password?`}
-                    </h4>
-                    {error1 && (
-                      <h5 className="nunitosans-bold-endeavour-24px text-danger">
-                        {error1}
-                      </h5>
-                    )}
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)} //password changes everytime an input change is made
+                      placeholder="Enter password"
+                      data-testid="findpassword"
+                    ></input>
                   </div>
-
-                  <div
-                    className=" btn btn-lg btn-outline-primary mt-5"
+                  <h4
+                    className={`nunitosans-bold-endeavour-24px mt-3 text-left`}
+                    onClick={passwordPage} //redirects to password reset page
                     style={{
-                      backgroundColor: "#4169e1",
-                      width: "100%",
+                      cursor: "pointer",
                     }}
                   >
-                    {loading ? (
-                      <h2 className={`nunitosans-bold-white-26px p-2`}>
-                        {"Logging in"}
-                      </h2>
-                    ) : (
-                      <button
-                        className={`nunitosans-bold-white-26px p-2`}
-                        type="submit"
-                      >
-                        {"Log in"}
-                      </button>
-                    )}
-                  </div>
-                  <div
-                    className=" row m-3"
-                    style={{
-                      width: "600px",
-                    }}
-                  >
-                    <div className=" col-lg-8 nunitosans-normal-black-28px  text-right">
-                      {`Don’t have an account?`}
-                    </div>
+                    {`Forgot password?`}
+                  </h4>
+                  {error1 && (
+                    <h5 className="nunitosans-bold-endeavour-24px text-danger">
+                      {error1}
+                    </h5>
+                  )}
+                </div>
 
+                <div
+                  className="row btn btn-lg btn-outline-primary mt-5"
+                  style={{
+                    backgroundColor: "#4169e1",
+                    width: "100%",
+                  }}
+                >
+                  {loading ? (
+                    <h2 className={`nunitosans-bold-white-26px p-2`}>
+                      {"Logging in"}
+                    </h2>
+                  ) : (
                     <button
-                      className={
-                        "col-lg-4 nunitosans-bold-licorice-28px text-left"
-                      }
-                      onClick={registerPage} //redirects to register page
-                    >{`Sign up`}</button>
+                      className={`nunitosans-bold-white-26px p-2`}
+                      type="submit"
+                    >
+                      {"Log in"}
+                    </button>
+                  )}
+                </div>
+                <div className="row m-3">
+                  <div className=" col-lg-7 nunitosans-normal-black-28px d-flex justify-end">
+                    {`Don’t have an account?`}
                   </div>
+
+                  <button
+                    className={
+                      "col-lg-2 nunitosans-bold-licorice-28px d-flex justify-center"
+                    }
+                    onClick={registerPage} //redirects to register page
+                  >{`Sign up`}</button>
                 </div>
               </div>
             </div>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

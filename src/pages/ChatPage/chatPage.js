@@ -386,7 +386,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     const hasReviewed = reviewed[self_pos];
     const otherHasReviewed = reviewed[1 - self_pos];
 
-    const type = Object.keys(messages.payload)[0];
+    const type = messages ? Object.keys(messages.payload)[0] : "text";
     const message = messages
       ? parseLatestMsg(messages.sender_id === uid, type, messages.payload[type])
       : "";
@@ -495,7 +495,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         .remove([filePath]);
       if (deleteImgError) throw deleteImgError;
     } catch (error) {
-      console.log(error);
+      alert(error);
     }
   };
 
@@ -752,13 +752,15 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       .from(`messages:convo_id=eq.${activeChatId}`)
       .on("INSERT", (payload) =>
         setMessages((oldMessages) => [
-          ...oldMessages,
+          ...(oldMessages || []),
           parseMessage(payload.new),
         ])
       )
       .on("DELETE", (payload) =>
         setMessages((oldMessages) =>
-          [...oldMessages].filter((oldMsg) => oldMsg.id !== payload.old.id)
+          [...(oldMessages || [])].filter(
+            (oldMsg) => oldMsg.id !== payload.old.id
+          )
         )
       )
       .subscribe();
@@ -828,7 +830,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
               user_id,
               src,
               message: "",
-              actionState: 0,
+              actionState: 2,
               self_pos: 0,
               hasReviewed: false,
             };
@@ -840,7 +842,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         }
         if (Object.keys(newConversations).length === 0) setShowSidebar(false);
       } catch (error) {
-        console.log(error);
+        alert(error);
       } finally {
         setLoadingConvos(false);
       }
@@ -884,12 +886,20 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       })
       .on("INSERT", async (payload) => {
         const newConvo = await parseConvo(payload.new);
-        const { chat_id, name, user_id, message, src, actionState } = newConvo;
+        const { chat_id, name, user_id, message, src, actionState, self_pos } =
+          newConvo;
         const tempChatId = `temp-${user_id}`;
 
         setConversations((oldConvos) => {
           const newConvos = { ...oldConvos };
-          newConvos[chat_id] = { name, user_id, message, src, actionState };
+          newConvos[chat_id] = {
+            name,
+            user_id,
+            message,
+            src,
+            actionState,
+            self_pos,
+          };
           return newConvos;
         });
 

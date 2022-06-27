@@ -7,7 +7,6 @@ import profileStyles from "./updateProfile.module.css";
 import PersonalAvatar from "components/Avatar/avatar";
 import Button from "react-bootstrap/Button";
 
-
 //retrieve session from loginmain page and call getProfile method if session is read
 const UpdateProfilePage = ({ session }) => {
   const navigate = useNavigate();
@@ -166,7 +165,7 @@ const ProfilePageBody = (props) => {
                   });
                 }}
               />
-             
+
               <div className="mt-4">
                 <h4>Email: {session.user.email} </h4>
                 <div className="mt-8">
@@ -183,9 +182,9 @@ const ProfilePageBody = (props) => {
                 <div className="mt-8">
                   <h2>Gender</h2>
                 </div>
-                <div class="form-check form-check-inline px-10">
+                <div className="form-check form-check-inline px-10">
                   <input
-                    class="form-check-input"
+                    className="form-check-input"
                     type="radio"
                     name="inlineRadioOptions"
                     id="inlineRadio1"
@@ -194,15 +193,15 @@ const ProfilePageBody = (props) => {
                     onChange={(e) => setGender(e.target.value)}
                   />
                   <label
-                    class="form-check-label inter-medium-sapphire-20px "
-                    for="inlineRadio1"
+                    className="form-check-label inter-medium-sapphire-20px "
+                    htmlFor="inlineRadio1"
                   >
                     Male
                   </label>
                 </div>
-                <div class="form-check form-check-inline">
+                <div className="form-check form-check-inline">
                   <input
-                    class="form-check-input"
+                    className="form-check-input"
                     type="radio"
                     name="inlineRadioOptions"
                     id="inlineRadio2"
@@ -211,8 +210,8 @@ const ProfilePageBody = (props) => {
                     onChange={(e) => setGender(e.target.value)}
                   />
                   <label
-                    class="form-check-label inter-medium-red-20px"
-                    for="inlineRadio2"
+                    className="form-check-label inter-medium-red-20px"
+                    htmlFor="inlineRadio2"
                   >
                     Female
                   </label>

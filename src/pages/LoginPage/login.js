@@ -58,7 +58,10 @@ const LoginPage = () => {
   return (
     <div
       className={`${loginPageStyles["container-center-horizontal"]} py-20`}
-      style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
+      style={{
+        backgroundImage: `url(${"/images/img_image1.png"})`,
+        backgroundSize: "cover",
+      }}
     >
       <form
         onSubmit={(e) => {
@@ -76,10 +79,10 @@ const LoginPage = () => {
           >
             {" "}
             <div className="row">
-              <div className="card-body p-5">
+              <div className="card-body py-5 px-4 px-sm-5">
                 <img
                   className={"row-lg-6 row-sm-12 h-20"}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", objectFit: "contain" }}
                   src={"/images/img_minervaLogo.png"}
                   alt="minerva"
                   onClick={home} //redirects to home
@@ -99,7 +102,7 @@ const LoginPage = () => {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)} //email changes everytime an input change is made
-                        placeholder="Enter username or email"
+                        placeholder="Enter your email"
                         data-testid="findemail"
                       ></input>
                     </div>
@@ -158,7 +161,7 @@ const LoginPage = () => {
                   )}
                 </div>
                 <div className="row m-3">
-                  <div className=" col-lg-7 nunitosans-normal-black-28px d-flex justify-end">
+                  <div className=" col-lg-7 nunitosans-normal-black-28px d-flex justify-center justify-content-lg-end">
                     {`Don’t have an account?`}
                   </div>
 

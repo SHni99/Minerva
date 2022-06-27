@@ -21,8 +21,8 @@ const ResetPage = () => {
     const reset = () => {
       setNewPassword("");
       setConfirmPassword("");
-    }
-    
+    };
+
     if (newPassword.length < 8) {
       setError("Please enter a password more than 8 characters");
       reset();
@@ -30,10 +30,14 @@ const ResetPage = () => {
       setError("PLease enter a password containing at least one NUMBER");
       reset();
     } else if (!/^(?=.*[A-Z])/.test(newPassword)) {
-      setError("Please enter a password containing at least one UPPERCASE character");
+      setError(
+        "Please enter a password containing at least one UPPERCASE character"
+      );
       reset();
     } else if (!/^(?=.*[a-z])/.test(newPassword)) {
-      setError("Please enter a password containing at least one LOWERCASE character");
+      setError(
+        "Please enter a password containing at least one LOWERCASE character"
+      );
       reset();
     } else if (!/^(?=.*[!@#$%^&*])/.test(newPassword)) {
       setError("Please enter a password containing at least one SPECIAL CASE");
@@ -41,8 +45,7 @@ const ResetPage = () => {
     } else if (newPassword !== confirmPassword) {
       setError("Please enter the SAME passwords!");
       reset();
-    }
-    else {
+    } else {
       try {
         setLoading(true);
         //make use of supabase function to update to new password
@@ -122,7 +125,11 @@ const ResetPage = () => {
                       placeholder="Enter confirm password"
                     ></input>
                   </div>
-                  {error1 && <h4 className=" nunitosans-bold-endeavour-24px text-danger text-left">{error1}</h4>}
+                  {error1 && (
+                    <h4 className=" nunitosans-bold-endeavour-24px text-danger text-left">
+                      {error1}
+                    </h4>
+                  )}
                   <div
                     className={"btn btn-lg btn-outlinr-primary mt-5"}
                     style={{
@@ -132,7 +139,7 @@ const ResetPage = () => {
                   >
                     {loading ? (
                       <text className={` nunitosans-bold-white-32px`}>
-                        Sending...
+                        Resetting Password...
                       </text>
                     ) : (
                       <button

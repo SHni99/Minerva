@@ -96,7 +96,7 @@ const RegisterPagePage = () => {
         );
         if (error) throw error;
 
-       //input popup
+        //input popup
         navigate("/listingspage");
       } catch (error) {
         alert(error.message);
@@ -113,7 +113,7 @@ const RegisterPagePage = () => {
           e.preventDefault();
           handleSignUp(email, password, username, navigate);
         }}
-        className={` ${registerPageStyles["home-inner"]} container`}
+        className={` ${registerPageStyles["home-inner"]} container-fluid p-0`}
       >
         {" "}
         <div
@@ -126,8 +126,8 @@ const RegisterPagePage = () => {
               <div className="card-body p-5">
                 <img
                   src={"/images/img_minervaLogo.png"}
-                  className={"col-sm-6 mb-9 h-20"}
-                  style={{ cursor: "pointer" }}
+                  className={"mb-9 h-20"}
+                  style={{ cursor: "pointer", objectFit: "contain" }}
                   onClick={home} //redirects to home
                   alt="minerva"
                 />
@@ -244,17 +244,16 @@ const RegisterPagePage = () => {
                   )}
                 </div>
 
-                <div className=" row">
-                  <div className=" col-lg-7 col-sm-12 nunitosans-normal-black-28px text-right">
-                    {`Have an account?`}
-                  </div>
-
-                  <button
-                    className={
-                      "col-lg-2 col-sm-12 nunitosans-bold-licorice-28px"
-                    }
-                    onClick={loginpage} //redirects to login page
-                  >{`Log In`}</button>
+                <div className="row nunitosans-normal-black-28px ">
+                  <p>
+                    Have an account?
+                    <button
+                      className="nunitosans-bold-licorice-28px px-2"
+                      onClick={loginpage} //redirects to login page
+                    >
+                      Log In
+                    </button>
+                  </p>
                 </div>
               </div>
             </div>
@@ -265,7 +264,7 @@ const RegisterPagePage = () => {
                 borderTopRightRadius: "5px",
                 borderBottomRightRadius: "5px",
               }}
-              className="col-md-4"
+              className="col-lg-4 d-none d-lg-block"
             >
               {" "}
               <div className="mt-20">

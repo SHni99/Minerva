@@ -20,7 +20,7 @@ const PasswordPage = () => {
       const { error } = await supabaseClient.auth.api.resetPasswordForEmail(
         email,
         {
-          redirectTo: `${window.location.origin}/resetpage`,
+          redirectTo: `${window.location.origin}/resetpage#`,
         }
       );
       if (error) throw error;

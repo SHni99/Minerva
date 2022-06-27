@@ -1,9 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
-import {
-  fireEvent,
-  render,
-  screen,
-} from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryHistory } from "history";
 import { MemoryRouter, Router } from "react-router-dom";
@@ -32,7 +28,7 @@ describe("Minerva logo", () => {
 describe("Sign up", () => {
   it("redirects to register page on click", () => {
     const history = wrapLoginPage();
-    fireEvent.click(screen.getByRole("button", { name: /Sign up/i }));
+    fireEvent.click(screen.getByRole("button", { name: /here/i }));
     expect(history.location.pathname).toBe("/registerpage");
   });
 });
@@ -58,18 +54,18 @@ describe("Form components", () => {
     const emailInputElement = screen.getByTestId("findemail");
     const passwordInputElement = screen.getByTestId("findpassword");
 
-    if(email){
-        userEvent.type(emailInputElement, email);
+    if (email) {
+      userEvent.type(emailInputElement, email);
     }
-    if(password){
-        userEvent.type(passwordInputElement, password);
+    if (password) {
+      userEvent.type(passwordInputElement, password);
     }
 
     return {
-        emailInputElement,
-        passwordInputElement
-    }
-  }
+      emailInputElement,
+      passwordInputElement,
+    };
+  };
 
   test("inputs should be initially empty", () => {
     const emailInputElement = screen.getByTestId("findemail");
@@ -79,12 +75,12 @@ describe("Form components", () => {
   });
 
   test("should be able to type an email", () => {
-    const {emailInputElement} = typeIntoForm({email: "david@gmail.com"});
+    const { emailInputElement } = typeIntoForm({ email: "david@gmail.com" });
     expect(emailInputElement.value).toBe("david@gmail.com");
   });
 
   test("should be able to type a password", () => {
-    const {passwordInputElement} = typeIntoForm({password: "password!"});
+    const { passwordInputElement } = typeIntoForm({ password: "password!" });
     expect(passwordInputElement.value).toBe("password!");
   });
 

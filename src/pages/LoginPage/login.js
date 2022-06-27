@@ -162,12 +162,12 @@ const LoginPage = () => {
                 </div>
                 <div className="row m-3">
                   <p className="nunitosans-normal-black-28px">
-                    Don’t have an account?
+                    Don’t have an account? Sign up
                     <button
-                      className={"nunitosans-bold-licorice-28px px-2"}
+                      className={"text-decoration-underline fw-bold px-2"}
                       onClick={registerPage} //redirects to register page
                     >
-                      Sign up
+                      here!
                     </button>
                   </p>
                 </div>

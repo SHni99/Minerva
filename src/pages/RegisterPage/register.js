@@ -246,12 +246,12 @@ const RegisterPagePage = () => {
 
                 <div className="row nunitosans-normal-black-28px ">
                   <p>
-                    Have an account?
+                    Have an account? Log in
                     <button
-                      className="nunitosans-bold-licorice-28px px-2"
+                      className="fw-bold text-decoration-underline px-2"
                       onClick={loginpage} //redirects to login page
                     >
-                      Log In
+                      here!
                     </button>
                   </p>
                 </div>

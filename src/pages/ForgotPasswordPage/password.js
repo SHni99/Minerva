@@ -18,7 +18,10 @@ const PasswordPage = () => {
     try {
       setLoading(true);
       const { error } = await supabaseClient.auth.api.resetPasswordForEmail(
-        email, {redirectTo: "http://localhost:3000/resetpage"}
+        email,
+        {
+          redirectTo: `${window.location.origin}/resetpage`,
+        }
       );
       if (error) throw error;
       alert("Sent");
@@ -50,11 +53,8 @@ const PasswordPage = () => {
           >
             {" "}
             <div className="card-body p-5">
-              <div className="row justify-end" >
-              <CloseButton
-                onClick={login}
-               
-              />
+              <div className="row justify-end">
+                <CloseButton onClick={login} />
               </div>
               <img
                 className={"m-auto h-20"}

@@ -307,7 +307,7 @@ const ProfilePageBody = ({ creator_id }) => {
                   </Tab>
                   <Tab eventKey="reviews" title="Reviews">
                     {isEmpty ? (
-                      <h1>No Review!</h1>
+                      <h1>No Reviews Found!</h1>
                     ) : loading ? (
                       <Spinner
                         animation="border"
@@ -331,6 +331,7 @@ const ProfilePageBody = ({ creator_id }) => {
                                 textbox={textbox}
                                 creator_id={creator_id}
                                 index={index}
+                                key={`${creator_id}_${username}`}
                               />
                             );
                           }

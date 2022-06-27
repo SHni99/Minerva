@@ -44,12 +44,11 @@ const Rating = ({ setReviews, ratingHover, index: index1, className }) => {
             />
           );
         } else {
-          setCurrentValue(index1);
           return (
             <FaStar
               key={index}
               size={24}
-              color={currentValue > index ? colors.orange : colors.grey}
+              color={index1 > index ? colors.orange : colors.grey}
             />
           );
         }

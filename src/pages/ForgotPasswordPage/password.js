@@ -24,7 +24,7 @@ const PasswordPage = () => {
         }
       );
       if (error) throw error;
-      alert("Sent");
+      alert("Please check your email for the link to reset your password.");
     } catch (error) {
       alert(error.message);
     } finally {
@@ -35,7 +35,10 @@ const PasswordPage = () => {
   return (
     <div
       className={`${PwdStyles["container-center-horizontal"]} py-20`}
-      style={{ backgroundImage: `url(${"/images/img_image1.png"})` }}
+      style={{
+        backgroundImage: `url(${"/images/img_image1.png"})`,
+        backgroundSize: "contain",
+      }}
     >
       <form
         onSubmit={(e) => {

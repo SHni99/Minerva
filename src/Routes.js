@@ -16,13 +16,16 @@ import NotFound from "pages/NotFound";
 import ChatPage from "pages/ChatPage/chatPage";
 import ReviewPage from "pages/ReviewPage/reviewPage";
 
-const ProjectRoutes = () => {
+const ProjectRoutes = ({ setToastOptions }) => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/loginpage" element={<LoginPage />} />
+        <Route
+          path="/loginpage"
+          element={<LoginPage setToastOptions={setToastOptions} />}
+        />
         <Route path="/registerpage" element={<RegisterPage />} />
         <Route path="/aboutuspage" element={<AboutusPage />} />
         <Route path="/listingspage" element={<ListingsPage />} />

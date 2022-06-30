@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabaseClient } from "../../config/supabase-client";
 import loginPageStyles from "./login.module.css";
 
-const LoginPage = ({ setToastOptions }) => {
+const LoginPage = ({ showSimpleToast }) => {
   const navigate = useNavigate();
   const home = () => navigate("/");
   const registerPage = () => navigate("/registerpage");
@@ -46,17 +46,7 @@ const LoginPage = ({ setToastOptions }) => {
         });
         if (error) throw error;
 
-        setToastOptions({
-          show: true,
-          closeButton: false,
-          position: "bottom-end",
-          containerClasses: "p-4",
-          variant: "light",
-          autohide: true,
-          delay: 2000,
-          headerContent: "Logged In",
-          bodyContent: "You have successfully logged in.",
-        });
+        showSimpleToast("Logged In", "You have successfully logged in!", 2000);
         navigate("/listingspage");
       } catch (error) {
         alert("You have entered an invalid email or password");

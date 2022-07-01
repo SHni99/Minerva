@@ -16,13 +16,30 @@ import NotFound from "pages/NotFound";
 import ChatPage from "pages/ChatPage/chatPage";
 import ReviewPage from "pages/ReviewPage/reviewPage";
 
-const ProjectRoutes = () => {
+const ProjectRoutes = ({ setToastOptions }) => {
+  // Simplify toast showing
+  const showSimpleToast = (title, message, timeout) =>
+    setToastOptions({
+      show: true,
+      closeButton: false,
+      position: "bottom-end",
+      containerClasses: "p-4",
+      variant: "light",
+      autohide: true,
+      delay: timeout,
+      headerContent: title,
+      bodyContent: message,
+    });
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/loginpage" element={<LoginPage />} />
+        <Route
+          path="/loginpage"
+          element={<LoginPage showSimpleToast={showSimpleToast} />}
+        />
         <Route path="/registerpage" element={<RegisterPage />} />
         <Route path="/aboutuspage" element={<AboutusPage />} />
         <Route path="/listingspage" element={<ListingsPage />} />

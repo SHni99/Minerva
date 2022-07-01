@@ -419,6 +419,71 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     };
   };
 
+  // Function that creates a new conversation from a temporary one
+  // and send the first message
+  const sendFirstMsg = async (payload) => {
+    try {
+      setLoadingMessages(true);
+      if (!startChatData)
+        throw new Error(
+          "Cannot find other party's user ID. Please try starting a new chat again."
+        );
+      // Create new conversation in Supabase
+      let { data: newConvoData, error: newConvoError } = await supabase
+        .from("conversations")
+        .insert({
+          participants: [uid, startChatData.user_id],
+        })
+        .single();
+      if (newConvoError) throw newConvoError;
+
+      // Upload new message into supabase, with previous conversation id as convo_id
+      let { data: uploadMsgData, error: uploadMsgError } = await supabase
+        .from("messages")
+        .insert({
+          recipient_id: activeChatId.substr(5),
+          payload,
+          convo_id: newConvoData.id,
+        })
+        .single();
+      if (uploadMsgError) throw uploadMsgError;
+
+      // Update conversation last_msg to previously uploaded message id
+      let { error: updateConvoError } = await supabase
+        .from("conversations")
+        .update({ last_msg: uploadMsgData.id })
+        .eq("id", newConvoData.id);
+      if (updateConvoError) throw updateConvoError;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  // Function that sends a message to an already existing conversation
+  const sendMsg = async (payload) => {
+    try {
+      let { data: msgData, error: msgError } = await supabase
+        .from("messages")
+        .insert({
+          recipient_id: conversations[activeChatId].user_id,
+          convo_id: activeChatId,
+          payload,
+        })
+        .single();
+      if (msgError) throw msgError;
+
+      let { error: convoError } = await supabase
+        .from("conversations")
+        .update({ last_msg: msgData.id })
+        .eq("id", activeChatId);
+      if (convoError) throw convoError;
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const uploadImg = async (file) => {
     try {
       const fileExt = file.name.split(".").pop();
@@ -437,23 +502,11 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       if (downloadError) throw downloadError;
 
       // Send image as message
-      let { data: msgData, error: msgError } = await supabase
-        .from("messages")
-        .insert({
-          recipient_id: conversations[activeChatId].user_id,
-          convo_id: activeChatId,
-          payload: {
-            image: publicURL,
-          },
-        })
-        .single();
-      if (msgError) throw msgError;
-
-      let { error: convoError } = await supabase
-        .from("conversations")
-        .update({ last_msg: msgData.id })
-        .eq("id", activeChatId);
-      if (convoError) throw convoError;
+      if (activeChatId.includes("temp-")) {
+        await sendFirstMsg({ image: publicURL });
+      } else {
+        await sendMsg({ image: publicURL });
+      }
     } catch (error) {
       alert(error.message);
     }
@@ -613,51 +666,11 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     try {
       // Handle starting of new chat
       if (activeChatId.includes("temp-")) {
-        // Create new conversation in Supabase
-        let { data: newConvoData, error: newConvoError } = await supabase
-          .from("conversations")
-          .insert({
-            participants: [uid, startChatData.user_id],
-          })
-          .single();
-        if (newConvoError) throw newConvoError;
-
-        // Upload new message into supabase, with previous conversation id as convo_id
-        let { data: uploadMsgData, error: uploadMsgError } = await supabase
-          .from("messages")
-          .insert({
-            recipient_id: activeChatId.substr(5),
-            payload: {
-              text: msg,
-            },
-            convo_id: newConvoData.id,
-          })
-          .single();
-        if (uploadMsgError) throw uploadMsgError;
-
-        // Update conversation last_msg to previously uploaded message id
-        let { error: updateConvoError } = await supabase
-          .from("conversations")
-          .update({ last_msg: uploadMsgData.id })
-          .eq("id", newConvoData.id);
-        if (updateConvoError) throw updateConvoError;
+        await sendFirstMsg({ text: msg });
       }
       // Handle normal message sending
       else {
-        let { data, error } = await supabase.from("messages").insert({
-          recipient_id: conversations[activeChatId].user_id,
-          payload: {
-            text: msg,
-          },
-          convo_id: activeChatId,
-        });
-        if (error) throw error;
-
-        let { error: lastMsgError } = await supabase
-          .from("conversations")
-          .update({ last_msg: data[0].id })
-          .eq("id", activeChatId);
-        if (lastMsgError) throw lastMsgError;
+        await sendMsg({ text: msg });
       }
     } catch (error) {
       alert(error.message);

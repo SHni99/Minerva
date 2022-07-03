@@ -225,7 +225,8 @@ const PersonalAvatar = ({ url, onUpload }) => {
         <Modal.Title className=" d-flex justify-end"><CloseButton
         onClick={() => setModalShow(false)}>
           </CloseButton></Modal.Title>
-        <Modal.Body>
+          <Modal.Header className="nunito-semi-bold-black-24px">Crop profile picture</Modal.Header>
+        <Modal.Body className="d-flex justify-center">
           {avatarUrl && (
             <ReactCrop
               crop={crop}

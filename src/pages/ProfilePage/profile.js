@@ -15,16 +15,30 @@ import ReviewCard from "components/ReviewCard/reviewCard";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
+import Modal from "react-bootstrap/Modal";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
+  const unusedModalState = {
+    show: false,
+    title: "",
+    body: "",
+    footer: "",
+  };
+  const [modalState, setModalState] = useState(unusedModalState);
+  const hideModal = () => setModalState(unusedModalState);
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ProfilePageBody creator_id={state ? state.creator_id : undefined} />
+      <ProfileModal modalState={modalState} />
+      <ProfilePageBody
+        creator_id={state ? state.creator_id : undefined}
+        setModalState={setModalState}
+        hideModal={hideModal}
+      />
       <FooterBar />
     </div>
   );
@@ -33,7 +47,7 @@ const ViewProfilePage = () => {
 export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = ({ creator_id }) => {
+const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
   const [profileData, setProfileData] = useState({
     username: "",
     bio: "",
@@ -310,7 +324,13 @@ const ProfilePageBody = ({ creator_id }) => {
                     >
                       Chat
                     </Button>
-                    <BlockReportMenu />
+                    <BlockReportMenu
+                      showModal={(title, body, footer) =>
+                        setModalState({ show: true, title, body, footer })
+                      }
+                      hideModal={hideModal}
+                      target_id={creator_id}
+                    />
                   </div>
                 )}
 
@@ -367,5 +387,17 @@ const ProfilePageBody = ({ creator_id }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const ProfileModal = ({ modalState }) => {
+  const { show, title, body, footer } = modalState;
+
+  return (
+    <Modal show={show}>
+      <Modal.Header>{title}</Modal.Header>
+      <Modal.Body>{body}</Modal.Body>
+      <Modal.Footer>{footer}</Modal.Footer>
+    </Modal>
   );
 };

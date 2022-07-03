@@ -14,16 +14,31 @@ import Rating from "components/Rating/Rating";
 import ReviewCard from "components/ReviewCard/reviewCard";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
+import Modal from "react-bootstrap/Modal";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
+  const unusedModalState = {
+    show: false,
+    title: "",
+    body: "",
+    footer: "",
+  };
+  const [modalState, setModalState] = useState(unusedModalState);
+  const hideModal = () => setModalState(unusedModalState);
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ProfilePageBody creator_id={state ? state.creator_id : undefined} />
+      <ProfileModal modalState={modalState} />
+      <ProfilePageBody
+        creator_id={state ? state.creator_id : undefined}
+        setModalState={setModalState}
+        hideModal={hideModal}
+      />
       <FooterBar />
     </div>
   );
@@ -32,7 +47,7 @@ const ViewProfilePage = () => {
 export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = ({ creator_id }) => {
+const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
   const [profileData, setProfileData] = useState({
     username: "",
     bio: "",
@@ -203,7 +218,7 @@ const ProfilePageBody = ({ creator_id }) => {
   );
 
   return (
-    <div className="text-center">
+    <div className="text-center pb-5">
       <div className={viewprofileStyles["container-center-horizontal"]}>
         <div className={`${viewprofileStyles["home-inner"]} container-fluid`}>
           <div className="row align-self-center">
@@ -264,7 +279,7 @@ const ProfilePageBody = ({ creator_id }) => {
 
             <div className="col-lg-8 col-sm-12">
               <div className="row">
-                {checkUser || (
+                {!checkUser ? (
                   <div className="row-lg-3">
                     <div className="row-lg-3 text-right my-3">
                       <Button
@@ -290,6 +305,32 @@ const ProfilePageBody = ({ creator_id }) => {
                         </Button>
                       </div>
                     </div>
+                  </div>
+                ) : (
+                  <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
+                    <Button
+                      className="m-2"
+                      onClick={() =>
+                        navigate("/chats", {
+                          state: {
+                            startChatData: {
+                              user_id: creator_id,
+                              name: profileData.username,
+                              src: avatar_url,
+                            },
+                          },
+                        })
+                      }
+                    >
+                      Chat
+                    </Button>
+                    <BlockReportMenu
+                      showModal={(title, body, footer) =>
+                        setModalState({ show: true, title, body, footer })
+                      }
+                      hideModal={hideModal}
+                      target_id={creator_id}
+                    />
                   </div>
                 )}
 
@@ -346,5 +387,17 @@ const ProfilePageBody = ({ creator_id }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const ProfileModal = ({ modalState }) => {
+  const { show, title, body, footer } = modalState;
+
+  return (
+    <Modal show={show}>
+      <Modal.Header>{title}</Modal.Header>
+      <Modal.Body>{body}</Modal.Body>
+      <Modal.Footer>{footer}</Modal.Footer>
+    </Modal>
   );
 };

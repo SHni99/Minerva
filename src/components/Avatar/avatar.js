@@ -1,11 +1,38 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabaseClient } from "../../config/supabase-client";
 import avatarStyle from "./avatar.module.css";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+
+function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
+  return centerCrop(
+    makeAspectCrop(
+      {
+        unit: "%",
+        width: 90,
+      },
+      aspect,
+      mediaWidth,
+      mediaHeight
+    ),
+    mediaWidth,
+    mediaHeight
+  );
+}
 
 const PersonalAvatar = ({ url, onUpload }) => {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [modalShow, setModalShow] = useState(false);
+  const [crop, setCrop] = useState();
+  const [completedCrop, setCompletedCrop] = useState();
+  const imgRef = useRef(null);
+  const previewCanvasRef = useRef(null);
+  const aspect = 16 / 9;
+  const TO_RADIANS = Math.PI / 180;
 
   useEffect(() => {
     if (url) downloadImage(url);
@@ -46,7 +73,7 @@ const PersonalAvatar = ({ url, onUpload }) => {
       if (uploadError) {
         throw uploadError;
       }
-
+      setModalShow(true);
       onUpload(filePath);
     } catch (error) {
       alert(error.message);
@@ -54,6 +81,123 @@ const PersonalAvatar = ({ url, onUpload }) => {
       setUploading(false);
     }
   };
+
+  function useDebounceEffect(fn, waitTime, deps) {
+    useEffect(() => {
+      const t = setTimeout(() => {
+        fn.apply(undefined, deps);
+      }, waitTime);
+
+      return () => {
+        clearTimeout(t);
+      };
+    }, deps);
+  }
+
+  async function canvasPreview(image, canvas, crop, scale = 1, rotate = 0) {
+    return new Promise((resolve) => {
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) {
+        throw new Error("No 2d context");
+      }
+
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
+      // devicePixelRatio slightly increases sharpness on retina devices
+      // at the expense of slightly slower render times and needing to
+      // size the image back down if you want to download/upload and be
+      // true to the images natural size.
+      const pixelRatio = window.devicePixelRatio;
+      // const pixelRatio = 1
+
+      canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
+      canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
+
+      ctx.scale(pixelRatio, pixelRatio);
+      ctx.imageSmoothingQuality = "high";
+      const cropX = crop.x * scaleX;
+      const cropY = crop.y * scaleY;
+      const rotateRads = rotate * TO_RADIANS;
+      const centerX = image.naturalWidth / 2;
+      const centerY = image.naturalHeight / 2;
+
+      ctx.save();
+
+      // 5) Move the crop origin to the canvas origin (0,0)
+      ctx.translate(-cropX, -cropY);
+      // 4) Move the origin to the center of the original position
+      ctx.translate(centerX, centerY);
+      // 3) Rotate around the origin
+      ctx.rotate(rotateRads);
+      // 2) Scale the image
+      ctx.scale(scale, scale);
+      // 1) Move the center of the image to the origin (0,0)
+      ctx.translate(-centerX, -centerY);
+      ctx.drawImage(
+        image,
+        0,
+        0,
+        image.naturalWidth,
+        image.naturalHeight,
+        0,
+        0,
+        image.naturalWidth,
+        image.naturalHeight
+      );
+
+      canvas.toBlob(
+        async (blob) => {
+          if (!blob) {
+            //reject(new Error('Canvas is empty'));
+            console.error("Canvas is empty");
+            return;
+          }
+          const fileName = `${Math.random()}.jpg`;
+          const file = new File([blob], fileName, { type: "image/jpeg" });
+
+          try {
+            let { error } = await supabaseClient.storage
+              .from("avatars")
+              .upload(fileName, file);
+
+            if (error) throw error;
+
+            onUpload(fileName);
+          } catch (error) {
+            alert(error.message);
+          } finally {
+            console.log("done");
+          }
+        },
+        "image/jpeg",
+        1
+      );
+      ctx.restore();
+    });
+  }
+
+  useDebounceEffect(
+    async () => {
+      if (
+        completedCrop?.width &&
+        completedCrop?.height &&
+        imgRef.current &&
+        previewCanvasRef.current
+      ) {
+        canvasPreview(imgRef.current, previewCanvasRef.current, completedCrop);
+      }
+    },
+    100,
+    [completedCrop]
+  );
+
+  function onImageLoad(e) {
+    if (aspect) {
+      const { width, height } = e.currentTarget;
+      setCrop(centerAspectCrop(width, height, aspect));
+    }
+  }
 
   return (
     <div className="d-flex flex-column align-center ">
@@ -82,10 +226,49 @@ const PersonalAvatar = ({ url, onUpload }) => {
             id="single"
             accept="image/*"
             onChange={uploadAvatar}
-            disabled={uploading}
           />
         </div>
       </button>
+      <Modal size="lg" show={modalShow} onHide={() => setModalShow(false)}>
+        <Modal.Title id="contained-modal-title-vcenter">Crop image</Modal.Title>
+        <Modal.Body>
+          {avatarUrl && (
+            <ReactCrop
+              crop={crop}
+              onChange={(_, percentCrop) => setCrop(percentCrop)}
+              onComplete={(c) => setCompletedCrop(c)}
+              aspect={aspect}
+            >
+              <img
+                ref={imgRef}
+                src={avatarUrl}
+                onLoad={onImageLoad}
+                alt="Crop me"
+              ></img>
+            </ReactCrop>
+          )}
+
+          <Modal.Title id="contained-modal-title-vcenter">
+            Preview image
+          </Modal.Title>
+          <div>
+            {completedCrop && (
+              <canvas
+                ref={previewCanvasRef}
+                style={{
+                  border: "1px solid black",
+                  objectFit: "contain",
+                  width: completedCrop.width,
+                  height: completedCrop.height,
+                }}
+              />
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setModalShow(false)}>Done</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

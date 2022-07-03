@@ -23,6 +23,7 @@ import {
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import chatPageStyles from "./chatPage.module.css";
 import Button from "react-bootstrap/Button";
+import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 import Spinner from "react-bootstrap/Spinner";
 import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
@@ -1090,6 +1091,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       conversations[activeChatId].actionState === 2 ||
                       conversations[activeChatId].hasReviewed
                     }
+                    className="mx-3"
                   >
                     {
                       [
@@ -1100,6 +1102,19 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       ][conversations[activeChatId].actionState]
                     }
                   </Button>
+                  <BlockReportMenu
+                    showModal={(title, body, footer) =>
+                      setModalState({
+                        ...unusedModalState,
+                        show: true,
+                        title,
+                        body,
+                        footer,
+                      })
+                    }
+                    hideModal={() => setModalState(unusedModalState)}
+                    target_id={conversations[activeChatId].user_id}
+                  />
                 </ConversationHeader.Actions>
               </ConversationHeader>
             }

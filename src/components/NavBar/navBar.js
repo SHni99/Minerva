@@ -92,10 +92,9 @@ const NavBar = ({ _userLoggedIn }) => {
     <Container className={`${navBarStyles.navBar} g-0`} fluid>
       <Row>
         <Col
-          className="d-flex justify-center justify-content-lg-end"
+          className="d-flex justify-center justify-content-lg-end px-xxl-5"
           xs={12}
-          lg={4}
-          xxl={3}
+          lg="auto"
         >
           <Link to="/" className="d-flex">
             <img
@@ -108,14 +107,17 @@ const NavBar = ({ _userLoggedIn }) => {
 
         <Col
           xs={12}
-          lg={4}
-          xxl={5}
+          lg="auto"
           className="d-flex justify-center justify-content-lg-start align-center g-0"
         >
           <div className={`${navBarStyles.links}`}>{generateNavBarLinks()}</div>
         </Col>
 
-        <Col xs={12} lg={4} className="d-flex justify-center align-center">
+        <Col
+          xs={12}
+          lg="auto"
+          className="d-flex justify-center justify-content-lg-end pe-lg-5 align-center ml-auto"
+        >
           <CredentialsCorner
             isLoggedIn={isLoggedIn}
             avatarUrl={avatarUrl}

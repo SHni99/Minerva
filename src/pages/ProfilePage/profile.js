@@ -16,6 +16,7 @@ import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Dropdown from "react-bootstrap/Dropdown";
 import { ThreeDotsVertical } from "react-bootstrap-icons";
+import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
@@ -205,7 +206,7 @@ const ProfilePageBody = ({ creator_id }) => {
   );
 
   return (
-    <div className="text-center">
+    <div className="text-center pb-5">
       <div className={viewprofileStyles["container-center-horizontal"]}>
         <div className={`${viewprofileStyles["home-inner"]} container-fluid`}>
           <div className="row align-self-center">
@@ -296,18 +297,7 @@ const ProfilePageBody = ({ creator_id }) => {
                 ) : (
                   <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
                     <Button className="m-2">Chat</Button>
-                    <Dropdown>
-                      <Dropdown.Toggle variant="light" className="py-2">
-                        <ThreeDotsVertical size={18} />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu>
-                        <Dropdown.Item>Report</Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Item className="text-danger">
-                          Block
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
+                    <BlockReportMenu />
                   </div>
                 )}
 

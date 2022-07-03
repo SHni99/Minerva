@@ -23,7 +23,7 @@ import {
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import chatPageStyles from "./chatPage.module.css";
 import Button from "react-bootstrap/Button";
-import Dropdown from "react-bootstrap/Dropdown";
+import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 import Spinner from "react-bootstrap/Spinner";
 import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
@@ -1103,18 +1103,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       ][conversations[activeChatId].actionState]
                     }
                   </Button>
-                  <Dropdown>
-                    <Dropdown.Toggle variant="light" text="dark">
-                      <ThreeDotsVertical size={20} />
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      <Dropdown.Item eventKey="report">Report</Dropdown.Item>
-                      <Dropdown.Divider />
-                      <Dropdown.Item eventKey="block" className="text-danger">
-                        Block
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
+                  <BlockReportMenu />
                 </ConversationHeader.Actions>
               </ConversationHeader>
             }

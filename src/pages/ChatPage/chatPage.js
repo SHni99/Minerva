@@ -29,7 +29,6 @@ import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { ThreeDotsVertical } from "react-bootstrap-icons";
 
 const ChatPage = () => {
   const { state } = useLocation();
@@ -1103,7 +1102,19 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       ][conversations[activeChatId].actionState]
                     }
                   </Button>
-                  <BlockReportMenu />
+                  <BlockReportMenu
+                    showModal={(title, body, footer) =>
+                      setModalState({
+                        ...unusedModalState,
+                        show: true,
+                        title,
+                        body,
+                        footer,
+                      })
+                    }
+                    hideModal={() => setModalState(unusedModalState)}
+                    target_id={conversations[activeChatId].user_id}
+                  />
                 </ConversationHeader.Actions>
               </ConversationHeader>
             }

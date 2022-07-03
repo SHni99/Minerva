@@ -14,8 +14,6 @@ import Rating from "components/Rating/Rating";
 import ReviewCard from "components/ReviewCard/reviewCard";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Dropdown from "react-bootstrap/Dropdown";
-import { ThreeDotsVertical } from "react-bootstrap-icons";
 import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 
 const ViewProfilePage = () => {
@@ -296,7 +294,22 @@ const ProfilePageBody = ({ creator_id }) => {
                   </div>
                 ) : (
                   <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
-                    <Button className="m-2">Chat</Button>
+                    <Button
+                      className="m-2"
+                      onClick={() =>
+                        navigate("/chats", {
+                          state: {
+                            startChatData: {
+                              user_id: creator_id,
+                              name: profileData.username,
+                              src: avatar_url,
+                            },
+                          },
+                        })
+                      }
+                    >
+                      Chat
+                    </Button>
                     <BlockReportMenu />
                   </div>
                 )}

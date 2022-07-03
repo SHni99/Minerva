@@ -14,6 +14,8 @@ import Rating from "components/Rating/Rating";
 import ReviewCard from "components/ReviewCard/reviewCard";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Dropdown from "react-bootstrap/Dropdown";
+import { ThreeDotsVertical } from "react-bootstrap-icons";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
@@ -264,7 +266,7 @@ const ProfilePageBody = ({ creator_id }) => {
 
             <div className="col-lg-8 col-sm-12">
               <div className="row">
-                {checkUser || (
+                {!checkUser ? (
                   <div className="row-lg-3">
                     <div className="row-lg-3 text-right my-3">
                       <Button
@@ -290,6 +292,22 @@ const ProfilePageBody = ({ creator_id }) => {
                         </Button>
                       </div>
                     </div>
+                  </div>
+                ) : (
+                  <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
+                    <Button className="m-2">Chat</Button>
+                    <Dropdown>
+                      <Dropdown.Toggle variant="light" className="py-2">
+                        <ThreeDotsVertical size={18} />
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu>
+                        <Dropdown.Item>Report</Dropdown.Item>
+                        <Dropdown.Divider />
+                        <Dropdown.Item className="text-danger">
+                          Block
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
                   </div>
                 )}
 

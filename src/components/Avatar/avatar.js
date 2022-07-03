@@ -85,17 +85,18 @@ const PersonalAvatar = ({ url, onUpload }) => {
   function useDebounceEffect(fn, waitTime, deps) {
     useEffect(() => {
       const t = setTimeout(() => {
-        fn.apply(undefined, deps);
+        fn().apply(undefined, deps);
       }, waitTime);
 
       return () => {
         clearTimeout(t);
       };
-    }, deps);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [deps]);
   }
 
   async function canvasPreview(image, canvas, crop, scale = 1, rotate = 0) {
-    return new Promise((resolve) => {
+    
       const ctx = canvas.getContext("2d");
 
       if (!ctx) {
@@ -146,6 +147,8 @@ const PersonalAvatar = ({ url, onUpload }) => {
         image.naturalHeight
       );
 
+      ctx.restore();
+
       canvas.toBlob(
         async (blob) => {
           if (!blob) {
@@ -173,8 +176,8 @@ const PersonalAvatar = ({ url, onUpload }) => {
         "image/jpeg",
         1
       );
-      ctx.restore();
-    });
+      
+    
   }
 
   useDebounceEffect(

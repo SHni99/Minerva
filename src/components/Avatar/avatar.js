@@ -7,6 +7,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import { CloseButton } from "react-bootstrap";
 
 function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   return centerCrop(
@@ -220,7 +221,10 @@ const PersonalAvatar = ({ url, onUpload }) => {
         </div>
       </button>
       <Modal size="lg" show={modalShow} onHide={() => setModalShow(false)}>
-        <Modal.Title id="contained-modal-title-vcenter">Crop image</Modal.Title>
+        
+        <Modal.Title className=" d-flex justify-end"><CloseButton
+        onClick={() => setModalShow(false)}>
+          </CloseButton></Modal.Title>
         <Modal.Body>
           {avatarUrl && (
             <ReactCrop
@@ -240,22 +244,17 @@ const PersonalAvatar = ({ url, onUpload }) => {
             </ReactCrop>
           )}
 
-          <Modal.Title id="contained-modal-title-vcenter">
-            Preview image
-          </Modal.Title>
-          <div>
+         
             {completedCrop && (
               <canvas
                 ref={previewCanvasRef}
                 style={{
-                  border: "1px solid black",
-                  objectFit: "contain",
-                  width: completedCrop.width,
-                  height: completedCrop.height,
+                  visibility: "hidden",
+                  position: "absolute"
                 }}
               />
             )}
-          </div>
+          
         </Modal.Body>
         <Modal.Footer>
           <Button

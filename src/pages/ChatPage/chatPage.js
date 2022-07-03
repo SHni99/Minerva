@@ -23,11 +23,13 @@ import {
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import chatPageStyles from "./chatPage.module.css";
 import Button from "react-bootstrap/Button";
+import Dropdown from "react-bootstrap/Dropdown";
 import Spinner from "react-bootstrap/Spinner";
 import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import { ThreeDotsVertical } from "react-bootstrap-icons";
 
 const ChatPage = () => {
   const { state } = useLocation();
@@ -1090,6 +1092,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       conversations[activeChatId].actionState === 2 ||
                       conversations[activeChatId].hasReviewed
                     }
+                    className="mx-3"
                   >
                     {
                       [
@@ -1100,6 +1103,18 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                       ][conversations[activeChatId].actionState]
                     }
                   </Button>
+                  <Dropdown>
+                    <Dropdown.Toggle variant="light" text="dark">
+                      <ThreeDotsVertical size={20} />
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item eventKey="report">Report</Dropdown.Item>
+                      <Dropdown.Divider />
+                      <Dropdown.Item eventKey="block" className="text-danger">
+                        Block
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </ConversationHeader.Actions>
               </ConversationHeader>
             }

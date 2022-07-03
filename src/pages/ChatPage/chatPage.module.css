@@ -59,3 +59,7 @@
     display: flex !important;
     padding: 0 !important;
 }
+
+:global(.dropdown-toggle::after) {
+    display: none !important;
+}

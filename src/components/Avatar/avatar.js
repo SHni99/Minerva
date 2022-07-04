@@ -8,6 +8,7 @@ import Button from "react-bootstrap/Button";
 import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { CloseButton } from "react-bootstrap";
+import Spinner from "react-bootstrap/Spinner";
 
 function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   return centerCrop(
@@ -27,8 +28,10 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
 
 const PersonalAvatar = ({ url, onUpload }) => {
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [savedUrl, setSavedUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [modalShow, setModalShow] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState();
   const imgRef = useRef(null);
@@ -41,6 +44,7 @@ const PersonalAvatar = ({ url, onUpload }) => {
 
   const downloadImage = async (path) => {
     try {
+      setLoading(true);
       const { data, error } = await supabaseClient.storage
         .from("public/avatars")
         .download(path);
@@ -51,6 +55,8 @@ const PersonalAvatar = ({ url, onUpload }) => {
       setAvatarUrl(url);
     } catch (error) {
       console.log("Error downloading image: ", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,7 +81,8 @@ const PersonalAvatar = ({ url, onUpload }) => {
         throw uploadError;
       }
       setModalShow(true);
-      onUpload(filePath);
+      const saved = URL.createObjectURL(file);
+      setSavedUrl(saved);
     } catch (error) {
       alert(error.message);
     } finally {
@@ -203,10 +210,11 @@ const PersonalAvatar = ({ url, onUpload }) => {
       >
         <div className={`${avatarStyle["text"]} inter-normal-licorice-20px`}>
           <label
+          className="d-flex justify-center"
             style={{ cursor: "pointer", fontWeight: "bold" }}
             htmlFor="single"
           >
-            {uploading ? "Uploading" : "Upload"}
+            {uploading ? "Uploading": "Upload"}
           </label>
           <input
             style={{
@@ -221,13 +229,16 @@ const PersonalAvatar = ({ url, onUpload }) => {
         </div>
       </button>
       <Modal size="lg" show={modalShow} onHide={() => setModalShow(false)}>
-        
-        <Modal.Title className=" d-flex justify-end"><CloseButton
-        onClick={() => setModalShow(false)}>
-          </CloseButton></Modal.Title>
-          <Modal.Header className="nunito-semi-bold-black-24px">Crop profile picture</Modal.Header>
+        <Modal.Title className=" d-flex justify-end">
+          <CloseButton onClick={() => setModalShow(false)}></CloseButton>
+        </Modal.Title>
+        <Modal.Header className="nunito-semi-bold-black-24px">
+          Crop profile picture
+        </Modal.Header>
         <Modal.Body className="d-flex justify-center">
-          {avatarUrl && (
+          {loading ? (
+            <Spinner animation="border" />
+          ) : (
             <ReactCrop
               crop={crop}
               ruleOfThirds
@@ -238,24 +249,22 @@ const PersonalAvatar = ({ url, onUpload }) => {
             >
               <img
                 ref={imgRef}
-                src={avatarUrl}
+                src={savedUrl}
                 onLoad={onImageLoad}
                 alt="Crop me"
               ></img>
             </ReactCrop>
           )}
 
-         
-            {completedCrop && (
-              <canvas
-                ref={previewCanvasRef}
-                style={{
-                  visibility: "hidden",
-                  position: "absolute"
-                }}
-              />
-            )}
-          
+          {completedCrop && (
+            <canvas
+              ref={previewCanvasRef}
+              style={{
+                visibility: "hidden",
+                position: "absolute",
+              }}
+            />
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button

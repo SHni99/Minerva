@@ -168,6 +168,7 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
 
         try {
           // Delete previous avatar from Supabase storage
+          setUploading(true);
           if (avatarUrl) {
             const oldFileName = avatarUrl.split("/").at(-1);
             let { error } = await supabaseClient.storage
@@ -180,8 +181,14 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
           let { error } = await supabaseClient.storage
             .from("avatars")
             .upload(fileName, file);
-
           if (error) throw error;
+
+          // Update avatar_url in profiles
+          let { error: avatarError } = await supabaseClient
+            .from("profiles")
+            .update({ avatar_url: fileName })
+            .eq("id", supabaseClient.auth.user().id);
+          if (avatarError) throw avatarError;
 
           let { publicURL, error: getURLError } = supabaseClient.storage
             .from("avatars")
@@ -192,6 +199,8 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
           onUpload(fileName);
         } catch (error) {
           alert(error.message);
+        } finally {
+          setUploading(false);
         }
       },
       "image/jpeg",
@@ -235,30 +244,29 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
         />
       )}
 
-      <button
-        className={`${avatarStyle["button-master"]} border-1px-santas-gray`}
+      <div
+        className={`${avatarStyle["button-master"]} border-1px-santas-gray inter-normal-licorice-20px`}
       >
-        <div className={`${avatarStyle["text"]} inter-normal-licorice-20px`}>
-          <label
-            className="d-flex justify-center"
-            style={{ cursor: "pointer", fontWeight: "bold" }}
-            htmlFor="single"
-          >
-            {uploading ? "Uploading" : "Upload"}
-          </label>
-          <input
-            style={{
-              visibility: "hidden",
-              position: "absolute",
-            }}
-            type="file"
-            id="single"
-            accept="image/*"
-            onClick={(e) => (e.target.value = null)}
-            onChange={uploadAvatar}
-          />
-        </div>
-      </button>
+        <label
+          className="d-flex justify-center"
+          style={{ cursor: "pointer", fontWeight: "bold" }}
+          htmlFor="single"
+        >
+          {uploading ? "Uploading" : "Upload"}
+        </label>
+        <input
+          style={{
+            visibility: "hidden",
+            position: "absolute",
+          }}
+          type="file"
+          id="single"
+          accept="image/*"
+          onClick={(e) => (e.target.value = null)}
+          onChange={uploadAvatar}
+          disabled={uploading}
+        />
+      </div>
 
       <Modal size="lg" show={modalShow} onHide={() => setModalShow(false)}>
         <Modal.Title>
@@ -294,21 +302,27 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
             />
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="outline-secondary"
-            onClick={() => setModalShow(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              uploadImage(previewCanvasRef.current);
-              setModalShow(false);
-            }}
-          >
-            Done
-          </Button>
+        <Modal.Footer className={uploading && "d-flex justify-center"}>
+          {uploading ? (
+            <Spinner animation="border" />
+          ) : (
+            <>
+              <Button
+                variant="outline-secondary"
+                onClick={() => setModalShow(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  await uploadImage(previewCanvasRef.current);
+                  setModalShow(false);
+                }}
+              >
+                Confirm
+              </Button>
+            </>
+          )}
         </Modal.Footer>
       </Modal>
     </div>

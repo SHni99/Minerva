@@ -27,11 +27,9 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
 
 const PersonalAvatar = ({ url, onUpload, loading }) => {
   const [avatarUrl, setAvatarUrl] = useState(null);
-  // const [savedUrl, setSavedUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [tempAvatar, setTempAvatar] = useState(null);
   const [modalShow, setModalShow] = useState(false);
-  // const [loading, setLoading] = useState(false);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState();
   const imgRef = useRef(null);
@@ -39,7 +37,6 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
   const aspect = 1;
 
   useEffect(() => {
-    // if (url) downloadImage(url);
     if (!url) return;
 
     let { publicURL, error } = supabaseClient.storage
@@ -49,59 +46,9 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
     setAvatarUrl(publicURL);
   }, [url]);
 
-  // const downloadImage = async (path) => {
-  //   try {
-  //     setLoading(true);
-  //     const { data, error } = await supabaseClient.storage
-  //       .from("public/avatars")
-  //       .download(path);
-  //     if (error) {
-  //       throw error;
-  //     }
-  //     const url = URL.createObjectURL(data);
-  //     setAvatarUrl(url);
-  //   } catch (error) {
-  //     console.log("Error downloading image: ", error.message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const uploadAvatar = async (event) => {
-    // const file = event.target.files[0];
-    // const fileExt = file.name.split(".").pop();
-    // const fileName = `${Math.random()}.${fileExt}`;
-
     setTempAvatar(URL.createObjectURL(event.target.files[0]));
     setModalShow(true);
-
-    // try {
-    //   setUploading(true);
-
-    //   if (!event.target.files || event.target.files.length === 0) {
-    //     throw new Error("You must select an image to upload.");
-    //   }
-
-    //   const file = event.target.files[0];
-    //   const fileExt = file.name.split(".").pop();
-    //   const fileName = `${Math.random()}.${fileExt}`;
-    //   const filePath = `${fileName}`;
-
-    //   let { error: uploadError } = await supabaseClient.storage
-    //     .from("avatars")
-    //     .upload(filePath, file);
-
-    //   if (uploadError) {
-    //     throw uploadError;
-    //   }
-    //   setModalShow(true);
-    //   const saved = URL.createObjectURL(file);
-    //   setSavedUrl(saved);
-    // } catch (error) {
-    //   alert(error.message);
-    // } finally {
-    //   setUploading(false);
-    // }
   };
 
   async function canvasPreview(image, canvas, crop, scale = 1, rotate = 0) {
@@ -280,7 +227,6 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
           >
             <img
               ref={imgRef}
-              // src={savedUrl}
               src={tempAvatar}
               onLoad={onImageLoad}
               alt="Crop me"

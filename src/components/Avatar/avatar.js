@@ -47,6 +47,7 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
   }, [url]);
 
   const uploadAvatar = async (event) => {
+    setCrop(null);
     setTempAvatar(URL.createObjectURL(event.target.files[0]));
     setModalShow(true);
   };

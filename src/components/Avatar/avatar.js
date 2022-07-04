@@ -26,12 +26,13 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   );
 }
 
-const PersonalAvatar = ({ url, onUpload }) => {
+const PersonalAvatar = ({ url, onUpload, loading }) => {
   const [avatarUrl, setAvatarUrl] = useState(null);
-  const [savedUrl, setSavedUrl] = useState(null);
+  // const [savedUrl, setSavedUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [tempAvatar, setTempAvatar] = useState(null);
   const [modalShow, setModalShow] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState();
   const imgRef = useRef(null);
@@ -39,55 +40,69 @@ const PersonalAvatar = ({ url, onUpload }) => {
   const aspect = 1;
 
   useEffect(() => {
-    if (url) downloadImage(url);
+    // if (url) downloadImage(url);
+    if (!url) return;
+
+    let { publicURL, error } = supabaseClient.storage
+      .from("avatars")
+      .getPublicUrl(url);
+    if (error) alert(error.message);
+    setAvatarUrl(publicURL);
   }, [url]);
 
-  const downloadImage = async (path) => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabaseClient.storage
-        .from("public/avatars")
-        .download(path);
-      if (error) {
-        throw error;
-      }
-      const url = URL.createObjectURL(data);
-      setAvatarUrl(url);
-    } catch (error) {
-      console.log("Error downloading image: ", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const downloadImage = async (path) => {
+  //   try {
+  //     setLoading(true);
+  //     const { data, error } = await supabaseClient.storage
+  //       .from("public/avatars")
+  //       .download(path);
+  //     if (error) {
+  //       throw error;
+  //     }
+  //     const url = URL.createObjectURL(data);
+  //     setAvatarUrl(url);
+  //   } catch (error) {
+  //     console.log("Error downloading image: ", error.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const uploadAvatar = async (event) => {
-    try {
-      setUploading(true);
+    // const file = event.target.files[0];
+    // const fileExt = file.name.split(".").pop();
+    // const fileName = `${Math.random()}.${fileExt}`;
 
-      if (!event.target.files || event.target.files.length === 0) {
-        throw new Error("You must select an image to upload.");
-      }
+    setTempAvatar(URL.createObjectURL(event.target.files[0]));
+    setModalShow(true);
 
-      const file = event.target.files[0];
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+    // try {
+    //   setUploading(true);
 
-      let { error: uploadError } = await supabaseClient.storage
-        .from("avatars")
-        .upload(filePath, file);
+    //   if (!event.target.files || event.target.files.length === 0) {
+    //     throw new Error("You must select an image to upload.");
+    //   }
 
-      if (uploadError) {
-        throw uploadError;
-      }
-      setModalShow(true);
-      const saved = URL.createObjectURL(file);
-      setSavedUrl(saved);
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setUploading(false);
-    }
+    //   const file = event.target.files[0];
+    //   const fileExt = file.name.split(".").pop();
+    //   const fileName = `${Math.random()}.${fileExt}`;
+    //   const filePath = `${fileName}`;
+
+    //   let { error: uploadError } = await supabaseClient.storage
+    //     .from("avatars")
+    //     .upload(filePath, file);
+
+    //   if (uploadError) {
+    //     throw uploadError;
+    //   }
+    //   setModalShow(true);
+    //   const saved = URL.createObjectURL(file);
+    //   setSavedUrl(saved);
+    // } catch (error) {
+    //   alert(error.message);
+    // } finally {
+    //   setUploading(false);
+    // }
   };
 
   async function canvasPreview(image, canvas, crop, scale = 1, rotate = 0) {
@@ -152,17 +167,31 @@ const PersonalAvatar = ({ url, onUpload }) => {
         const file = new File([blob], fileName, { type: "image/jpeg" });
 
         try {
+          // Delete previous avatar from Supabase storage
+          if (avatarUrl) {
+            const oldFileName = avatarUrl.split("/").at(-1);
+            let { error } = await supabaseClient.storage
+              .from("avatars")
+              .remove([oldFileName]);
+            if (error) throw error;
+          }
+
+          // Upload cropped image
           let { error } = await supabaseClient.storage
             .from("avatars")
             .upload(fileName, file);
 
           if (error) throw error;
 
+          let { publicURL, error: getURLError } = supabaseClient.storage
+            .from("avatars")
+            .getPublicUrl(fileName);
+          if (getURLError) throw getURLError;
+
+          setAvatarUrl(publicURL);
           onUpload(fileName);
         } catch (error) {
           alert(error.message);
-        } finally {
-          console.log("done");
         }
       },
       "image/jpeg",
@@ -192,29 +221,30 @@ const PersonalAvatar = ({ url, onUpload }) => {
     }
   }
 
-  function todo() {
-    uploadImage(previewCanvasRef.current);
-    setModalShow(false);
-  }
-
   return (
     <div className="d-flex flex-column align-center ">
-      <img
-        className={`${avatarStyle["avatarmaster"]} border border-dark`}
-        src={avatarUrl || "/images/img_avatarDefault.jpg"}
-        alt={"avatar" || "default_avatar"}
-      />
+      {uploading || loading ? (
+        <div className={`${avatarStyle["avatarmaster"]} border border-dark`}>
+          <Spinner animation="border" />
+        </div>
+      ) : (
+        <img
+          className={`${avatarStyle["avatarmaster"]} border border-dark`}
+          src={avatarUrl || "images/img_avatarDefault.jpg"}
+          alt={"avatar" || "default_avatar"}
+        />
+      )}
 
       <button
         className={`${avatarStyle["button-master"]} border-1px-santas-gray`}
       >
         <div className={`${avatarStyle["text"]} inter-normal-licorice-20px`}>
           <label
-          className="d-flex justify-center"
+            className="d-flex justify-center"
             style={{ cursor: "pointer", fontWeight: "bold" }}
             htmlFor="single"
           >
-            {uploading ? "Uploading": "Upload"}
+            {uploading ? "Uploading" : "Upload"}
           </label>
           <input
             style={{
@@ -224,37 +254,35 @@ const PersonalAvatar = ({ url, onUpload }) => {
             type="file"
             id="single"
             accept="image/*"
+            onClick={(e) => (e.target.value = null)}
             onChange={uploadAvatar}
           />
         </div>
       </button>
+
       <Modal size="lg" show={modalShow} onHide={() => setModalShow(false)}>
-        <Modal.Title className=" d-flex justify-end">
-          <CloseButton onClick={() => setModalShow(false)}></CloseButton>
+        <Modal.Title>
+          <Modal.Header className="nunito-semi-bold-black-24px" closeButton>
+            Crop Profile Picture
+          </Modal.Header>
         </Modal.Title>
-        <Modal.Header className="nunito-semi-bold-black-24px">
-          Crop profile picture
-        </Modal.Header>
         <Modal.Body className="d-flex justify-center">
-          {loading ? (
-            <Spinner animation="border" />
-          ) : (
-            <ReactCrop
-              crop={crop}
-              ruleOfThirds
-              circularCrop={true}
-              onChange={(_, percentCrop) => setCrop(percentCrop)}
-              onComplete={(c) => setCompletedCrop(c)}
-              aspect={aspect}
-            >
-              <img
-                ref={imgRef}
-                src={savedUrl}
-                onLoad={onImageLoad}
-                alt="Crop me"
-              ></img>
-            </ReactCrop>
-          )}
+          <ReactCrop
+            crop={crop}
+            ruleOfThirds
+            circularCrop={true}
+            onChange={(_, percentCrop) => setCrop(percentCrop)}
+            onComplete={(c) => setCompletedCrop(c)}
+            aspect={aspect}
+          >
+            <img
+              ref={imgRef}
+              // src={savedUrl}
+              src={tempAvatar}
+              onLoad={onImageLoad}
+              alt="Crop me"
+            ></img>
+          </ReactCrop>
 
           {completedCrop && (
             <canvas
@@ -268,8 +296,15 @@ const PersonalAvatar = ({ url, onUpload }) => {
         </Modal.Body>
         <Modal.Footer>
           <Button
+            variant="outline-secondary"
+            onClick={() => setModalShow(false)}
+          >
+            Cancel
+          </Button>
+          <Button
             onClick={() => {
-              todo();
+              uploadImage(previewCanvasRef.current);
+              setModalShow(false);
             }}
           >
             Done

@@ -7,7 +7,6 @@ import profileStyles from "./updateProfile.module.css";
 import PersonalAvatar from "components/Avatar/avatar";
 import Button from "react-bootstrap/Button";
 
-
 //retrieve session from loginmain page and call getProfile method if session is read
 const UpdateProfilePage = ({ session }) => {
   const navigate = useNavigate();
@@ -16,7 +15,6 @@ const UpdateProfilePage = ({ session }) => {
   const [avatar_url, setAvatarUrl] = useState("");
   const [gender, setGender] = useState("");
   const [bio, setBio] = useState("");
-
 
   useEffect(() => {
     getProfile();
@@ -162,9 +160,8 @@ const ProfilePageBody = (props) => {
                 onUpload={(url) => {
                   setAvatarUrl(url);
                 }}
+                loading={loading}
               />
-
-              
 
               <div className="mt-4">
                 <h4>Email: {session.user.email} </h4>

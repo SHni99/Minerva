@@ -22,9 +22,23 @@
     min-width: 70px;
     margin-top: 20px;
     overflow: hidden;
-    padding: 0 24px;
     width: 118px;
-    cursor: pointer;
     white-space: nowrap;
+    position: relative;
     text-align: center;
+    cursor: pointer;
+  }
+
+  .hidden-file-input {
+    visibility: hidden;
+    position: absolute;
+  }
+
+  .upload-label {
+    cursor: pointer;
+    width: 100%;
+    line-height: 48px;
+    display: inline-block;
+    vertical-align: middle;
+    font-weight: bold;
   }

@@ -7,7 +7,6 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { CloseButton } from "react-bootstrap";
 import Spinner from "react-bootstrap/Spinner";
 
 function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
@@ -245,20 +244,16 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
       )}
 
       <div
-        className={`${avatarStyle["button-master"]} border-1px-santas-gray inter-normal-licorice-20px`}
+        className={`${avatarStyle["button-master"]} border-1px-santas-gray `}
       >
         <label
-          className="d-flex justify-center"
-          style={{ cursor: "pointer", fontWeight: "bold" }}
           htmlFor="single"
+          className={`${avatarStyle["upload-label"]} inter-normal-licorice-20px`}
         >
           {uploading ? "Uploading" : "Upload"}
         </label>
         <input
-          style={{
-            visibility: "hidden",
-            position: "absolute",
-          }}
+          className={avatarStyle["hidden-file-input"]}
           type="file"
           id="single"
           accept="image/*"

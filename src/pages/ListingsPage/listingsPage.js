@@ -203,7 +203,7 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
     const getListings = async () => {
       try {
         setLoading(true);
-
+        const user = supabase.auth.user();
         // Fetch data from the 'listings' table
         let {
           data: listingDb,
@@ -222,9 +222,26 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
         // avatar URL. After all asynchronous calls have been resolved, set the result to
         // the listingData state/hook.
         const newListingData = await Promise.all(listingDb.map(parseListing));
-        setListingData(newListingData);
+
+        const { data: blockedData, error } = await supabase
+          .from("profiles")
+          .select("blocked")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+
+        //filter blocked user from the listing data
+        const current = newListingData.filter((res) =>
+          blockedData.blocked.reduce(
+            (cur, next) => cur && res.creator_id !== next,
+            true
+          )
+        );
+
+        setListingData(current);
       } catch (error) {
-        alert(error.error);
+        alert(error.message);
       } finally {
         setLoading(false);
       }

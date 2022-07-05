@@ -15,6 +15,7 @@ import ReviewCard from "components/ReviewCard/reviewCard";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
+import Setting from "components/Setting/setting";
 import Modal from "react-bootstrap/Modal";
 
 const ViewProfilePage = () => {
@@ -63,19 +64,6 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
   const [avatar_url, setAvatarurl] = useState("");
   const [isEmpty, setIsEmpty] = useState(false);
   const navigate = useNavigate();
-
-  //log user out and redirect to landing page
-  const handleLogout = async (navigate, e) => {
-    e.preventDefault();
-    try {
-      const { error } = await supabaseClient.auth.signOut();
-      if (error) throw error;
-      //input logout popup
-      navigate("/");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
 
   useEffect(() => {
     const getReview = async (id) => {
@@ -280,32 +268,7 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
             <div className="col-lg-8 col-sm-12">
               <div className="row">
                 {!checkUser ? (
-                  <div className="row-lg-3">
-                    <div className="row-lg-3 text-right my-3">
-                      <Button
-                        className="bg-primary"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/loginmainpage");
-                        }}
-                      >
-                        Edit my profile
-                      </Button>
-                    </div>
-
-                    <div className="row-lg-3 text-right my-3">
-                      <div>
-                        <Button
-                          className="bg-primary"
-                          onClick={(e) => {
-                            handleLogout(navigate, e);
-                          }}
-                        >
-                          Log out
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <Setting></Setting>
                 ) : (
                   <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
                     <Button

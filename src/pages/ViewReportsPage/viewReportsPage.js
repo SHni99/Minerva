@@ -53,7 +53,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           let { data, error } = await supabaseClient
             .from("reports")
             .select(
-              `id, description, status, reporter(id, username), reported(id, username), assigned(id, username)`
+              `id, description, status, reporter(id, username), reported(id, username, avatar_url), assigned(id, username)`
             );
           if (error) console.log(error);
           setReports(data);
@@ -79,11 +79,27 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
   }, [ADMIN_THRESHOLD, setToastOptions, navigate]);
 
   // Generate action buttons tied to the reported user's id.
-  const generateActions = ({ id, username }) => {
+  const generateActions = ({ id, username, avatar_url }) => {
     return (
-      <p className={`p-0 m-0`}>
+      <div className={`p-0 m-0`}>
         <div className={ReportStyles.tooltip}>
-          <Button variant="light" className="mx-2">
+          <Button
+            variant="light"
+            className="mx-2"
+            onClick={() =>
+              navigate("/chats", {
+                state: {
+                  startChatData: {
+                    user_id: id,
+                    name: username,
+                    src: supabaseClient.storage
+                      .from("avatars")
+                      .getPublicUrl(avatar_url).publicURL,
+                  },
+                },
+              })
+            }
+          >
             <ChatDots />
           </Button>
           <span className={ReportStyles.tooltiptext}>
@@ -96,7 +112,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           </Button>
           <span className={ReportStyles.tooltiptext}>Ban {username}</span>
         </div>
-      </p>
+      </div>
     );
   };
 

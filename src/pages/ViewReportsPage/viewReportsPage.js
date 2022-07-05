@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import { supabaseClient } from "config/supabase-client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
 import Row from "react-bootstrap/Row";
@@ -31,6 +31,7 @@ export default ViewReportsPage;
 const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [reports, setReports] = useState([]);
 
   // Check for authorisation, then get reports if authorised.
   useEffect(() => {
@@ -49,10 +50,10 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           let { data, error } = await supabaseClient
             .from("reports")
             .select(
-              `*, reporter(username), reported(username), assigned(username)`
+              `id, description, status, reporter(id, username), reported(id, username), assigned(id, username)`
             );
           if (error) console.log(error);
-          console.log(data);
+          setReports(data);
         } else {
           // User not authorised, redirect to landing page
           navigate("/");
@@ -74,6 +75,35 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
     })();
   }, [ADMIN_THRESHOLD, setToastOptions, navigate]);
 
+  // Generate action buttons tied to the reported user's id.
+  const generateActions = ({ id, username }) => {
+    return "actions go here";
+  };
+
+  const createTr = (data) => {
+    const { id, description, reporter, reported, assigned } = data;
+    return (
+      <tr key={`report-${id}`}>
+        <td>{id}</td>
+        <td>{description}</td>
+        <td>
+          <Link to="/profile" state={{ creator_id: reporter.id }}>
+            {reporter.username}
+          </Link>
+        </td>
+        <td>
+          <Link to="/profile" state={{ creator_id: reported.id }}>
+            {reported.username}
+          </Link>
+        </td>
+        <td className={assigned || "text-danger"}>
+          {assigned ? assigned.username : "None"}
+        </td>
+        <td>{generateActions(reported)}</td>
+      </tr>
+    );
+  };
+
   return (
     <Container
       className={loading && "d-flex justify-center align-center my-auto"}
@@ -82,7 +112,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         <Spinner size="xl" animation="grow" />
       ) : (
         <Row>
-          <Table>
+          <Table bordered hover>
             <thead>
               <tr>
                 <th>ID</th>
@@ -93,6 +123,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
                 <th>Actions</th>
               </tr>
             </thead>
+            <tbody>{reports.map(createTr)}</tbody>
           </Table>
         </Row>
       )}

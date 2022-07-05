@@ -15,6 +15,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFound from "pages/NotFound";
 import ChatPage from "pages/ChatPage/chatPage";
 import ReviewPage from "pages/ReviewPage/reviewPage";
+import ViewReportsPage from "pages/ViewReportsPage/viewReportsPage";
 
 const ProjectRoutes = ({ setToastOptions }) => {
   // Simplify toast showing
@@ -52,6 +53,10 @@ const ProjectRoutes = ({ setToastOptions }) => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/chats" element={<ChatPage />} />
+        <Route
+          path="/reports"
+          element={<ViewReportsPage setToastOptions={setToastOptions} />}
+        />
       </Routes>
     </Router>
   );

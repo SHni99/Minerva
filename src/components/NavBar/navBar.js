@@ -8,48 +8,52 @@ import Container from "react-bootstrap/Container";
 import { ChatDots } from "react-bootstrap-icons";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Dropdown from "react-bootstrap/Dropdown";
 
 const NavBar = ({ _userLoggedIn }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(_userLoggedIn || false);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [perms, setPerms] = useState(0);
+
+  // Minimum permission level to be considered an admin
+  const ADMIN_THRESHOLD = 1;
 
   const minervaLogoSrc = "/images/img_minervaLogo.png";
 
-  // Try to fetch user profile pic
+  // Try to fetch user profile pic and permission status
   useEffect(() => {
-    getAvatarUrl();
+    (async () => {
+      try {
+        setLoading(true);
+        const user = supabase.auth.user();
+
+        if (!user) return;
+        setIsLoggedIn(true);
+
+        const { data, error: profileError } = await supabase
+          .from("profiles")
+          .select("avatar_url, permissions")
+          .eq("id", user.id)
+          .single();
+        if (profileError) throw profileError;
+        setPerms(data.permissions);
+        if (data.avatar_url === "") return;
+
+        const { publicURL, error: publicUrlError } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(data.avatar_url);
+
+        if (publicUrlError) throw publicUrlError;
+
+        setAvatarUrl(publicURL);
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
-
-  const getAvatarUrl = async () => {
-    try {
-      setLoading(true);
-      const user = supabase.auth.user();
-
-      if (!user) return;
-      setIsLoggedIn(true);
-
-      const { data, error: avatarUrlError } = await supabase
-        .from("profiles")
-        .select("avatar_url")
-        .eq("id", user.id)
-        .single();
-      if (avatarUrlError) throw avatarUrlError;
-      if (data.avatar_url === "") return;
-
-      const { publicURL, error: publicUrlError } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(data.avatar_url);
-
-      if (publicUrlError) throw publicUrlError;
-
-      setAvatarUrl(publicURL);
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const generateNavBarLinks = () => {
     return (
@@ -84,6 +88,18 @@ const NavBar = ({ _userLoggedIn }) => {
             About Us
           </div>
         </Link>
+
+        {/* Admin Panel, only visible to admins */}
+        {perms >= ADMIN_THRESHOLD && (
+          <Dropdown>
+            <Dropdown.Toggle variant="outline-secondary" className="mx-4">
+              Admin Panel
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item href="/reports">User Reports</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        )}
       </React.Fragment>
     );
   };

@@ -3,10 +3,13 @@ import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import { supabaseClient } from "config/supabase-client";
 import { useNavigate, Link } from "react-router-dom";
+import ReportStyles from "./viewReportsPage.module.css";
+import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
 import Row from "react-bootstrap/Row";
 import Table from "react-bootstrap/Table";
+import { ChatDots, ExclamationCircle } from "react-bootstrap-icons";
 
 const ViewReportsPage = ({ setToastOptions }) => {
   // Minimum permission level required to be considered an admin.
@@ -77,7 +80,24 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
 
   // Generate action buttons tied to the reported user's id.
   const generateActions = ({ id, username }) => {
-    return "actions go here";
+    return (
+      <p className={`p-0 m-0`}>
+        <div className={ReportStyles.tooltip}>
+          <Button variant="light" className="mx-2">
+            <ChatDots />
+          </Button>
+          <span className={ReportStyles.tooltiptext}>
+            Chat with {username}!
+          </span>
+        </div>
+        <div className={ReportStyles.tooltip}>
+          <Button variant="danger" className="mx-2">
+            <ExclamationCircle />
+          </Button>
+          <span className={ReportStyles.tooltiptext}>Ban {username}</span>
+        </div>
+      </p>
+    );
   };
 
   const createTr = (data) => {

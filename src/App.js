@@ -41,10 +41,9 @@ function App() {
           autohide={autohide}
           delay={delay}
           show={show}
-          closeButton={closeButton}
           onClose={() => setToastOptions((old) => ({ ...old, show: false }))}
         >
-          <Toast.Header>{headerContent}</Toast.Header>
+          <Toast.Header closeButton={closeButton}>{headerContent}</Toast.Header>
           <Toast.Body>{bodyContent}</Toast.Body>
         </Toast>
       </ToastContainer>

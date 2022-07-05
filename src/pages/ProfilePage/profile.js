@@ -33,7 +33,10 @@ const ViewProfilePage = () => {
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ProfileModal modalState={modalState} />
+      <ProfileModal
+        modalState={modalState}
+        onHide={() => setModalState(unusedModalState)}
+      />
       <ProfilePageBody
         creator_id={state ? state.creator_id : undefined}
         setModalState={setModalState}
@@ -390,12 +393,14 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
   );
 };
 
-const ProfileModal = ({ modalState }) => {
+const ProfileModal = ({ modalState, onHide }) => {
   const { show, title, body, footer } = modalState;
 
   return (
-    <Modal show={show}>
-      <Modal.Header>{title}</Modal.Header>
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
+        <Modal.Title>{title}</Modal.Title>
+      </Modal.Header>
       <Modal.Body>{body}</Modal.Body>
       <Modal.Footer>{footer}</Modal.Footer>
     </Modal>

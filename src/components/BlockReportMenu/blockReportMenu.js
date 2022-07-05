@@ -24,6 +24,15 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
     </Button>
   );
 
+  // Reasons for reporting
+  const reportReasons = [
+    "Suspicious Activity",
+    "Offensive Behaviour",
+    "False Advertising",
+    "Spamming",
+    "Inappropriate Content",
+  ];
+
   const blockAction = () => {
     // Implement block functionality here
     console.log(target_id);
@@ -32,8 +41,19 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
 
   const reportAction = () => {
     // Implement report functionality here
-    console.log(target_id);
-    hideModal();
+    showModal(
+      "Reason for Reporting",
+      <select style={{ borderRadius: "6px" }}>
+        {reportReasons.map((reason, i) => (
+          <option key={`reportReason-${i}`}>{reason}</option>
+        ))}
+      </select>,
+      <>
+        <Button>Submit</Button>
+        {cancelButton}
+      </>
+    );
+    // hideModal();
   };
 
   return (

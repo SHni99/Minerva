@@ -5,6 +5,8 @@ import { supabaseClient } from "config/supabase-client";
 import { useNavigate } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
+import Row from "react-bootstrap/Row";
+import Table from "react-bootstrap/Table";
 
 const ViewReportsPage = ({ setToastOptions }) => {
   // Minimum permission level required to be considered an admin.
@@ -30,11 +32,11 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  // Check for authorisation
+  // Check for authorisation, then get reports if authorised.
   useEffect(() => {
-    // IIFE that redirects users if not authorised.
     (async () => {
       try {
+        // Check permissions
         let { data, error } = await supabaseClient
           .from("profiles")
           .select("permissions")
@@ -44,7 +46,15 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
 
         if (data.permissions >= ADMIN_THRESHOLD) {
           setLoading(false);
+          let { data, error } = await supabaseClient
+            .from("reports")
+            .select(
+              `*, reporter(username), reported(username), assigned(username)`
+            );
+          if (error) console.log(error);
+          console.log(data);
         } else {
+          // User not authorised, redirect to landing page
           navigate("/");
           setToastOptions({
             show: true,
@@ -68,7 +78,24 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
     <Container
       className={loading && "d-flex justify-center align-center my-auto"}
     >
-      {loading ? <Spinner size="xl" animation="grow" /> : <h1> REPORT</h1>}
+      {loading ? (
+        <Spinner size="xl" animation="grow" />
+      ) : (
+        <Row>
+          <Table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Description</th>
+                <th>Reporter</th>
+                <th>Reported User</th>
+                <th>Assigned To</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+          </Table>
+        </Row>
+      )}
     </Container>
   );
 };

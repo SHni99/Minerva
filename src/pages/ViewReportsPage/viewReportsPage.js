@@ -8,12 +8,19 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
 import Row from "react-bootstrap/Row";
+import Modal from "react-bootstrap/Modal";
 import Table from "react-bootstrap/Table";
-import { ChatDots, ExclamationCircle } from "react-bootstrap-icons";
+import {
+  ChatDots,
+  ExclamationCircle,
+  PersonCheck,
+  PersonX,
+} from "react-bootstrap-icons";
 
 const ViewReportsPage = ({ setToastOptions }) => {
   // Minimum permission level required to be considered an admin.
   const ADMIN_THRESHOLD = 1;
+  const [modalState, setModalState] = useState({ show: false });
 
   return (
     <div
@@ -23,6 +30,11 @@ const ViewReportsPage = ({ setToastOptions }) => {
       <ReportsBody
         ADMIN_THRESHOLD={ADMIN_THRESHOLD}
         setToastOptions={setToastOptions}
+        setModalState={setModalState}
+      />
+      <ViewReportsModal
+        modalState={modalState}
+        onHide={() => setModalState({ show: false })}
       />
       <FooterBar />
     </div>
@@ -31,10 +43,11 @@ const ViewReportsPage = ({ setToastOptions }) => {
 
 export default ViewReportsPage;
 
-const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
+const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState([]);
+  const uid = supabaseClient.auth.user().id;
 
   // Check for authorisation, then get reports if authorised.
   useEffect(() => {
@@ -44,19 +57,77 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         let { data, error } = await supabaseClient
           .from("profiles")
           .select("permissions")
-          .eq("id", supabaseClient.auth.user().id)
+          .eq("id", uid)
           .single();
         if (error) throw error;
 
+        // Get relevant report data
         if (data.permissions >= ADMIN_THRESHOLD) {
-          setLoading(false);
           let { data, error } = await supabaseClient
             .from("reports")
             .select(
-              `id, description, status, reporter(id, username), reported(id, username, avatar_url), assigned(id, username)`
-            );
-          if (error) console.log(error);
-          setReports(data);
+              `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url), assigned(id, username)`
+            )
+            .order("id", { ascending: true });
+          if (error) throw error;
+
+          // Check if the two users have an existing conversation
+          const newReports = await Promise.all(
+            data.map(async (report) => {
+              let { data: hasConvo, error: hasConvoError } =
+                await supabaseClient.rpc("has_convo", {
+                  id1: report.reporter.id,
+                  id2: report.reported.id,
+                });
+              if (hasConvoError) throw hasConvoError;
+              return { ...report, hasConvo };
+            })
+          );
+
+          setReports(newReports);
+
+          // Set up listener for Reports table
+          const fetchExtra = async (reportId) => {
+            let { data, error } = await supabaseClient
+              .from("reports")
+              .select(
+                `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url), assigned(id, username)`
+              )
+              .eq("id", reportId)
+              .single();
+            if (error) throw error;
+            return data;
+          };
+          const reportsSub = supabaseClient
+            .from("reports")
+            .on("INSERT", async (payload) => {
+              const reportId = payload.new.id;
+              const inserted = await fetchExtra(reportId);
+              setReports((old) =>
+                [...old, inserted].sort((a, b) => a.id - b.id)
+              );
+            })
+            .on("DELETE", (payload) => {
+              const reportId = payload.old.id;
+              setReports((old) =>
+                old
+                  .filter((report) => report.id !== reportId)
+                  .sort((a, b) => a.id - b.id)
+              );
+            })
+            .on("UPDATE", async (payload) => {
+              const reportId = payload.new.id;
+              const updated = await fetchExtra(reportId);
+              setReports((old) =>
+                [
+                  ...old.filter((report) => report.id !== reportId),
+                  updated,
+                ].sort((a, b) => a.id - b.id)
+              );
+            })
+            .subscribe();
+
+          return () => supabaseClient.removeSubscription(reportsSub);
         } else {
           // User not authorised, redirect to landing page
           navigate("/");
@@ -73,44 +144,131 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           });
         }
       } catch (error) {
-        alert(error.message);
+        // alert(error.message);
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
     })();
-  }, [ADMIN_THRESHOLD, setToastOptions, navigate]);
+  }, [ADMIN_THRESHOLD, setToastOptions, navigate, uid]);
+
+  const updateAssignment = async (reportId, assignedId) => {
+    try {
+      let { error } = await supabaseClient
+        .from("reports")
+        .update({
+          assigned_id: assignedId,
+          status: assignedId ? "assigned" : "unassigned",
+        })
+        .eq("id", reportId);
+      if (error) throw error;
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleAssignClick = (status, assigned, id) => {
+    const index = status === "unassigned" ? 0 : 1;
+    const cancelButton = (
+      <Button
+        variant="secondary"
+        onClick={() => setModalState({ show: false })}
+      >
+        Cancel
+      </Button>
+    );
+    const modalTitle = ["Confirm Assignment", "Confirm Dismissal"];
+    const modalContent = [
+      `Assign yourself to report #${id}?`,
+      `Remove assignment from report #${id}?`,
+    ];
+
+    const modalTemp = {
+      show: true,
+      titleContent: modalTitle[index],
+      bodyContent: modalContent[index],
+    };
+
+    setModalState({
+      ...modalTemp,
+      footerContent: (
+        <>
+          <Button
+            onClick={async () => {
+              setModalState({
+                ...modalTemp,
+                footerContent: <Spinner animation="border" />,
+              });
+              await updateAssignment(id, [uid, null][index]);
+              setModalState({ show: false });
+            }}
+          >
+            Confirm
+          </Button>
+          {cancelButton}
+        </>
+      ),
+    });
+  };
 
   // Generate action buttons tied to the reported user's id.
-  const generateActions = ({ id, username, avatar_url }) => {
+  const generateActions = ({
+    id,
+    status,
+    assigned,
+    reporter,
+    reported,
+    hasConvo,
+  }) => {
     return (
       <div className={`p-0 m-0`}>
+        <div className={ReportStyles.tooltip}>
+          <Button
+            disabled={!(status === "unassigned" || assigned?.id === uid)}
+            className="me-2"
+            onClick={() => handleAssignClick(status, assigned, id)}
+          >
+            {status === "assigned" && assigned.id === uid ? (
+              <PersonX />
+            ) : (
+              <PersonCheck />
+            )}
+          </Button>
+          {(status === "unassigned" || assigned?.id === uid) && (
+            <span className={ReportStyles.tooltiptext}>
+              {status === "unassigned"
+                ? "Assign Yourself"
+                : "Remove Assignment"}
+            </span>
+          )}
+        </div>
         <div className={ReportStyles.tooltip}>
           <Button
             variant="light"
             className="mx-2"
             onClick={() =>
-              navigate("/chats", {
+              navigate("/chatlogs", {
                 state: {
-                  startChatData: {
-                    user_id: id,
-                    name: username,
-                    src: supabaseClient.storage
-                      .from("avatars")
-                      .getPublicUrl(avatar_url).publicURL,
-                  },
+                  recepient: reporter,
+                  sender: reported,
                 },
               })
             }
+            disabled={!hasConvo}
           >
             <ChatDots />
           </Button>
           <span className={ReportStyles.tooltiptext}>
-            Chat with {username}!
+            {hasConvo ? "View Chat Log" : "No Started Chats"}
           </span>
         </div>
         <div className={ReportStyles.tooltip}>
           <Button variant="danger" className="mx-2">
             <ExclamationCircle />
           </Button>
-          <span className={ReportStyles.tooltiptext}>Ban {username}</span>
+          <span className={ReportStyles.tooltiptext}>
+            Ban {reported.username}
+          </span>
         </div>
       </div>
     );
@@ -135,7 +293,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         <td className={assigned || "text-danger"}>
           {assigned ? assigned.username : "None"}
         </td>
-        <td>{generateActions(reported)}</td>
+        <td>{generateActions(data)}</td>
       </tr>
     );
   };
@@ -164,5 +322,21 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         </Row>
       )}
     </Container>
+  );
+};
+
+const ViewReportsModal = ({ modalState, onHide }) => {
+  const { show, titleContent, bodyContent, footerContent } = modalState;
+
+  return (
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
+        <Modal.Title>{titleContent}</Modal.Title>
+      </Modal.Header>
+
+      <Modal.Body>{bodyContent}</Modal.Body>
+
+      <Modal.Footer>{footerContent}</Modal.Footer>
+    </Modal>
   );
 };

@@ -15,7 +15,6 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabaseClient as supabase } from "config/supabase-client";
 import ChatLogStyles from "./chatLogsPage.module.css";
-import Button from "react-bootstrap/Button";
 
 const ChatLogsPage = ({ setToastOptions }) => {
   // Minimum permission level required to be considered an admin.
@@ -228,15 +227,19 @@ const ChatLogs = ({ ADMIN_THRESHOLD, setToastOptions }) => {
             const newConvoData = {};
             newConvoData[recepient.id] = {
               recepient: true,
-              avatar: supabase.storage
-                .from("avatars")
-                .getPublicUrl(recepient.avatar_url).publicURL,
+              avatar: !recepient.avatar_url
+                ? "/images/img_avatarDefault.jpg"
+                : supabase.storage
+                    .from("avatars")
+                    .getPublicUrl(recepient.avatar_url).publicURL,
             };
             newConvoData[sender.id] = {
               recepient: false,
-              avatar: supabase.storage
-                .from("avatars")
-                .getPublicUrl(sender.avatar_url).publicURL,
+              avatar: !sender.avatar_url
+                ? "/images/img_avatarDefault.jpg"
+                : supabase.storage
+                    .from("avatars")
+                    .getPublicUrl(sender.avatar_url).publicURL,
             };
             return newConvoData;
           });
@@ -286,17 +289,21 @@ const ChatLogs = ({ ADMIN_THRESHOLD, setToastOptions }) => {
             <AvatarGroup>
               <Avatar
                 src={
-                  supabase.storage
-                    .from("avatars")
-                    .getPublicUrl(state.sender.avatar_url).publicURL
+                  !state.sender.avatar_url
+                    ? "/images/img_avatarDefault.jpg"
+                    : supabase.storage
+                        .from("avatars")
+                        .getPublicUrl(state.sender.avatar_url).publicURL
                 }
                 name={state.sender.username}
               />
               <Avatar
                 src={
-                  supabase.storage
-                    .from("avatars")
-                    .getPublicUrl(state.recepient.avatar_url).publicURL
+                  !state.recepient.avatar_url
+                    ? "/images/img_avatarDefault.jpg"
+                    : supabase.storage
+                        .from("avatars")
+                        .getPublicUrl(state.recepient.avatar_url).publicURL
                 }
                 name={state.recepient.username}
               />

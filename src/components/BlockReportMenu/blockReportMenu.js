@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ThreeDotsVertical } from "react-bootstrap-icons";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
+import Spinner from "react-bootstrap/Spinner";
 import { supabaseClient } from "../../config/supabase-client";
 import { useEffect } from "react";
 
@@ -18,6 +19,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
   const [loading, setLoading] = useState(false);
  
   const user = supabaseClient.auth.user();
+  const [isReported, setIsReported] = useState(false);
   const modalTitle = ["Report User", "Block User", "Unblock User"];
   const modalBody = [
     "Are you sure you want to report this user?",
@@ -41,6 +43,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
 
   useEffect(() => {
     checkBlockedStatus();
+    checkReportedStatus();
   });
 
   const checkBlockedStatus = async () => {
@@ -58,6 +61,21 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
       const current = currentData.blocked;
       const checkUsername = (element) => element === target_id;
       setLoading(current.some(checkUsername) || null);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const checkReportedStatus = async () => {
+    try {
+      const { data, error } = await supabaseClient
+        .from("reports")
+        .select("*")
+        .eq("reporter_id", user.id)
+        .eq("reported_id", target_id);
+      if (error) throw error;
+
+      setIsReported(data.length > 0);
     } catch (error) {
       alert(error.message);
     }
@@ -119,19 +137,48 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
 
   const reportAction = () => {
     // Implement report functionality here
-    showModal(
-      "Reason for Reporting",
-      <select style={{ borderRadius: "6px" }}>
+    const reasonMenu = (
+      <select style={{ borderRadius: "6px" }} id="report-reason">
         {reportReasons.map((reason, i) => (
           <option key={`reportReason-${i}`}>{reason}</option>
         ))}
-      </select>,
+      </select>
+    );
+    showModal(
+      "Reason for Reporting",
+      reasonMenu,
       <>
-        <Button>Submit</Button>
+        <Button
+          onClick={async () => {
+            showModal(
+              "Reason for Reporting",
+              reasonMenu,
+              <Spinner animation="border" />
+            );
+            await submitReport();
+            setIsReported(true);
+            hideModal();
+          }}
+        >
+          Submit
+        </Button>
         {cancelButton}
       </>
     );
     // hideModal();
+  };
+
+  const submitReport = async () => {
+    const reportReason = document.getElementById("report-reason").value;
+    try {
+      let { error } = await supabaseClient.from("reports").insert({
+        description: reportReason,
+        reported_id: target_id,
+      });
+      if (error) throw error;
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
@@ -141,6 +188,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
       </Dropdown.Toggle>
       <Dropdown.Menu>
         <Dropdown.Item
+          disabled={isReported}
           eventKey="report"
           onClick={() =>
             showModal(

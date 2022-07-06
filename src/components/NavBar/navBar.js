@@ -79,26 +79,27 @@ const NavBar = ({ _userLoggedIn }) => {
           </div>
         </Link>
 
-        <Link
-          className={`${navBarStyles["aboutus-link"]} ${navBarStyles["button-variant-set-master"]} ${navBarStyles["button-master"]}`}
-          to="/aboutuspage"
-          data-testid="navBar-about"
-        >
-          <div className={`${navBarStyles["text"]} inter-medium-black-20px`}>
-            About Us
-          </div>
-        </Link>
-
-        {/* Admin Panel, only visible to admins */}
-        {perms >= ADMIN_THRESHOLD && (
+        {/* About Us Button/Admin Panel.
+        What is displayed depends on user's authorisation status (permissions) */}
+        {perms >= ADMIN_THRESHOLD ? (
           <Dropdown>
-            <Dropdown.Toggle variant="outline-secondary" className="mx-4">
+            <Dropdown.Toggle variant="outline-secondary" className="mx-2">
               Admin Panel
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item href="/reports">User Reports</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
+        ) : (
+          <Link
+            className={`${navBarStyles["aboutus-link"]} ${navBarStyles["button-variant-set-master"]} ${navBarStyles["button-master"]}`}
+            to="/aboutuspage"
+            data-testid="navBar-about"
+          >
+            <div className={`${navBarStyles["text"]} inter-medium-black-20px`}>
+              About Us
+            </div>
+          </Link>
         )}
       </React.Fragment>
     );

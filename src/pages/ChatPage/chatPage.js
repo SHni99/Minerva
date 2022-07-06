@@ -549,7 +549,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         .remove([filePath]);
       if (deleteImgError) throw deleteImgError;
     } catch (error) {
-      alert(error);
+      alert(error.message);
     }
   };
 
@@ -589,7 +589,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         .eq("id", activeChatId);
       if (convoError) throw convoError;
     } catch (error) {
-      alert(error);
+      alert(error.message);
     }
   };
 
@@ -801,6 +801,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
           .select(
             "id, participants, acknowledgement, reviewed, messages(sender_id, payload)"
           )
+          .contains("participants", `["${uid}"]`)
           .order("created_at", { ascending: false, foreignTable: "messages" });
         if (convoError) throw convoError;
 
@@ -856,7 +857,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
         }
         if (Object.keys(newConversations).length === 0) setShowSidebar(false);
       } catch (error) {
-        alert(error);
+        alert(error.message);
       } finally {
         setLoadingConvos(false);
       }

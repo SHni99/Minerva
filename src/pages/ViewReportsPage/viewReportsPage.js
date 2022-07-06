@@ -9,7 +9,12 @@ import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
 import Row from "react-bootstrap/Row";
 import Table from "react-bootstrap/Table";
-import { ChatDots, ExclamationCircle } from "react-bootstrap-icons";
+import {
+  ChatDots,
+  ExclamationCircle,
+  PersonCheck,
+  PersonX,
+} from "react-bootstrap-icons";
 
 const ViewReportsPage = ({ setToastOptions }) => {
   // Minimum permission level required to be considered an admin.
@@ -35,6 +40,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState([]);
+  const uid = supabaseClient.auth.user().id;
 
   // Check for authorisation, then get reports if authorised.
   useEffect(() => {
@@ -44,7 +50,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         let { data, error } = await supabaseClient
           .from("profiles")
           .select("permissions")
-          .eq("id", supabaseClient.auth.user().id)
+          .eq("id", uid)
           .single();
         if (error) throw error;
 
@@ -93,12 +99,34 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         setLoading(false);
       }
     })();
-  }, [ADMIN_THRESHOLD, setToastOptions, navigate]);
+  }, [ADMIN_THRESHOLD, setToastOptions, navigate, uid]);
 
   // Generate action buttons tied to the reported user's id.
-  const generateActions = (reporter, reported, hasConvo) => {
+  const generateActions = ({
+    status,
+    assigned,
+    reporter,
+    reported,
+    hasConvo,
+  }) => {
     return (
       <div className={`p-0 m-0`}>
+        <div className={ReportStyles.tooltip}>
+          <Button disabled={!(status === "unassigned")}>
+            {status === "assigned" && assigned.id === uid ? (
+              <PersonX />
+            ) : (
+              <PersonCheck />
+            )}
+          </Button>
+          {(status === "unassigned" || assigned?.id === uid) && (
+            <span className={ReportStyles.tooltiptext}>
+              {status === "unassigned"
+                ? "Assign Yourself"
+                : "Remove Assignment"}
+            </span>
+          )}
+        </div>
         <div className={ReportStyles.tooltip}>
           <Button
             variant="light"
@@ -132,7 +160,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
   };
 
   const createTr = (data) => {
-    const { id, description, reporter, reported, assigned, hasConvo } = data;
+    const { id, description, reporter, reported, assigned } = data;
     return (
       <tr key={`report-${id}`}>
         <td>{id}</td>
@@ -150,7 +178,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         <td className={assigned || "text-danger"}>
           {assigned ? assigned.username : "None"}
         </td>
-        <td>{generateActions(reporter, reported, hasConvo)}</td>
+        <td>{generateActions(data)}</td>
       </tr>
     );
   };

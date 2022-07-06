@@ -230,16 +230,19 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
           .single();
 
         if (error) throw error;
-
-        //filter blocked user from the listing data
-        const current = newListingData.filter((res) =>
-          blockedData.blocked.reduce(
-            (cur, next) => cur && res.creator_id !== next,
-            true
-          )
-        );
-
-        setListingData(current);
+        //if no blocked user, it will return all the listings
+        if (blockedData.blocked === null) {
+          setListingData(newListingData);
+        } else {
+          //filter blocked user from the listing data
+          const current = newListingData.filter((res) =>
+            blockedData.blocked.reduce(
+              (cur, next) => cur && res.creator_id !== next,
+              true
+            )
+          );
+          setListingData(current);
+        }
       } catch (error) {
         alert(error.message);
       } finally {

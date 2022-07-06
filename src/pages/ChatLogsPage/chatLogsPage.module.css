@@ -13,6 +13,11 @@
     font-size: 150%;
 }
 
+.msg-footer * {
+    display: flex !important;
+    padding: 0 !important;
+}
+
 :global(.cs-conversation-header__avatar) {
     width: auto !important;
 }

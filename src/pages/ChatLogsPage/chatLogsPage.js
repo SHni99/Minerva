@@ -1,3 +1,4 @@
+import moment from "moment";
 import {
   Avatar,
   AvatarGroup,
@@ -5,6 +6,8 @@ import {
   ConversationHeader,
   MainContainer,
   MessageList,
+  Message,
+  MessageSeparator,
 } from "@chatscope/chat-ui-kit-react";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
@@ -12,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabaseClient as supabase } from "config/supabase-client";
 import ChatLogStyles from "./chatLogsPage.module.css";
+import Button from "react-bootstrap/Button";
 
 const ChatLogsPage = ({ setToastOptions }) => {
   // Minimum permission level required to be considered an admin.
@@ -65,6 +69,144 @@ const ChatLogs = ({ ADMIN_THRESHOLD, setToastOptions }) => {
     };
   };
 
+  const generateSingleMessage = (msgData, position) => {
+    const { message_id, time, content, type, sender_id } = msgData;
+    const { recepient, avatar } = convoData[sender_id];
+    const direction = recepient ? "outgoing" : "incoming";
+    const lastOrSingle = position === "last" || position === "single";
+    switch (type) {
+      case "text":
+        return (
+          <Message
+            key={message_id}
+            model={{
+              message: content.replace("&nbsp; ", "\n"),
+              direction,
+              position,
+            }}
+            type={"text"}
+            avatarSpacer={!lastOrSingle}
+          >
+            {lastOrSingle && <Avatar src={avatar} className="mb-3" />}
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={ChatLogStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
+      case "image":
+        return (
+          <Message
+            key={message_id}
+            model={{
+              direction,
+              position,
+            }}
+            type={"image"}
+            avatarSpacer={!lastOrSingle}
+          >
+            {lastOrSingle && <Avatar src={avatar} className="mb-3" />}
+            <Message.CustomContent>
+              <img
+                src={content}
+                width={window.innerWidth / (window.innerWidth < 768 ? 2 : 4)}
+                alt="Sent message"
+              />
+            </Message.CustomContent>
+          </Message>
+        );
+      case "offer":
+        return (
+          <Message
+            key={message_id}
+            model={{
+              direction,
+              position,
+            }}
+            type={"custom"}
+            avatarSpacer={!lastOrSingle}
+          >
+            {lastOrSingle && <Avatar src={avatar} className="mb-3" />}
+            <Message.CustomContent className="text-center p-3">
+              <h4>
+                {content === "MAKE_OFFER"
+                  ? "Made an offer!"
+                  : "Accepted the offer!"}
+              </h4>
+              <p className="py-0 my-1">
+                {content === "MAKE_OFFER"
+                  ? "Accept the deal by clicking the button above."
+                  : "You can now leave reviews for each other."}
+              </p>
+            </Message.CustomContent>
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={ChatLogStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
+      case "review":
+        return (
+          <Message
+            key={message_id}
+            model={{
+              direction,
+              position,
+            }}
+            type={"custom"}
+            avatarSpacer={!lastOrSingle}
+          >
+            {lastOrSingle && <Avatar src={avatar} className="mb-3" />}
+            <Message.CustomContent className="text-center p-3">
+              <h4>Left a review!</h4>
+              <p className="py-0 my-1">
+                Reviews can be found under your profile page.
+              </p>
+            </Message.CustomContent>
+            {lastOrSingle && (
+              <Message.Footer
+                sentTime={moment(time).format("LT")}
+                className={ChatLogStyles["msg-footer"]}
+              />
+            )}
+          </Message>
+        );
+      default:
+        return (
+          <Message key={"unknown-" + time}>
+            <Message.CustomContent>
+              unknown_message_type: {`(${type}, ${content})`}
+            </Message.CustomContent>
+          </Message>
+        );
+    }
+  };
+
+  // Helper function to generate array of Messsages from a single sender
+  const generateMessages = (msgList) => {
+    if (msgList.length === 0) return [];
+
+    if (msgList.length === 1) {
+      return [generateSingleMessage(msgList[0], "single")];
+    } else {
+      // Initialise result array with first message
+      const res = [generateSingleMessage(msgList[0], "first")];
+
+      // Add messages between first and last message
+      for (let i = 1; i < msgList.length - 1; i++) {
+        res.push(generateSingleMessage(msgList[i], "normal"));
+      }
+
+      // Add last message
+      res.push(generateSingleMessage(msgList[msgList.length - 1], "last"));
+
+      return res;
+    }
+  };
   // Run only once, at the start
   useEffect(() => {
     (async () => {
@@ -140,6 +282,7 @@ const ChatLogs = ({ ADMIN_THRESHOLD, setToastOptions }) => {
       <ChatContainer>
         {state && !loading && (
           <ConversationHeader>
+            <ConversationHeader.Back onClick={() => navigate("/reports")} />
             <AvatarGroup>
               <Avatar
                 src={
@@ -161,13 +304,49 @@ const ChatLogs = ({ ADMIN_THRESHOLD, setToastOptions }) => {
             <ConversationHeader.Content>
               {`${state.sender.username}, ${state.recepient.username}`}
             </ConversationHeader.Content>
-            <ConversationHeader.Actions />
+            <ConversationHeader.Actions></ConversationHeader.Actions>
           </ConversationHeader>
         )}
         <MessageList loading={loading}>
           {!loading &&
             (state ? (
-              <MessageList.Content>hi</MessageList.Content>
+              (() => {
+                const msgElems = [];
+                let currentDate = null;
+                let msgGroup = [];
+
+                for (let i = 0; i < messages.length; i++) {
+                  const { time, sender_id } = messages[i];
+                  const { recepient } = convoData[sender_id];
+                  const date = moment(time).format("L");
+                  if (date !== currentDate) {
+                    currentDate = date;
+                    msgElems.push(...generateMessages(msgGroup));
+                    msgElems.push(
+                      <MessageSeparator
+                        content={moment(time).format("LL")}
+                        key={time}
+                      />
+                    );
+                    msgGroup = [messages[i]];
+                  } else {
+                    if (
+                      i === 0 ||
+                      recepient ===
+                        convoData[messages[i - 1].sender_id].recepient
+                    ) {
+                      msgGroup.push(messages[i]);
+                    } else {
+                      msgElems.push(...generateMessages(msgGroup));
+                      msgGroup = [messages[i]];
+                    }
+                  }
+                }
+                if (msgGroup.length > 0)
+                  msgElems.push(...generateMessages(msgGroup));
+
+                return msgElems;
+              })()
             ) : (
               <MessageList.Content className={ChatLogStyles["empty-chat"]}>
                 <p>

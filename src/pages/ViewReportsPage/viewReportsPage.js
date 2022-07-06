@@ -99,7 +99,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           >
             <ChatDots />
           </Button>
-          <span className={ReportStyles.tooltiptext}>View Chat Logs</span>
+          <span className={ReportStyles.tooltiptext}>View Chat Log</span>
         </div>
         <div className={ReportStyles.tooltip}>
           <Button variant="danger" className="mx-2">

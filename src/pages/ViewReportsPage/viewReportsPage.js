@@ -48,16 +48,29 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           .single();
         if (error) throw error;
 
+        // Get relevant report data
         if (data.permissions >= ADMIN_THRESHOLD) {
-          setLoading(false);
           let { data, error } = await supabaseClient
             .from("reports")
             .select(
               `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url), assigned(id, username)`
             );
-          if (error) console.log(error);
+          if (error) throw error;
 
-          setReports(data);
+          // Check if the two users have an existing conversation
+          const newReports = await Promise.all(
+            data.map(async (report) => {
+              let { data: hasConvo, error: hasConvoError } =
+                await supabaseClient.rpc("has_convo", {
+                  id1: report.reporter.id,
+                  id2: report.reported.id,
+                });
+              if (hasConvoError) throw hasConvoError;
+              return { ...report, hasConvo };
+            })
+          );
+
+          setReports(newReports);
         } else {
           // User not authorised, redirect to landing page
           navigate("/");
@@ -76,12 +89,14 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
       } catch (error) {
         // alert(error.message);
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     })();
   }, [ADMIN_THRESHOLD, setToastOptions, navigate]);
 
   // Generate action buttons tied to the reported user's id.
-  const generateActions = (reporter, reported) => {
+  const generateActions = (reporter, reported, hasConvo) => {
     return (
       <div className={`p-0 m-0`}>
         <div className={ReportStyles.tooltip}>
@@ -96,10 +111,13 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
                 },
               })
             }
+            disabled={!hasConvo}
           >
             <ChatDots />
           </Button>
-          <span className={ReportStyles.tooltiptext}>View Chat Log</span>
+          <span className={ReportStyles.tooltiptext}>
+            {hasConvo ? "View Chat Log" : "No Started Chats"}
+          </span>
         </div>
         <div className={ReportStyles.tooltip}>
           <Button variant="danger" className="mx-2">
@@ -114,7 +132,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
   };
 
   const createTr = (data) => {
-    const { id, description, reporter, reported, assigned } = data;
+    const { id, description, reporter, reported, assigned, hasConvo } = data;
     return (
       <tr key={`report-${id}`}>
         <td>{id}</td>
@@ -132,7 +150,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         <td className={assigned || "text-danger"}>
           {assigned ? assigned.username : "None"}
         </td>
-        <td>{generateActions(reporter, reported)}</td>
+        <td>{generateActions(reporter, reported, hasConvo)}</td>
       </tr>
     );
   };

@@ -80,7 +80,7 @@ const NavBar = ({ _userLoggedIn }) => {
         </Link>
 
         {/* About Us Button/Admin Panel.
-        What is displayed depends on user's authentication status (permissions) */}
+        What is displayed depends on user's authorisation status (permissions) */}
         {perms >= ADMIN_THRESHOLD ? (
           <Dropdown>
             <Dropdown.Toggle variant="outline-secondary" className="mx-2">

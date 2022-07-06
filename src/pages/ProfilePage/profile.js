@@ -15,6 +15,7 @@ import ReviewCard from "components/ReviewCard/reviewCard";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
+import Setting from "components/Setting/setting";
 import Modal from "react-bootstrap/Modal";
 
 const ViewProfilePage = () => {
@@ -65,20 +66,8 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
   const [loading, setLoading] = useState(false);
   const [avatar_url, setAvatarurl] = useState("");
   const [isEmpty, setIsEmpty] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const navigate = useNavigate();
-
-  //log user out and redirect to landing page
-  const handleLogout = async (navigate, e) => {
-    e.preventDefault();
-    try {
-      const { error } = await supabaseClient.auth.signOut();
-      if (error) throw error;
-      //input logout popup
-      navigate("/");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
 
   useEffect(() => {
     const getReview = async (id) => {
@@ -99,7 +88,6 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
           setIsEmpty(true);
           return;
         }
-
         setIsEmpty(false);
 
         const newReviewData = await Promise.all(
@@ -196,13 +184,37 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
       }
     };
 
+    const getBlockedStatus = async (id) => {
+      try {
+        const user = supabaseClient.auth.user();
+        const { data: blockedData, error } = await supabaseClient
+          .from("profiles")
+          .select("blocked")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+
+        const checkBlocked = blockedData.blocked.reduce(
+          (res, next) => res || next === id,
+          false
+        );
+        setIsBlocked(checkBlocked);
+        console.log(checkBlocked);
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
     if (checkId === creator_id || creator_id === undefined) {
       setcheckUser(false);
+      getBlockedStatus(checkId);
       getProfile(checkId);
       getReview(checkId);
       getAllIndex(checkId);
     } else {
       setcheckUser(true);
+      getBlockedStatus(creator_id);
       getProfile(creator_id);
       getReview(creator_id);
       getAllIndex(creator_id);
@@ -283,50 +295,34 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
             <div className="col-lg-8 col-sm-12">
               <div className="row">
                 {!checkUser ? (
-                  <div className="row-lg-3">
-                    <div className="row-lg-3 text-right my-3">
-                      <Button
-                        className="bg-primary"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/loginmainpage");
-                        }}
-                      >
-                        Edit my profile
-                      </Button>
-                    </div>
-
-                    <div className="row-lg-3 text-right my-3">
-                      <div>
-                        <Button
-                          className="bg-primary"
-                          onClick={(e) => {
-                            handleLogout(navigate, e);
-                          }}
-                        >
-                          Log out
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <Setting
+                    showModal={(title, body, footer) =>
+                      setModalState({ show: true, title, body, footer })
+                    }
+                    onHide={hideModal}
+                  ></Setting>
                 ) : (
                   <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
-                    <Button
-                      className="m-2"
-                      onClick={() =>
-                        navigate("/chats", {
-                          state: {
-                            startChatData: {
-                              user_id: creator_id,
-                              name: profileData.username,
-                              src: avatar_url,
+                    {isBlocked ? (
+                      ""
+                    ) : (
+                      <Button
+                        className="m-2"
+                        onClick={() =>
+                          navigate("/chats", {
+                            state: {
+                              startChatData: {
+                                user_id: creator_id,
+                                name: profileData.username,
+                                src: avatar_url,
+                              },
                             },
-                          },
-                        })
-                      }
-                    >
-                      Chat
-                    </Button>
+                          })
+                        }
+                      >
+                        Chat
+                      </Button>
+                    )}
                     <BlockReportMenu
                       showModal={(title, body, footer) =>
                         setModalState({ show: true, title, body, footer })
@@ -344,14 +340,20 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
                   className="mb-3"
                 >
                   <Tab eventKey="listings" title="Listings">
-                    <UserListings
-                      check={creator_id || checkId}
-                      checkUser={checkUser}
-                    />
+                    {isBlocked ? (
+                      <h2 className="bg-danger">User has been blocked</h2>
+                    ) : (
+                      <UserListings
+                        check={creator_id || checkId}
+                        checkUser={checkUser}
+                      />
+                    )}
                   </Tab>
                   <Tab eventKey="reviews" title="Reviews">
-                    {isEmpty ? (
-                      <h1>No Reviews Found!</h1>
+                    {isBlocked ? (
+                      <h2 className="bg-danger">User has been blocked</h2>
+                    ) : isEmpty ? (
+                      <h2>No Reviews Found!</h2>
                     ) : loading ? (
                       <Spinner
                         animation="border"

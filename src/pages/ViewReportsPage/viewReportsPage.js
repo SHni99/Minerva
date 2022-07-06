@@ -56,6 +56,12 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
               `id, description, status, reporter(id, username), reported(id, username, avatar_url), assigned(id, username)`
             );
           if (error) console.log(error);
+
+          let { data: testData, error: testError } = await supabaseClient
+            .from("messages")
+            .select("sender_id, payload");
+          if (testError) throw testError;
+          console.log(testData);
           setReports(data);
         } else {
           // User not authorised, redirect to landing page
@@ -73,7 +79,8 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           });
         }
       } catch (error) {
-        alert(error.message);
+        // alert(error.message);
+        console.log(error);
       }
     })();
   }, [ADMIN_THRESHOLD, setToastOptions, navigate]);
@@ -102,9 +109,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           >
             <ChatDots />
           </Button>
-          <span className={ReportStyles.tooltiptext}>
-            Chat with {username}!
-          </span>
+          <span className={ReportStyles.tooltiptext}>View Chat Logs</span>
         </div>
         <div className={ReportStyles.tooltip}>
           <Button variant="danger" className="mx-2">

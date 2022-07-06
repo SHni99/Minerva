@@ -53,15 +53,10 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           let { data, error } = await supabaseClient
             .from("reports")
             .select(
-              `id, description, status, reporter(id, username), reported(id, username, avatar_url), assigned(id, username)`
+              `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url), assigned(id, username)`
             );
           if (error) console.log(error);
 
-          let { data: testData, error: testError } = await supabaseClient
-            .from("messages")
-            .select("sender_id, payload");
-          if (testError) throw testError;
-          console.log(testData);
           setReports(data);
         } else {
           // User not authorised, redirect to landing page
@@ -86,7 +81,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
   }, [ADMIN_THRESHOLD, setToastOptions, navigate]);
 
   // Generate action buttons tied to the reported user's id.
-  const generateActions = ({ id, username, avatar_url }) => {
+  const generateActions = (reporter, reported) => {
     return (
       <div className={`p-0 m-0`}>
         <div className={ReportStyles.tooltip}>
@@ -94,15 +89,10 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
             variant="light"
             className="mx-2"
             onClick={() =>
-              navigate("/chats", {
+              navigate("/chatlogs", {
                 state: {
-                  startChatData: {
-                    user_id: id,
-                    name: username,
-                    src: supabaseClient.storage
-                      .from("avatars")
-                      .getPublicUrl(avatar_url).publicURL,
-                  },
+                  recepient: reporter,
+                  sender: reported,
                 },
               })
             }
@@ -115,7 +105,9 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           <Button variant="danger" className="mx-2">
             <ExclamationCircle />
           </Button>
-          <span className={ReportStyles.tooltiptext}>Ban {username}</span>
+          <span className={ReportStyles.tooltiptext}>
+            Ban {reported.username}
+          </span>
         </div>
       </div>
     );
@@ -140,7 +132,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions }) => {
         <td className={assigned || "text-danger"}>
           {assigned ? assigned.username : "None"}
         </td>
-        <td>{generateActions(reported)}</td>
+        <td>{generateActions(reporter, reported)}</td>
       </tr>
     );
   };

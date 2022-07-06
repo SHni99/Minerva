@@ -16,6 +16,7 @@ import NotFound from "pages/NotFound";
 import ChatPage from "pages/ChatPage/chatPage";
 import ReviewPage from "pages/ReviewPage/reviewPage";
 import ViewReportsPage from "pages/ViewReportsPage/viewReportsPage";
+import ChatLogsPage from "pages/ChatLogsPage/chatLogsPage";
 
 const ProjectRoutes = ({ setToastOptions }) => {
   // Simplify toast showing
@@ -56,6 +57,10 @@ const ProjectRoutes = ({ setToastOptions }) => {
         <Route
           path="/reports"
           element={<ViewReportsPage setToastOptions={setToastOptions} />}
+        />
+        <Route
+          path="/chatlogs"
+          element={<ChatLogsPage setToastOptions={setToastOptions} />}
         />
       </Routes>
     </Router>

@@ -18,7 +18,7 @@ import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 import Setting from "components/Setting/setting";
 import Modal from "react-bootstrap/Modal";
 
-const ViewProfilePage = () => {
+const ViewProfilePage = ({ blockedArray, setBlockedArray }) => {
   const { state } = useLocation();
   const unusedModalState = {
     show: false,
@@ -39,9 +39,11 @@ const ViewProfilePage = () => {
         onHide={() => setModalState(unusedModalState)}
       />
       <ProfilePageBody
+        blockedArray={blockedArray}
         creator_id={state ? state.creator_id : undefined}
         setModalState={setModalState}
         hideModal={hideModal}
+        setBlockedArray={setBlockedArray}
       />
       <FooterBar />
     </div>
@@ -51,7 +53,13 @@ const ViewProfilePage = () => {
 export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
+const ProfilePageBody = ({
+  creator_id,
+  setModalState,
+  hideModal,
+  blockedArray,
+  setBlockedArray,
+}) => {
   const [profileData, setProfileData] = useState({
     username: "",
     bio: "",
@@ -64,6 +72,7 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [avatar_url, setAvatarurl] = useState("");
   const [isEmpty, setIsEmpty] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -130,6 +139,7 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
 
     const getProfile = async (id) => {
       try {
+        setProfileLoading(true);
         let { data, error, status } = await supabaseClient
           .from("profiles")
           .select(`username, avatar_url, bio, gender `)
@@ -158,6 +168,8 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
         setAvatarurl(publicURL);
       } catch (error) {
         alert(error.message);
+      } finally {
+        setProfileLoading(false);
       }
     };
 
@@ -184,42 +196,29 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
       }
     };
 
-    const getBlockedStatus = async (id) => {
-      try {
-        const user = supabaseClient.auth.user();
-        const { data: blockedData, error } = await supabaseClient
-          .from("profiles")
-          .select("blocked")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-
-        const checkBlocked = blockedData.blocked.reduce(
-          (res, next) => res || next === id,
-          false
-        );
-        setIsBlocked(checkBlocked);
-        console.log(checkBlocked);
-      } catch (error) {
-        alert(error.message);
-      }
+    const getBlocked = async (id) => {
+      const checkBlocked = blockedArray.reduce(
+        (res, next) => res || next === id,
+        false
+      );
+      console.log(checkBlocked);
+      setIsBlocked(checkBlocked);
     };
 
     if (checkId === creator_id || creator_id === undefined) {
       setcheckUser(false);
-      getBlockedStatus(checkId);
+      getBlocked(checkId);
       getProfile(checkId);
       getReview(checkId);
       getAllIndex(checkId);
     } else {
       setcheckUser(true);
-      getBlockedStatus(creator_id);
+      getBlocked(creator_id);
       getProfile(creator_id);
       getReview(creator_id);
       getAllIndex(creator_id);
     }
-  }, [checkId, creator_id]);
+  }, [checkId, creator_id, blockedArray]);
 
   const popover = (
     <Popover>
@@ -238,13 +237,21 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
         <div className={`${viewprofileStyles["home-inner"]} container-fluid`}>
           <div className="row align-self-center">
             <div className="col-lg-3 col-sm-12">
-              <div className="col">
-                <img
-                  src={avatar_url || "/images/img_avatarDefault.jpg"}
-                  className={`${viewprofileStyles["avatar"]} rounded-pill`}
-                  alt="avatar"
-                ></img>
-              </div>
+              {profileLoading ? (
+                <Spinner
+                  animation="border"
+                  role="status"
+                  aria-label="Loading"
+                />
+              ) : (
+                <div className="col">
+                  <img
+                    src={avatar_url || "/images/img_avatarDefault.jpg"}
+                    className={`${viewprofileStyles["avatar"]} rounded-pill`}
+                    alt="avatar"
+                  ></img>
+                </div>
+              )}
 
               <div className="col mt-5">
                 <h3>
@@ -329,6 +336,8 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
                       }
                       hideModal={hideModal}
                       target_id={creator_id}
+                      blockedArray={blockedArray}
+                      setBlockedArray={setBlockedArray}
                     />
                   </div>
                 )}

@@ -17,7 +17,7 @@ import ChatPage from "pages/ChatPage/chatPage";
 import ReviewPage from "pages/ReviewPage/reviewPage";
 import ViewReportsPage from "pages/ViewReportsPage/viewReportsPage";
 
-const ProjectRoutes = ({ setToastOptions }) => {
+const ProjectRoutes = ({ setToastOptions, blockedArray, setBlockedArray }) => {
   // Simplify toast showing
   const showSimpleToast = (title, message, timeout) =>
     setToastOptions({
@@ -50,7 +50,15 @@ const ProjectRoutes = ({ setToastOptions }) => {
         <Route path="/resetpage" element={<ResetPage />} />
         <Route path="/loginmainpage" element={<LoginMainPage />} />
         <Route path="/formpage" element={<ReviewForm />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProfilePage
+              blockedArray={blockedArray}
+              setBlockedArray={setBlockedArray}
+            />
+          }
+        />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/chats" element={<ChatPage />} />
         <Route

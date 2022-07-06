@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Routes from "./Routes";
+import { supabaseClient } from "./config/supabase-client";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 
@@ -29,9 +30,32 @@ function App() {
     closeButton,
   } = toastOptions;
 
+  const [blockedArray, setBlockedArray] = useState("");
+
+  useEffect(() => {
+    const getBlockedStatus = async () => {
+      try {
+        const user = supabaseClient.auth.user();
+        const { data: blockedData, error } = await supabaseClient
+          .from("profiles")
+          .select("blocked")
+          .eq("id", user.id)
+          .single();
+
+        if (error) throw error;
+
+        setBlockedArray(blockedData.blocked);
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+    getBlockedStatus();
+  }, []);
+
   return (
     <>
-      <Routes setToastOptions={setToastOptions} />
+      <Routes setToastOptions={setToastOptions} blockedArray={blockedArray} 
+      setBlockedArray={setBlockedArray} />
       <ToastContainer
         position={position}
         className={"position-fixed " + containerClasses}

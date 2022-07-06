@@ -27,6 +27,10 @@ const ListingsPage = () => {
   };
   const [modalState, setModalState] = useState(unusedModalState);
 
+  useEffect(()=> {
+    console.log(modalState)
+  })
+  
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}

@@ -14,8 +14,9 @@ import { useEffect } from "react";
 //
 // target_id: ID of the user who is being reported/blocked
 
-const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
+const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlockedArray }) => {
   const [loading, setLoading] = useState(false);
+ 
   const user = supabaseClient.auth.user();
   const modalTitle = ["Report User", "Block User", "Unblock User"];
   const modalBody = [
@@ -74,7 +75,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
 
       if (error) throw error;
 
-      const { error: unblockError } = await supabaseClient
+      const { data: newData, error: unblockError } = await supabaseClient
         .from("profiles")
         .update({
           blocked: blockedUpdate,
@@ -83,6 +84,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
         .single();
 
       if (unblockError) throw unblockError;
+      setBlockedArray(newData.blocked);
       hideModal();
     } catch (error) {
       alert(error.message);
@@ -91,20 +93,14 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
 
   const blockAction = async () => {
     try {
-      const { data: prevData, error: blockedError } = await supabaseClient
-        .from("profiles")
-        .select("blocked")
-        .eq("id", user.id)
-        .single();
-
-      if (blockedError) throw blockedError;
-      if (prevData.blocked === null) {
-        prevData.blocked = [];
+    
+      if (blockedArray === null) {
+        blockedArray = [];
       }
-      const prev = prevData.blocked;
+      const prev = blockedArray;
 
       // Implement block functionality here
-      const { error } = await supabaseClient
+      const { error, data } = await supabaseClient
         .from("profiles")
         .update({
           blocked: [...prev, target_id],
@@ -113,8 +109,9 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
         .single();
 
       if (error) throw error;
-
+      setBlockedArray(data.blocked);
       hideModal();
+
     } catch (error) {
       alert(error.message);
     }

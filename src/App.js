@@ -42,9 +42,10 @@ function App() {
       logged_in: true,
       username,
       permissions,
-      avatar_url: supabaseClient.storage
-        .from("avatars")
-        .getPublicUrl(avatar_url).publicURL,
+      avatar_url: avatar_url
+        ? supabaseClient.storage.from("avatars").getPublicUrl(avatar_url)
+            .publicURL
+        : "/images/img_avatarDefault.jpg",
       id,
     };
   };

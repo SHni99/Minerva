@@ -223,25 +223,29 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
         // the listingData state/hook.
         const newListingData = await Promise.all(listingDb.map(parseListing));
 
-        const { data: blockedData, error } = await supabase
-          .from("profiles")
-          .select("blocked")
-          .eq("id", user.id)
-          .single();
+        if (user) {
+          const { data: blockedData, error } = await supabase
+            .from("profiles")
+            .select("blocked")
+            .eq("id", user.id)
+            .single();
 
-        if (error) throw error;
-        //if no blocked user, it will return all the listings
-        if (blockedData.blocked === null) {
-          setListingData(newListingData);
+          if (error) throw error;
+          //if no blocked user, it will return all the listings
+          if (blockedData.blocked === null) {
+            setListingData(newListingData);
+          } else {
+            //filter blocked user from the listing data
+            const current = newListingData.filter((res) =>
+              blockedData.blocked.reduce(
+                (cur, next) => cur && res.creator_id !== next,
+                true
+              )
+            );
+            setListingData(current);
+          }
         } else {
-          //filter blocked user from the listing data
-          const current = newListingData.filter((res) =>
-            blockedData.blocked.reduce(
-              (cur, next) => cur && res.creator_id !== next,
-              true
-            )
-          );
-          setListingData(current);
+          setListingData(newListingData);
         }
       } catch (error) {
         alert(error.message);

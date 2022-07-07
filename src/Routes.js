@@ -14,13 +14,7 @@ import LoginMainPage from "pages/loginMainPage/loginMain";
 import CreateListingPage from "pages/CreateListingPage/createListingPage";
 import ReviewForm from "pages/ReviewForm/ReviewForm";
 import ProfilePage from "pages/ProfilePage/profile";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
-import { TransitionGroup, CSSTransition } from "react-transition-group";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFound from "pages/NotFound";
 import ChatPage from "pages/ChatPage/chatPage";
 import ReviewPage from "pages/ReviewPage/reviewPage";

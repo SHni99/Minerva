@@ -57,7 +57,6 @@ function App() {
         return {
           logged_in: false,
           permissions: 0,
-          is_banned: false,
           username: null,
           avatar_url: null,
           id: null,
@@ -72,7 +71,6 @@ function App() {
         logged_in: true,
         username,
         permissions,
-        is_banned: permissions < 0,
         avatar_url: supabaseClient.storage
           .from("avatars")
           .getPublicUrl(avatar_url).publicURL,

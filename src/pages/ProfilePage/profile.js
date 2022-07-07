@@ -172,11 +172,12 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
           .select("index")
           .eq("reviewee_id", id);
 
-        setIndexAll(
-          (
-            indexData.reduce((x, y) => x + y.index, 0) / indexData.length
-          ).toPrecision(3)
-        );
+        if (indexData)
+          setIndexAll(
+            (
+              indexData.reduce((x, y) => x + y.index, 0) / indexData.length
+            ).toPrecision(3)
+          );
 
         if (error && status !== 406) throw error;
       } catch (error) {
@@ -196,12 +197,14 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
 
         if (error) throw error;
 
-        const checkBlocked = blockedData.blocked.reduce(
-          (res, next) => res || next === id,
-          false
-        );
-        setIsBlocked(checkBlocked);
-        console.log(checkBlocked);
+        if (blockedData && blockedData.blocked) {
+          const checkBlocked = blockedData.blocked?.reduce(
+            (res, next) => res || next === id,
+            false
+          );
+          setIsBlocked(checkBlocked);
+          console.log(checkBlocked);
+        }
       } catch (error) {
         console.log("2");
         alert(error.message);

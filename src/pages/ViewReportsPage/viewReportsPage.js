@@ -338,7 +338,13 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>{reports.map(createTr)}</tbody>
+              <tbody>
+                {reports
+                  .filter(
+                    ({ status }) => (status === "resolved") === getResolved
+                  )
+                  .map(createTr)}
+              </tbody>
             </Table>
           </Row>
         </>

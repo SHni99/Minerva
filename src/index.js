@@ -7,10 +7,13 @@ import "./styles/index.css";
 import "./styles/style-guide.css";
 import "styles/tailwind.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { AuthProvider } from "util/AuthContext";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

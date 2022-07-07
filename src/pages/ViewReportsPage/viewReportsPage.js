@@ -13,6 +13,7 @@ import Modal from "react-bootstrap/Modal";
 import Table from "react-bootstrap/Table";
 import {
   ChatDots,
+  CheckCircle,
   ExclamationCircle,
   PersonCheck,
   PersonX,
@@ -223,7 +224,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     hasConvo,
   }) => {
     return (
-      <div className={`p-0 m-0`}>
+      <div className={`p-0 m-0 d-flex justify-evenly`}>
         <div className={ReportStyles.tooltip}>
           <Button
             disabled={!(status === "unassigned" || assigned?.id === uid)}
@@ -244,6 +245,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             </span>
           )}
         </div>
+
         <div className={ReportStyles.tooltip}>
           <Button
             variant="light"
@@ -264,6 +266,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             {hasConvo ? "View Chat Log" : "No Started Chats"}
           </span>
         </div>
+
         <div className={ReportStyles.tooltip}>
           <Button variant="danger" className="m-1 my-lg-0">
             <ExclamationCircle />
@@ -271,6 +274,13 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
           <span className={ReportStyles.tooltiptext}>
             Ban {reported.username}
           </span>
+        </div>
+
+        <div className={ReportStyles.tooltip}>
+          <Button variant="success" className="m-1 my-lg-0">
+            <CheckCircle />
+          </Button>
+          <span className={ReportStyles.tooltiptext}>Mark As Resolved</span>
         </div>
       </div>
     );
@@ -327,7 +337,13 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             </Pagination.Item>
           </Pagination>
           <Row>
-            <Table bordered hover responsive>
+            <Table
+              bordered
+              hover
+              responsive
+              className="m-auto"
+              style={{ width: "95%" }}
+            >
               <thead>
                 <tr>
                   <th>ID</th>

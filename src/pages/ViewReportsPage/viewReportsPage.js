@@ -7,6 +7,7 @@ import ReportStyles from "./viewReportsPage.module.css";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
+import Pagination from "react-bootstrap/Pagination";
 import Row from "react-bootstrap/Row";
 import Modal from "react-bootstrap/Modal";
 import Table from "react-bootstrap/Table";
@@ -47,6 +48,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState([]);
+  const [getResolved, setGetResolved] = useState(false);
   const uid = supabaseClient.auth.user().id;
 
   // Check for authorisation, then get reports if authorised.
@@ -225,10 +227,10 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
         <div className={ReportStyles.tooltip}>
           <Button
             disabled={!(status === "unassigned" || assigned?.id === uid)}
-            className="me-2"
+            className="m-1 my-lg-0"
             onClick={() => handleAssignClick(status, assigned, id)}
           >
-            {status === "assigned" && assigned.id === uid ? (
+            {status === "assigned" && assigned?.id === uid ? (
               <PersonX />
             ) : (
               <PersonCheck />
@@ -245,7 +247,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
         <div className={ReportStyles.tooltip}>
           <Button
             variant="light"
-            className="mx-2"
+            className="m-1 my-lg-0"
             onClick={() =>
               navigate("/chatlogs", {
                 state: {
@@ -263,7 +265,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
           </span>
         </div>
         <div className={ReportStyles.tooltip}>
-          <Button variant="danger" className="mx-2">
+          <Button variant="danger" className="m-1 my-lg-0">
             <ExclamationCircle />
           </Button>
           <span className={ReportStyles.tooltiptext}>
@@ -290,7 +292,11 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             {reported.username}
           </Link>
         </td>
-        <td className={assigned || "text-danger"}>
+        <td
+          className={`${assigned || "text-danger"} ${
+            assigned?.id === uid && "fw-bold"
+          }`}
+        >
           {assigned ? assigned.username : "None"}
         </td>
         <td>{generateActions(data)}</td>
@@ -305,21 +311,37 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
       {loading ? (
         <Spinner size="xl" animation="grow" />
       ) : (
-        <Row>
-          <Table bordered hover>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Description</th>
-                <th>Reporter</th>
-                <th>Reported User</th>
-                <th>Assigned To</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>{reports.map(createTr)}</tbody>
-          </Table>
-        </Row>
+        <>
+          <Pagination>
+            <Pagination.Item
+              active={!getResolved}
+              onClick={() => setGetResolved(false)}
+            >
+              Unresolved
+            </Pagination.Item>
+            <Pagination.Item
+              active={getResolved}
+              onClick={() => setGetResolved(true)}
+            >
+              Resolved
+            </Pagination.Item>
+          </Pagination>
+          <Row>
+            <Table bordered hover responsive>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Description</th>
+                  <th>Reporter</th>
+                  <th>Reported User</th>
+                  <th>Assigned To</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>{reports.map(createTr)}</tbody>
+            </Table>
+          </Row>
+        </>
       )}
     </Container>
   );

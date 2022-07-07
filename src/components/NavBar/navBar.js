@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import AuthContext from "util/AuthContext";
 import { Link } from "react-router-dom";
 import navBarStyles from "./navBar.module.css";
-import { supabaseClient as supabase } from "../../config/supabase-client";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Container from "react-bootstrap/Container";
@@ -10,56 +9,22 @@ import { ChatDots } from "react-bootstrap-icons";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Dropdown from "react-bootstrap/Dropdown";
+import { supabaseClient } from "config/supabase-client";
 
 const NavBar = ({ _userLoggedIn }) => {
-  // const [isLoggedIn, setIsLoggedIn] = useState(_userLoggedIn || false);
-  // const [avatarUrl, setAvatarUrl] = useState(null);
-  // const [loading, setLoading] = useState(false);
-  // const [perms, setPerms] = useState(0);
-  const { authData, authLoading, ADMIN_THRESHOLD } = useContext(AuthContext);
+  const { authData, authLoading, ADMIN_THRESHOLD, BANNED_THRESHOLD } =
+    useContext(AuthContext);
   const {
     logged_in: isLoggedIn,
     avatar_url: avatarUrl,
     permissions: perms,
   } = authData;
+  const isBanned = perms <= BANNED_THRESHOLD;
 
   const minervaLogoSrc = "/images/img_minervaLogo.png";
 
-  // Try to fetch user profile pic and permission status
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       setLoading(true);
-  //       const user = supabase.auth.user();
-
-  //       if (!user) return;
-  //       setIsLoggedIn(true);
-
-  //       const { data, error: profileError } = await supabase
-  //         .from("profiles")
-  //         .select("avatar_url, permissions")
-  //         .eq("id", user?.id)
-  //         .single();
-  //       if (profileError) throw profileError;
-  //       setPerms(data.permissions);
-  //       if (data.avatar_url === "") return;
-
-  //       const { publicURL, error: publicUrlError } = supabase.storage
-  //         .from("avatars")
-  //         .getPublicUrl(data.avatar_url);
-
-  //       if (publicUrlError) throw publicUrlError;
-
-  //       setAvatarUrl(publicURL);
-  //     } catch (error) {
-  //       alert(error.message);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   })();
-  // }, []);
-
   const generateNavBarLinks = () => {
+    if (isBanned) return <></>;
     return (
       <React.Fragment>
         <Link
@@ -141,6 +106,7 @@ const NavBar = ({ _userLoggedIn }) => {
         >
           <CredentialsCorner
             isLoggedIn={isLoggedIn}
+            isBanned={isBanned}
             avatarUrl={avatarUrl}
             authLoading={authLoading}
           />
@@ -153,13 +119,33 @@ const NavBar = ({ _userLoggedIn }) => {
 export default NavBar;
 
 function CredentialsCorner(props) {
-  const { isLoggedIn, avatarUrl, authLoading: loading } = props;
+  const { isLoggedIn, isBanned, avatarUrl, authLoading: loading } = props;
 
   // Let this corner load as it changes depending on user's authentication state
   if (loading) {
     return (
       <div className={navBarStyles["credentialsCorner"]}>
         <Spinner animation="border" />
+      </div>
+    );
+  }
+
+  if (isBanned) {
+    return (
+      <div className={navBarStyles["credentialsCorner"]}>
+        <Button
+          size="lg"
+          onClick={async () => {
+            try {
+              const { error } = await supabaseClient.auth.signOut();
+              if (error) throw error;
+            } catch (error) {
+              alert(error.message);
+            }
+          }}
+        >
+          Log Out
+        </Button>
       </div>
     );
   }

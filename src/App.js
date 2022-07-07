@@ -36,7 +36,19 @@ function App() {
   // =================== Start of AuthContext initialisation =================
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
-  // Set up onAuthStateChange listener, only done once at the start.
+  const parseProfile = (profileData) => {
+    const { id, username, avatar_url, permissions } = profileData;
+    return {
+      logged_in: true,
+      username,
+      permissions,
+      avatar_url: supabaseClient.storage
+        .from("avatars")
+        .getPublicUrl(avatar_url).publicURL,
+      id,
+    };
+  };
+  // Initialise authData and setup listeners, only done once at the start.
   useEffect(() => {
     const getAccountData = async (user_id) => {
       try {
@@ -52,6 +64,16 @@ function App() {
       }
     };
 
+    // Fetch initial user state
+    if (supabaseClient.auth.user()) {
+      (async () => {
+        setAuthLoading(true);
+        const accountData = await getAccountData(supabaseClient.auth.user().id);
+        setAuthData(parseProfile(accountData));
+        setAuthLoading(false);
+      })();
+    }
+
     const parseSession = async (session) => {
       if (!session)
         return {
@@ -64,18 +86,19 @@ function App() {
 
       const { user } = session;
 
-      const { id, username, avatar_url, permissions } = await getAccountData(
-        user?.id
-      );
-      return {
-        logged_in: true,
-        username,
-        permissions,
-        avatar_url: supabaseClient.storage
-          .from("avatars")
-          .getPublicUrl(avatar_url).publicURL,
-        id,
-      };
+      // const { id, username, avatar_url, permissions } = await getAccountData(
+      //   user?.id
+      // );
+      // return {
+      //   logged_in: true,
+      //   username,
+      //   permissions,
+      //   avatar_url: supabaseClient.storage
+      //     .from("avatars")
+      //     .getPublicUrl(avatar_url).publicURL,
+      //   id,
+      // };
+      return parseProfile(await getAccountData(user?.id));
     };
 
     supabaseClient.auth.onAuthStateChange(async (_, session) => {
@@ -93,17 +116,18 @@ function App() {
       .from(`profiles:id=eq.${uid}`)
       .on("UPDATE", (payload) => {
         setAuthLoading(true);
-        const { id, username, avatar_url, permissions } = payload?.new;
-        setAuthData({
-          logged_in: true,
-          username,
-          permissions,
-          is_banned: permissions < 0,
-          avatar_url: supabaseClient.storage
-            .from("avatars")
-            .getPublicUrl(avatar_url).publicURL,
-          id,
-        });
+        setAuthData(parseProfile(payload.new));
+        // const { id, username, avatar_url, permissions } = payload?.new;
+        // setAuthData({
+        //   logged_in: true,
+        //   username,
+        //   permissions,
+        //   is_banned: permissions < 0,
+        //   avatar_url: supabaseClient.storage
+        //     .from("avatars")
+        //     .getPublicUrl(avatar_url).publicURL,
+        //   id,
+        // });
         setAuthLoading(false);
       })
       .subscribe();

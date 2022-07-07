@@ -34,7 +34,7 @@ function App() {
   // ========================== End of global Toast ==========================
 
   // =================== Start of AuthContext initialisation =================
-  const { authData, setAuthData } = useContext(AuthContext);
+  const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
   // Set up onAuthStateChange listener, only done once at the start.
   useEffect(() => {
@@ -73,15 +73,19 @@ function App() {
         username,
         permissions,
         is_banned: permissions < 0,
-        avatar_url,
+        avatar_url: supabaseClient.storage
+          .from("avatars")
+          .getPublicUrl(avatar_url).publicURL,
         id,
       };
     };
 
     supabaseClient.auth.onAuthStateChange(async (_, session) => {
+      setAuthLoading(true);
       setAuthData(await parseSession(session));
+      setAuthLoading(false);
     });
-  }, [setAuthData]);
+  }, [setAuthData, setAuthLoading]);
 
   // Also set up listener for profile changes
   useEffect(() => {
@@ -90,19 +94,23 @@ function App() {
     const profileSub = supabaseClient
       .from(`profiles:id=eq.${uid}`)
       .on("UPDATE", (payload) => {
+        setAuthLoading(true);
         const { id, username, avatar_url, permissions } = payload?.new;
         setAuthData({
           logged_in: true,
           username,
           permissions,
           is_banned: permissions < 0,
-          avatar_url,
+          avatar_url: supabaseClient.storage
+            .from("avatars")
+            .getPublicUrl(avatar_url).publicURL,
           id,
         });
+        setAuthLoading(false);
       })
       .subscribe();
     return () => supabaseClient.removeSubscription(profileSub);
-  }, [authData, setAuthData]);
+  }, [authData, setAuthData, setAuthLoading]);
 
   return (
     <>

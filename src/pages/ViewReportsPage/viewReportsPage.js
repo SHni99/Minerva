@@ -280,7 +280,12 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
       <div className={`p-0 m-0 d-flex justify-evenly`}>
         <div className={ReportStyles.tooltip}>
           <Button
-            disabled={!(status === "unassigned" || assigned?.id === uid)}
+            disabled={
+              !(
+                status === "unassigned" ||
+                (status === "assigned" && assigned?.id === uid)
+              )
+            }
             className="m-1 my-lg-0"
             onClick={() => handleAssignClick(status, assigned, id)}
           >
@@ -292,7 +297,9 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
           </Button>
           {(status === "unassigned" || assigned?.id === uid) && (
             <span className={ReportStyles.tooltiptext}>
-              {status === "unassigned"
+              {status === "resolved"
+                ? "Issue Resolved"
+                : status === "unassigned"
                 ? "Assign Yourself"
                 : "Remove Assignment"}
             </span>
@@ -311,21 +318,33 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
                 },
               })
             }
-            disabled={!hasConvo}
+            disabled={!(assigned?.id === uid && hasConvo)}
           >
             <ChatDots />
           </Button>
           <span className={ReportStyles.tooltiptext}>
-            {hasConvo ? "View Chat Log" : "No Started Chats"}
+            {status === "resolved"
+              ? "Issue Resolved"
+              : assigned?.id === uid
+              ? hasConvo
+                ? "View Chat Log"
+                : "No Started Chats"
+              : "Not Assigned To You"}
           </span>
         </div>
 
         <div className={ReportStyles.tooltip}>
-          <Button variant="danger" className="m-1 my-lg-0">
+          <Button
+            variant="danger"
+            className="m-1 my-lg-0"
+            disabled={assigned?.id !== uid}
+          >
             <ExclamationCircle />
           </Button>
           <span className={ReportStyles.tooltiptext}>
-            Ban {reported.username}
+            {assigned?.id === uid
+              ? `Ban ${reported.username}`
+              : "Not Assigned To You"}
           </span>
         </div>
 

@@ -86,18 +86,6 @@ function App() {
 
       const { user } = session;
 
-      // const { id, username, avatar_url, permissions } = await getAccountData(
-      //   user?.id
-      // );
-      // return {
-      //   logged_in: true,
-      //   username,
-      //   permissions,
-      //   avatar_url: supabaseClient.storage
-      //     .from("avatars")
-      //     .getPublicUrl(avatar_url).publicURL,
-      //   id,
-      // };
       return parseProfile(await getAccountData(user?.id));
     };
 
@@ -117,17 +105,6 @@ function App() {
       .on("UPDATE", (payload) => {
         setAuthLoading(true);
         setAuthData(parseProfile(payload.new));
-        // const { id, username, avatar_url, permissions } = payload?.new;
-        // setAuthData({
-        //   logged_in: true,
-        //   username,
-        //   permissions,
-        //   is_banned: permissions < 0,
-        //   avatar_url: supabaseClient.storage
-        //     .from("avatars")
-        //     .getPublicUrl(avatar_url).publicURL,
-        //   id,
-        // });
         setAuthLoading(false);
       })
       .subscribe();

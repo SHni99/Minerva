@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import AuthContext from "util/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import navBarStyles from "./navBar.module.css";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
@@ -120,6 +120,7 @@ export default NavBar;
 
 function CredentialsCorner(props) {
   const { isLoggedIn, isBanned, avatarUrl, authLoading: loading } = props;
+  const navigate = useNavigate();
 
   // Let this corner load as it changes depending on user's authentication state
   if (loading) {
@@ -137,6 +138,7 @@ function CredentialsCorner(props) {
           size="lg"
           onClick={async () => {
             try {
+              navigate("/");
               const { error } = await supabaseClient.auth.signOut();
               if (error) throw error;
             } catch (error) {

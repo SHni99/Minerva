@@ -69,10 +69,10 @@ const Setting = ({ showModal, onHide }) => {
   const handleLogout = async (navigate, e) => {
     e.preventDefault();
     try {
+      navigate("/");
       const { error } = await supabaseClient.auth.signOut();
       if (error) throw error;
       //input logout popup
-      navigate("/");
     } catch (error) {
       alert(error.message);
     }

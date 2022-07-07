@@ -45,27 +45,34 @@ const ProjectRoutes = ({ setToastOptions }) => {
       active={authLoading}
       spinner={<HashLoader color="silver" size="30vw" />}
     >
-      {authLoading ? (
-        <div style={{ width: "100vw", height: "100vh" }} />
-      ) : (
-        <Router>
+      <Router>
+        {authLoading ? (
+          <div style={{ width: "100vw", height: "100vh" }}></div>
+        ) : (
           <AnimatedRoutes
             isBanned={isBanned}
             showSimpleToast={showSimpleToast}
             setToastOptions={setToastOptions}
             authLoading={authLoading}
           />
-        </Router>
-      )}
+        )}
+      </Router>
     </LoadingOverlay>
   );
 };
 
 export default ProjectRoutes;
 
-const AnimatedRoutes = ({ isBanned, showSimpleToast, setToastOptions }) => {
+const AnimatedRoutes = ({
+  isBanned,
+  showSimpleToast,
+  setToastOptions,
+  authLoading,
+}) => {
   // Add TransitionGroup and CSSTransition for animations
-  return !isBanned ? (
+  return authLoading ? (
+    <div style={{ width: "100vw", height: "100vh" }}></div>
+  ) : !isBanned ? (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="*" element={<NotFound />} />

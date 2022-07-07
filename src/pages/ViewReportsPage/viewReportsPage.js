@@ -15,6 +15,7 @@ import {
   ChatDots,
   CheckCircle,
   ExclamationCircle,
+  JournalPlus,
   PersonCheck,
   PersonX,
 } from "react-bootstrap-icons";
@@ -214,6 +215,58 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     });
   };
 
+  const updateTaskStatus = async (reportId, status) => {
+    try {
+      let { error } = await supabaseClient
+        .from("reports")
+        .update({ status })
+        .eq("id", reportId);
+      if (error) throw error;
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleResolveClick = async (reportId, status, assigned) => {
+    const isResolved = status === "resolved";
+    const modalTemplate = {
+      show: true,
+      titleContent: isResolved ? "Reopen Report" : "Resolve Issue",
+      bodyContent: isResolved
+        ? `Reopen report #${reportId}?`
+        : `Mark report #${reportId} as resolved?`,
+    };
+
+    setModalState({
+      ...modalTemplate,
+      footerContent: (
+        <>
+          <Button
+            onClick={async () => {
+              setModalState({
+                ...modalTemplate,
+                footerContent: <Spinner animation="border" />,
+              });
+              await updateTaskStatus(
+                reportId,
+                isResolved ? (assigned ? "assigned" : "unassigned") : "resolved"
+              );
+              setModalState({ show: false });
+            }}
+          >
+            Confirm
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => setModalState({ show: false })}
+          >
+            Cancel
+          </Button>
+        </>
+      ),
+    });
+  };
+
   // Generate action buttons tied to the reported user's id.
   const generateActions = ({
     id,
@@ -248,7 +301,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
 
         <div className={ReportStyles.tooltip}>
           <Button
-            variant="light"
+            variant="secondary"
             className="m-1 my-lg-0"
             onClick={() =>
               navigate("/chatlogs", {
@@ -276,11 +329,22 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
           </span>
         </div>
 
-        <div className={ReportStyles.tooltip}>
-          <Button variant="success" className="m-1 my-lg-0">
-            <CheckCircle />
+        <div className={ReportStyles.tooltip} onClick={() => {}}>
+          <Button
+            variant={status === "resolved" ? "warning" : "success"}
+            className="m-1 my-lg-0"
+            onClick={() => handleResolveClick(id, status, assigned)}
+            disabled={!(assigned?.id === uid)}
+          >
+            {status === "resolved" ? <JournalPlus /> : <CheckCircle />}
           </Button>
-          <span className={ReportStyles.tooltiptext}>Mark As Resolved</span>
+          <span className={ReportStyles.tooltiptext}>
+            {status === "resolved"
+              ? "Reopen Issue"
+              : assigned?.id === uid
+              ? "Mark As Resolved"
+              : "Not Assigned To You"}
+          </span>
         </div>
       </div>
     );

@@ -268,7 +268,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   };
 
   const handleBanClick = (reported) => {
-    const { id, username, permissions } = reported;
+    const { username, permissions } = reported;
     const isBanned = permissions < 0;
     const modalTemplate = {
       show: true,

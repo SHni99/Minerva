@@ -70,7 +70,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
           let { data, error } = await supabaseClient
             .from("reports")
             .select(
-              `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url), assigned(id, username)`
+              `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url, permissions), assigned(id, username)`
             )
             .order("id", { ascending: true });
           if (error) throw error;
@@ -95,7 +95,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             let { data, error } = await supabaseClient
               .from("reports")
               .select(
-                `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url), assigned(id, username)`
+                `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url, permissions), assigned(id, username)`
               )
               .eq("id", reportId)
               .single();
@@ -267,6 +267,37 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     });
   };
 
+  const handleBanClick = (reported) => {
+    const { id, username, permissions } = reported;
+    const isBanned = permissions < 0;
+    const modalTemplate = {
+      show: true,
+      titleContent: `${isBanned ? "Unban" : "Ban"} ${username}`,
+      bodyContent: (
+        <p className="text-danger fw-bold">
+          {isBanned
+            ? `Are you sure? ${username} will regain full access to the site.`
+            : `Are you sure? ${username}'s access will be severely restricted.`}
+        </p>
+      ),
+    };
+
+    setModalState({
+      ...modalTemplate,
+      footerContent: (
+        <>
+          <Button variant="danger">Confirm</Button>
+          <Button
+            variant="secondary"
+            onClick={() => setModalState({ show: false })}
+          >
+            Cancel
+          </Button>
+        </>
+      ),
+    });
+  };
+
   // Generate action buttons tied to the reported user's id.
   const generateActions = ({
     id,
@@ -338,6 +369,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             variant="danger"
             className="m-1 my-lg-0"
             disabled={assigned?.id !== uid}
+            onClick={() => handleBanClick(reported)}
           >
             <ExclamationCircle />
           </Button>

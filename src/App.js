@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Routes from "./Routes";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
+import { supabaseClient } from "config/supabase-client";
 
 function App() {
   // States for Toast

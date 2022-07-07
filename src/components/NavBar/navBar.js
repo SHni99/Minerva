@@ -34,7 +34,7 @@ const NavBar = ({ _userLoggedIn }) => {
         const { data, error: profileError } = await supabase
           .from("profiles")
           .select("avatar_url, permissions")
-          .eq("id", user.id)
+          .eq("id", user?.id)
           .single();
         if (profileError) throw profileError;
         setPerms(data.permissions);

@@ -16,6 +16,7 @@ const Setting = ({ showModal, onHide }) => {
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
+        if (!user) return;
         const { data: currentData, error } = await supabaseClient
           .from("profiles")
           .select("blocked")

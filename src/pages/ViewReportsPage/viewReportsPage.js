@@ -171,7 +171,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     }
   };
 
-  const handleAssignClick = (status, assigned, id) => {
+  const handleAssignClick = (status, id) => {
     const index = status === "unassigned" ? 0 : 1;
     const cancelButton = (
       <Button
@@ -297,22 +297,87 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
       </p>,
     ];
 
-    const banUser = async (userId, reason) => {
+    const updateBanStatus = async (userId, reason, banUser) => {
       try {
         // Update permissions
         const { error: permsError } = await supabaseClient
           .from("profiles")
-          .update({ permissions: -1 })
-          .eq("id", userId);
+          .update({ permissions: banUser ? -1 : 0 })
+          .eq("id", userId)
+          .single();
         if (permsError) throw permsError;
+        // Update local state
+        setReports((old) => {
+          const newReports = [...old];
+          const updateIndex = newReports.findIndex(
+            (report) => report.reported.id === userId
+          );
+          newReports[updateIndex].reported.permissions = banUser ? -1 : 0;
+          return newReports;
+        });
 
         // Update ban reason
-        const { error: banError } = await supabaseClient
-          .from("banned")
-          .insert({ id: userId, reason });
-        if (banError) throw banError;
+        if (banUser) {
+          const { error: banError } = await supabaseClient
+            .from("banned")
+            .insert({ id: userId, reason });
+          if (banError) throw banError;
+        } else {
+          const { error: banError } = await supabaseClient
+            .from("banned")
+            .delete()
+            .eq("id", userId);
+          if (banError) throw banError;
+        }
       } catch (error) {
         alert(error.message);
+      }
+    };
+
+    const handleConfirmClick = async () => {
+      if (!isBanned) {
+        // If user not already banned, proceed to confirm ban reason
+        setModalState({
+          ...modalTemplate,
+          bodyContent: bodyContent[1],
+          footerContent: (
+            <>
+              <Button
+                variant="danger"
+                onClick={async () => {
+                  const reason = document.getElementById("ban-reason").value;
+                  if (!reason) {
+                    alert("Please enter a reason for the ban!");
+                    return;
+                  }
+                  setModalState({
+                    ...modalTemplate,
+                    bodyContent: bodyContent[1],
+                    footerContent: <Spinner animation="border" />,
+                  });
+
+                  await updateBanStatus(id, reason, true);
+
+                  setModalState({ show: false });
+                }}
+              >
+                Submit
+              </Button>
+              {cancelButton}
+            </>
+          ),
+        });
+      } else {
+        // User is already banned. Unban user upon confirmation.
+        setModalState({
+          ...modalTemplate,
+          bodyContent: bodyContent[0],
+          footerContent: <Spinner animation="border" />,
+        });
+
+        await updateBanStatus(id, null, false);
+
+        setModalState({ show: false });
       }
     };
 
@@ -322,40 +387,8 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
       footerContent: (
         <>
           <Button
-            variant="danger"
-            onClick={() =>
-              setModalState({
-                ...modalTemplate,
-                bodyContent: bodyContent[1],
-                footerContent: (
-                  <>
-                    <Button
-                      variant="danger"
-                      onClick={async () => {
-                        const reason =
-                          document.getElementById("ban-reason").value;
-                        if (!reason) {
-                          alert("Please enter a reason for the ban!");
-                          return;
-                        }
-                        setModalState({
-                          ...modalTemplate,
-                          bodyContent: bodyContent[1],
-                          footerContent: <Spinner animation="border" />,
-                        });
-
-                        await banUser(id, reason);
-
-                        setModalState({ show: false });
-                      }}
-                    >
-                      Submit
-                    </Button>
-                    {cancelButton}
-                  </>
-                ),
-              })
-            }
+            variant={isBanned ? "primary" : "danger"}
+            onClick={handleConfirmClick}
           >
             Confirm
           </Button>
@@ -430,7 +463,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     const createBanButton = () => (
       <div className={ReportStyles.tooltip}>
         <Button
-          variant="danger"
+          variant={reported.permissions < 0 ? "info" : "danger"}
           className="m-1 my-lg-0"
           disabled={assigned?.id !== uid}
           onClick={() => handleBanClick(reported)}
@@ -438,7 +471,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
           <ExclamationCircle />
         </Button>
         <span className={ReportStyles.tooltiptext}>
-          Ban {reported.username}
+          {reported.permissions < 0 ? "Unban" : "Ban"} {reported.username}
         </span>
       </div>
     );

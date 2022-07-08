@@ -172,6 +172,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   };
 
   const handleAssignClick = (status, id) => {
+    console.log(id);
     const index = status === "unassigned" ? 0 : 1;
     const cancelButton = (
       <Button
@@ -420,7 +421,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             )
           }
           className="m-1 my-lg-0"
-          onClick={() => handleAssignClick(status, assigned, id)}
+          onClick={() => handleAssignClick(status, id)}
         >
           {status === "assigned" && assigned?.id === uid ? (
             <PersonX />

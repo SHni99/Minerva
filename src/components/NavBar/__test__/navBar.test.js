@@ -13,12 +13,12 @@ const mockAuthData = {
   id: "a9fbf7d6-e8fb-4985-956c-f4e9dfb5cd0e",
 };
 
-const wrapNavBar = (userLoggedIn) => {
+const wrapNavBar = (authData) => {
   const history = createMemoryHistory();
 
-  if (userLoggedIn) {
+  if (authData) {
     render(
-      <AuthContext.Provider value={{ authData: mockAuthData }}>
+      <AuthContext.Provider value={{ authData }}>
         <Router location={history.location} navigator={history}>
           <NavBar />
         </Router>
@@ -77,7 +77,7 @@ describe("Log In and Sign Up buttons", () => {
     });
 
   test("Log In and Sign Up buttons absent when logged in", () => {
-    wrapNavBar(true);
+    wrapNavBar(mockAuthData);
     expect(queryLoginButton()).not.toBeInTheDocument();
     expect(querySignUpButton()).not.toBeInTheDocument();
   });
@@ -110,12 +110,26 @@ describe("Profile Picture", () => {
   });
 
   it("is present when user is logged in", () => {
-    wrapNavBar(true);
+    wrapNavBar(mockAuthData);
     expect(queryProfilePic()).toBeInTheDocument();
   });
 
+  it("displays using the provided avatar link in AuthData", () => {
+    wrapNavBar(mockAuthData);
+    expect(queryProfilePic()).toHaveStyle(
+      `background-image: url(${mockAuthData.avatar_url})`
+    );
+  });
+
+  it("displays the default avatar if AuthData has no avatar link", () => {
+    wrapNavBar({ ...mockAuthData, avatar_url: null });
+    expect(queryProfilePic()).toHaveStyle(
+      `background-image: url(/images/img_avatarDefault.jpg)`
+    );
+  });
+
   it("redirects to the profile page on click", () => {
-    const history = wrapNavBar(true);
+    const history = wrapNavBar(mockAuthData);
     fireEvent.click(queryProfilePic());
     expect(history.location.pathname).toBe("/profile");
   });
@@ -131,12 +145,12 @@ describe("Create Listing Button", () => {
   });
 
   it("is present when user is logged in", () => {
-    wrapNavBar(true);
+    wrapNavBar(mockAuthData);
     expect(queryCreateButton()).toBeInTheDocument();
   });
 
   it("redirects to Create Listing Page on click", () => {
-    wrapNavBar(true);
+    wrapNavBar(mockAuthData);
     expect(queryCreateButton()).toHaveAttribute("href", "create-listing");
   });
 });

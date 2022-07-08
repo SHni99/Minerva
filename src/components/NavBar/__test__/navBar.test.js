@@ -12,13 +12,14 @@ const mockAuthData = {
   avatar_url: "https://c.tenor.com/IyweQyb3MhIAAAAi/the-rock-sus.gif",
   id: "a9fbf7d6-e8fb-4985-956c-f4e9dfb5cd0e",
 };
+const BANNED_THRESHOLD = -1;
 
 const wrapNavBar = (authData) => {
   const history = createMemoryHistory();
 
   if (authData) {
     render(
-      <AuthContext.Provider value={{ authData }}>
+      <AuthContext.Provider value={{ authData, BANNED_THRESHOLD }}>
         <Router location={history.location} navigator={history}>
           <NavBar />
         </Router>
@@ -46,6 +47,12 @@ describe("Minerva Logo", () => {
 });
 
 describe("NavBar Links", () => {
+  const mockBannedAuthData = { ...mockAuthData, permissions: BANNED_THRESHOLD };
+  test("Home button is not visible when user is banned", () => {
+    wrapNavBar(mockBannedAuthData);
+    expect(screen.queryByTestId("navBar-home")).not.toBeInTheDocument();
+  });
+
   test("Home button redirects to the Home/Landing page ('/')", () => {
     const history = wrapNavBar();
     fireEvent.click(screen.getByTestId("navBar-home"));
@@ -58,10 +65,22 @@ describe("NavBar Links", () => {
     expect(history.location.pathname).toBe("/listingspage");
   });
 
-  test("About button redirects to the About Us Page", () => {
+  test("Listings button is not visible when user is banned", () => {
+    wrapNavBar(mockBannedAuthData);
+    expect(
+      screen.queryByRole("link", { name: /listings/i })
+    ).not.toBeInTheDocument();
+  });
+
+  test("About Us button redirects to the About Us Page", () => {
     const history = wrapNavBar();
     fireEvent.click(screen.getByTestId("navBar-about"));
     expect(history.location.pathname).toBe("/aboutuspage");
+  });
+
+  test("About Us button is not visible when user is banned", () => {
+    wrapNavBar(mockBannedAuthData);
+    expect(screen.queryByTestId("navBar-about")).not.toBeInTheDocument();
   });
 });
 

@@ -231,9 +231,9 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState, blockedA
           setListingData(newListingData);
         } else {
           //filter blocked user from the listing data
-          const current = newListingData.filter((res) =>
+          const current = newListingData.filter(({creator_id}) =>
             blockedArray.reduce(
-              (cur, next) => cur && res.creator_id !== next,
+              (cur, next) => cur && creator_id !== next,
               true
             )
           );

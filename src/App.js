@@ -32,7 +32,8 @@ function App() {
     closeButton,
   } = toastOptions;
   // ========================== End of global Toast ==========================
-
+  const [option, setOption] = useState([]);
+  const [blockedArray, setBlockedArray] = useState("");
   // =================== Start of AuthContext initialisation =================
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
@@ -112,7 +113,6 @@ function App() {
     return () => supabaseClient.removeSubscription(profileSub);
   }, [authData, setAuthData, setAuthLoading]);
 
-  const [blockedArray, setBlockedArray] = useState("");
 
   useEffect(() => {
     const getBlockedStatus = async () => {
@@ -138,7 +138,7 @@ function App() {
   return (
     <>
       <Routes setToastOptions={setToastOptions} blockedArray={blockedArray} 
-      setBlockedArray={setBlockedArray} />
+      setBlockedArray={setBlockedArray} option={option} setOption={setOption} />
       <ToastContainer
         position={position}
         className={"position-fixed " + containerClasses}

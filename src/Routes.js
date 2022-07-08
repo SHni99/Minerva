@@ -22,7 +22,7 @@ import ViewReportsPage from "pages/ViewReportsPage/viewReportsPage";
 import ChatLogsPage from "pages/ChatLogsPage/chatLogsPage";
 import HashLoader from "react-spinners/HashLoader";
 
-const ProjectRoutes = ({ setToastOptions, blockedArray, setBlockedArray }) => {
+const ProjectRoutes = ({ setToastOptions, blockedArray, setBlockedArray, option, setOption }) => {
   // Simplify toast showing
   const showSimpleToast = (title, message, timeout) =>
     setToastOptions({
@@ -39,7 +39,6 @@ const ProjectRoutes = ({ setToastOptions, blockedArray, setBlockedArray }) => {
   // Determine if user is banned :(((((
   const { authData, authLoading, BANNED_THRESHOLD } = useContext(AuthContext);
   const isBanned = authData.permissions <= BANNED_THRESHOLD;
-
   return (
     <LoadingOverlay
       active={authLoading}
@@ -56,6 +55,8 @@ const ProjectRoutes = ({ setToastOptions, blockedArray, setBlockedArray }) => {
             authLoading={authLoading}
             blockedArray={blockedArray}
             setBlockedArray={setBlockedArray}
+            option={option}
+            setOption={setOption}
           />
         )}
       </Router>
@@ -72,6 +73,8 @@ const AnimatedRoutes = ({
   authLoading,
   blockedArray,
   setBlockedArray,
+  option,
+  setOption
 }) => {
   // Add TransitionGroup and CSSTransition for animations
   return authLoading ? (
@@ -102,6 +105,8 @@ const AnimatedRoutes = ({
           <ProfilePage
             blockedArray={blockedArray}
             setBlockedArray={setBlockedArray}
+            option={option}
+            setOption={setOption}
           />
         }
       />

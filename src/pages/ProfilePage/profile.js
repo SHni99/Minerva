@@ -18,7 +18,12 @@ import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 import Setting from "components/Setting/setting";
 import Modal from "react-bootstrap/Modal";
 
-const ViewProfilePage = ({ blockedArray, setBlockedArray }) => {
+const ViewProfilePage = ({
+  blockedArray,
+  setBlockedArray,
+  option,
+  setOption,
+}) => {
   const { state } = useLocation();
   const unusedModalState = {
     show: false,
@@ -44,6 +49,8 @@ const ViewProfilePage = ({ blockedArray, setBlockedArray }) => {
         setModalState={setModalState}
         hideModal={hideModal}
         setBlockedArray={setBlockedArray}
+        option={option}
+        setOption={setOption}
       />
       <FooterBar />
     </div>
@@ -59,6 +66,8 @@ const ProfilePageBody = ({
   hideModal,
   blockedArray,
   setBlockedArray,
+  option,
+  setOption,
 }) => {
   const [profileData, setProfileData] = useState({
     username: "",
@@ -76,6 +85,10 @@ const ProfilePageBody = ({
   const [avatar_url, setAvatarurl] = useState("");
   const [isEmpty, setIsEmpty] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [show, setShow] = useState({
+    email: false,
+    bio: false,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -207,10 +220,16 @@ const ProfilePageBody = ({
 
           setIsBlocked(checkBlocked);
         }
-        console.log(blockedArray);
       } catch (error) {
-        alert(error.message);
+        alert("error.message");
       }
+    };
+
+    const getOptions = async (option) => {
+      setShow({
+        email: option.includes("Show email") ? true : false,
+        bio: option.includes("Show bio") ? true : false,
+      });
     };
 
     if (!creator_id || checkId === creator_id) {
@@ -220,6 +239,7 @@ const ProfilePageBody = ({
       getProfile(checkId);
       getReview(checkId);
       getAllIndex(checkId);
+      getOptions(option);
     } else {
       setcheckUser(true);
       getBlockedStatus(creator_id);
@@ -227,7 +247,7 @@ const ProfilePageBody = ({
       getReview(creator_id);
       getAllIndex(creator_id);
     }
-  }, [checkId, creator_id, blockedArray]);
+  }, [checkId, creator_id, blockedArray, option]);
 
   const popover = (
     <Popover>
@@ -299,12 +319,28 @@ const ProfilePageBody = ({
                     </div>
                   )}
                 </div>
-                <label className="poppins-normal-black-24px">BIO:</label>
-                <div className="card">
-                  <div className="card-body bg-light border-dark">
-                    {profileData.bio}
+                {show.email ? (
+                  <div>
+                    <label className="poppins-normal-black-24px">Email:</label>
+                    <div className="text mb-3">
+                      {supabaseClient.auth.user().email}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  ""
+                )}
+                {show.bio ? (
+                  <div>
+                    <label className="poppins-normal-black-24px">BIO:</label>
+                    <div className="card">
+                      <div className="card-body bg-light border-dark">
+                        {profileData.bio}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
 
@@ -317,6 +353,8 @@ const ProfilePageBody = ({
                     }
                     onHide={hideModal}
                     blockedArray={blockedArray}
+                    setOption={setOption}
+                    option={option}
                   ></Setting>
                 ) : (
                   <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">

@@ -2,19 +2,37 @@ import "@testing-library/jest-dom/extend-expect";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
-import { AuthProvider } from "util/AuthContext";
+import AuthContext, { AuthProvider } from "util/AuthContext";
 import NavBar from "../navBar";
+
+const mockAuthData = {
+  logged_in: true,
+  permissions: 0,
+  username: "test user",
+  avatar_url: "https://c.tenor.com/IyweQyb3MhIAAAAi/the-rock-sus.gif",
+  id: "a9fbf7d6-e8fb-4985-956c-f4e9dfb5cd0e",
+};
 
 const wrapNavBar = (userLoggedIn) => {
   const history = createMemoryHistory();
 
-  render(
-    <AuthProvider>
-      <Router location={history.location} navigator={history}>
-        <NavBar _userLoggedIn={userLoggedIn || false} />
-      </Router>
-    </AuthProvider>
-  );
+  if (userLoggedIn) {
+    render(
+      <AuthContext.Provider value={{ authData: mockAuthData }}>
+        <Router location={history.location} navigator={history}>
+          <NavBar />
+        </Router>
+      </AuthContext.Provider>
+    );
+  } else {
+    render(
+      <AuthProvider>
+        <Router location={history.location} navigator={history}>
+          <NavBar />
+        </Router>
+      </AuthProvider>
+    );
+  }
 
   return history;
 };
@@ -58,11 +76,11 @@ describe("Log In and Sign Up buttons", () => {
       name: /sign up/i,
     });
 
-  //   test("Log In and Sign Up buttons absent when logged in", () => {
-  //     wrapNavBar(true);
-  //     expect(queryLoginButton()).not.toBeInTheDocument();
-  //     expect(querySignUpButton()).not.toBeInTheDocument();
-  //   });
+  test("Log In and Sign Up buttons absent when logged in", () => {
+    wrapNavBar(true);
+    expect(queryLoginButton()).not.toBeInTheDocument();
+    expect(querySignUpButton()).not.toBeInTheDocument();
+  });
 
   test("Log In and Sign Up buttons present when not logged in", () => {
     wrapNavBar();
@@ -91,16 +109,16 @@ describe("Profile Picture", () => {
     expect(queryProfilePic()).not.toBeInTheDocument();
   });
 
-  //   it("is present when user is logged in", () => {
-  //     wrapNavBar(true);
-  //     expect(queryProfilePic()).toBeInTheDocument();
-  //   });
+  it("is present when user is logged in", () => {
+    wrapNavBar(true);
+    expect(queryProfilePic()).toBeInTheDocument();
+  });
 
-  //   it("redirects to the profile page on click", () => {
-  //     const history = wrapNavBar(true);
-  //     fireEvent.click(queryProfilePic());
-  //     expect(history.location.pathname).toBe("/profile");
-  //   });
+  it("redirects to the profile page on click", () => {
+    const history = wrapNavBar(true);
+    fireEvent.click(queryProfilePic());
+    expect(history.location.pathname).toBe("/profile");
+  });
 });
 
 describe("Create Listing Button", () => {
@@ -112,13 +130,13 @@ describe("Create Listing Button", () => {
     expect(queryCreateButton()).not.toBeInTheDocument();
   });
 
-  //   it("is present when user is logged in", () => {
-  //     wrapNavBar(true);
-  //     expect(queryCreateButton()).toBeInTheDocument();
-  //   });
+  it("is present when user is logged in", () => {
+    wrapNavBar(true);
+    expect(queryCreateButton()).toBeInTheDocument();
+  });
 
-  //   it("redirects to Create Listing Page on click", () => {
-  //     wrapNavBar(true);
-  //     expect(queryCreateButton()).toHaveAttribute("href", "create-listing");
-  //   });
+  it("redirects to Create Listing Page on click", () => {
+    wrapNavBar(true);
+    expect(queryCreateButton()).toHaveAttribute("href", "create-listing");
+  });
 });

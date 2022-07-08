@@ -120,9 +120,8 @@ const BanPage = () => {
             <Skeleton width="75%" height="15vh" />
           ) : (
             <textarea
-              className="w-75 mx-auto rounded-3 border-secondary fs-5"
+              className={`w-75 mx-auto rounded-3 border-secondary fs-5 ${BanPageStyles["appeal-reason"]}`}
               id="appeal-reason"
-              style={{ minHeight: "15vh" }}
               disabled={banData && banData.appeal.status === "submitted"}
               onChange={(e) => setAppealMsg(e.target.value)}
               value={appealMsg}

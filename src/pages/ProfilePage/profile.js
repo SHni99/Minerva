@@ -172,11 +172,12 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
           .select("index")
           .eq("reviewee_id", id);
 
-        setIndexAll(
-          (
-            indexData.reduce((x, y) => x + y.index, 0) / indexData.length
-          ).toPrecision(3)
-        );
+        if (indexData)
+          setIndexAll(
+            (
+              indexData.reduce((x, y) => x + y.index, 0) / indexData.length
+            ).toPrecision(3)
+          );
 
         if (error && status !== 406) throw error;
       } catch (error) {
@@ -187,26 +188,31 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
     const getBlockedStatus = async (id) => {
       try {
         const user = supabaseClient.auth.user();
+        if (!user) return;
         const { data: blockedData, error } = await supabaseClient
           .from("profiles")
           .select("blocked")
-          .eq("id", user.id)
+          .eq("id", user?.id)
           .single();
 
         if (error) throw error;
 
-        const checkBlocked = blockedData.blocked.reduce(
-          (res, next) => res || next === id,
-          false
-        );
-        setIsBlocked(checkBlocked);
-        console.log(checkBlocked);
+        if (blockedData && blockedData.blocked) {
+          const checkBlocked = blockedData.blocked?.reduce(
+            (res, next) => res || next === id,
+            false
+          );
+          setIsBlocked(checkBlocked);
+          console.log(checkBlocked);
+        }
       } catch (error) {
+        console.log("2");
         alert(error.message);
       }
     };
 
-    if (checkId === creator_id || creator_id === undefined) {
+    if (!creator_id || checkId === creator_id) {
+      if (!checkId) return;
       setcheckUser(false);
       getBlockedStatus(checkId);
       getProfile(checkId);

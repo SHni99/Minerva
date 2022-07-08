@@ -47,6 +47,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
 
   const checkBlockedStatus = async () => {
     try {
+      if (!user) return;
       const { data: currentData, error } = await supabaseClient
         .from("profiles")
         .select("blocked")

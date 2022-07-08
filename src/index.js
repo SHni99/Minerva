@@ -7,10 +7,12 @@ import "./styles/index.css";
 import "./styles/style-guide.css";
 import "styles/tailwind.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "react-loading-skeleton/dist/skeleton.css";
+import { AuthProvider } from "util/AuthContext";
 
 ReactDOM.render(
-  <React.StrictMode>
+  <AuthProvider>
     <App />
-  </React.StrictMode>,
+  </AuthProvider>,
   document.getElementById("root")
 );

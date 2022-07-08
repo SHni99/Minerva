@@ -138,7 +138,7 @@ const Listings = ({ check, listingDataState, setModalState }) => {
         setLoading(false);
       }
     };
-    getListings();
+    if (check) getListings();
 
     // We are disabling the eslint warning regarding useEffect having
     // missing dependencies `listingData` and `setListingData` as

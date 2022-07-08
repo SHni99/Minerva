@@ -30,7 +30,7 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
-const ChatPage = () => {
+const ChatPage = ({ blockedArray, setBlockedArray }) => {
   const { state } = useLocation();
   const startChatData = state ? state.startChatData : null;
 
@@ -55,6 +55,8 @@ const ChatPage = () => {
         data={modalState}
       />
       <ChatPageBody
+        blockedArray={blockedArray}
+        setBlockedArray={setBlockedArray}
         startChatData={startChatData}
         setModalState={setModalState}
         unusedModalState={unusedModalState}
@@ -66,7 +68,13 @@ const ChatPage = () => {
 
 export default ChatPage;
 
-const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
+const ChatPageBody = ({
+  startChatData,
+  setModalState,
+  unusedModalState,
+  blockedArray,
+  setBlockedArray
+}) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
@@ -805,8 +813,16 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
           .order("created_at", { ascending: false, foreignTable: "messages" });
         if (convoError) throw convoError;
 
+        const unblockedConvo = convoData.filter(({ participants }) =>
+          blockedArray.reduce(
+            (cur, next) => cur && !participants.includes(next),
+            true
+          )
+        );
         // Convert each row of convoData into the appropriate format for `conversations`
-        let newConversations = await Promise.all(convoData.map(parseConvo));
+        let newConversations = await Promise.all(
+          unblockedConvo.map(parseConvo)
+        );
         newConversations = newConversations.reduce((res, convo) => {
           const {
             chat_id,
@@ -834,7 +850,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
 
         if (startChatData) {
           const { user_id, name, src } = startChatData;
-          const existingConvo = convoData.filter(({ participants }) =>
+          const existingConvo = unblockedConvo.filter(({ participants }) =>
             participants.includes(user_id)
           );
           const hasExistingConvo = existingConvo.length > 0;
@@ -850,6 +866,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
               hasReviewed: false,
             };
           }
+
           setConversations(newConversations);
           setActiveChatId(hasExistingConvo ? existingConvo[0].id : tempChatId);
         } else {
@@ -1115,6 +1132,8 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                     }
                     hideModal={() => setModalState(unusedModalState)}
                     target_id={conversations[activeChatId].user_id}
+                    blockedArray={blockedArray}
+                    setBlockedArray={setBlockedArray}
                   />
                 </ConversationHeader.Actions>
               </ConversationHeader>

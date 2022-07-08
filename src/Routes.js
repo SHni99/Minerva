@@ -86,7 +86,10 @@ const AnimatedRoutes = ({
       />
       <Route path="/registerpage" element={<RegisterPage />} />
       <Route path="/aboutuspage" element={<AboutusPage />} />
-      <Route path="/listingspage" element={<ListingsPage />} />
+      <Route
+        path="/listingspage"
+        element={<ListingsPage blockedArray={blockedArray} />}
+      />
       <Route path="/profilepage" element={<UpdateProfilePage />} />
       <Route path="/create-listing" element={<CreateListingPage />} />
       <Route path="/passwordpage" element={<PasswordPage />} />
@@ -103,7 +106,15 @@ const AnimatedRoutes = ({
         }
       />
       <Route path="/review" element={<ReviewPage />} />
-      <Route path="/chats" element={<ChatPage />} />
+      <Route
+        path="/chats"
+        element={
+          <ChatPage
+            blockedArray={blockedArray}
+            setBlockedArray={setBlockedArray}
+          />
+        }
+      />
       <Route
         path="/reports"
         element={<ViewReportsPage setToastOptions={setToastOptions} />}

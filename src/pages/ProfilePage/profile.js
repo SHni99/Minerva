@@ -204,11 +204,10 @@ const ProfilePageBody = ({
             (res, next) => res || next === id,
             false
           );
-        
-        setIsBlocked(checkBlocked);
-        
-          }
-          console.log(blockedArray)
+
+          setIsBlocked(checkBlocked);
+        }
+        console.log(blockedArray);
       } catch (error) {
         alert(error.message);
       }
@@ -317,6 +316,7 @@ const ProfilePageBody = ({
                       setModalState({ show: true, title, body, footer })
                     }
                     onHide={hideModal}
+                    blockedArray={blockedArray}
                   ></Setting>
                 ) : (
                   <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">

@@ -8,7 +8,7 @@ import { Card } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import settingStyles from "./setting.module.css";
 
-const Setting = ({ showModal, onHide }) => {
+const Setting = ({ showModal, onHide, blockedArray }) => {
   const navigate = useNavigate();
   const user = supabaseClient.auth.user();
   const [fullBlockedData, setFullBlockeddata] = useState("");
@@ -16,20 +16,9 @@ const Setting = ({ showModal, onHide }) => {
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
-        if (!user) return;
-        const { data: currentData, error } = await supabaseClient
-          .from("profiles")
-          .select("blocked")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-        if (currentData.blocked === null) {
-          currentData.blocked = [];
-        }
-
+        
         const newBlockedData = await Promise.all(
-          currentData.blocked.map(async (id) => {
+          blockedArray.map(async (id) => {
             let {
               data: { avatar_url: avatar, username },
               error,
@@ -63,6 +52,7 @@ const Setting = ({ showModal, onHide }) => {
     };
 
     checkBlockedUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   //log user out and redirect to landing page

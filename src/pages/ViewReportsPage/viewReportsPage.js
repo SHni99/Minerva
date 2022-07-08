@@ -307,98 +307,115 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     reported,
     hasConvo,
   }) => {
-    return (
-      <div className={`p-0 m-0 d-flex justify-evenly`}>
-        <div className={ReportStyles.tooltip}>
-          <Button
-            disabled={
-              !(
-                status === "unassigned" ||
-                (status === "assigned" && assigned?.id === uid)
-              )
-            }
-            className="m-1 my-lg-0"
-            onClick={() => handleAssignClick(status, assigned, id)}
-          >
-            {status === "assigned" && assigned?.id === uid ? (
-              <PersonX />
-            ) : (
-              <PersonCheck />
-            )}
-          </Button>
-          {(status === "unassigned" || assigned?.id === uid) && (
-            <span className={ReportStyles.tooltiptext}>
-              {status === "resolved"
-                ? "Issue Resolved"
-                : status === "unassigned"
-                ? "Assign Yourself"
-                : "Remove Assignment"}
-            </span>
+    const wrapperClasses = "p-0 m-0 d-flex justify-evenly";
+
+    // Wrap all buttons in a create function to only generate them when needed.
+    const createAssignButton = () => (
+      <div className={ReportStyles.tooltip}>
+        <Button
+          disabled={
+            !(
+              status === "unassigned" ||
+              (status === "assigned" && assigned?.id === uid)
+            )
+          }
+          className="m-1 my-lg-0"
+          onClick={() => handleAssignClick(status, assigned, id)}
+        >
+          {status === "assigned" && assigned?.id === uid ? (
+            <PersonX />
+          ) : (
+            <PersonCheck />
           )}
-        </div>
-
-        <div className={ReportStyles.tooltip}>
-          <Button
-            variant="secondary"
-            className="m-1 my-lg-0"
-            onClick={() =>
-              navigate("/chatlogs", {
-                state: {
-                  recepient: reporter,
-                  sender: reported,
-                },
-              })
-            }
-            disabled={!(assigned?.id === uid && hasConvo)}
-          >
-            <ChatDots />
-          </Button>
-          <span className={ReportStyles.tooltiptext}>
-            {status === "resolved"
-              ? "Issue Resolved"
-              : assigned?.id === uid
-              ? hasConvo
-                ? "View Chat Log"
-                : "No Started Chats"
-              : "Not Assigned To You"}
-          </span>
-        </div>
-
-        <div className={ReportStyles.tooltip}>
-          <Button
-            variant="danger"
-            className="m-1 my-lg-0"
-            disabled={assigned?.id !== uid}
-            onClick={() => handleBanClick(reported)}
-          >
-            <ExclamationCircle />
-          </Button>
-          <span className={ReportStyles.tooltiptext}>
-            {assigned?.id === uid
-              ? `Ban ${reported.username}`
-              : "Not Assigned To You"}
-          </span>
-        </div>
-
-        <div className={ReportStyles.tooltip} onClick={() => {}}>
-          <Button
-            variant={status === "resolved" ? "warning" : "success"}
-            className="m-1 my-lg-0"
-            onClick={() => handleResolveClick(id, status, assigned)}
-            disabled={!(assigned?.id === uid)}
-          >
-            {status === "resolved" ? <JournalPlus /> : <CheckCircle />}
-          </Button>
-          <span className={ReportStyles.tooltiptext}>
-            {status === "resolved"
-              ? "Reopen Issue"
-              : assigned?.id === uid
-              ? "Mark As Resolved"
-              : "Not Assigned To You"}
-          </span>
-        </div>
+        </Button>
+        <span className={ReportStyles.tooltiptext}>
+          {status === "assigned" && assigned?.id !== uid
+            ? "Already Assigned"
+            : status === "unassigned"
+            ? "Assign Yourself"
+            : "Remove Assignment"}
+        </span>
       </div>
     );
+    const createChatLogsButton = () => (
+      <div className={ReportStyles.tooltip}>
+        <Button
+          variant="secondary"
+          className="m-1 my-lg-0"
+          onClick={() =>
+            navigate("/chatlogs", {
+              state: {
+                recepient: reporter,
+                sender: reported,
+              },
+            })
+          }
+          disabled={!(assigned?.id === uid && hasConvo)}
+        >
+          <ChatDots />
+        </Button>
+        <span className={ReportStyles.tooltiptext}>
+          {hasConvo ? "View Chat Log" : "No Started Chats"}
+        </span>
+      </div>
+    );
+
+    const createBanButton = () => (
+      <div className={ReportStyles.tooltip}>
+        <Button
+          variant="danger"
+          className="m-1 my-lg-0"
+          disabled={assigned?.id !== uid}
+          onClick={() => handleBanClick(reported)}
+        >
+          <ExclamationCircle />
+        </Button>
+        <span className={ReportStyles.tooltiptext}>
+          Ban {reported.username}
+        </span>
+      </div>
+    );
+
+    const createResolveButton = () => (
+      <div className={ReportStyles.tooltip} onClick={() => {}}>
+        <Button
+          variant={status === "resolved" ? "warning" : "success"}
+          className="m-1 my-lg-0"
+          onClick={() => handleResolveClick(id, status, assigned)}
+          disabled={!(assigned?.id === uid)}
+        >
+          {status === "resolved" ? <JournalPlus /> : <CheckCircle />}
+        </Button>
+        <span className={ReportStyles.tooltiptext}>
+          {assigned?.id === uid
+            ? status === "resolved"
+              ? "Reopen Issue"
+              : "Mark As Resolved"
+            : "Not Assigned To You"}
+        </span>
+      </div>
+    );
+
+    // If report is already resolved, only show resolve/reopen button
+    if (status === "resolved") {
+      return <div className={wrapperClasses}>{createResolveButton()}</div>;
+    }
+
+    // If report is assigned to current user, show all action buttons
+    if (status === "assigned" && assigned?.id === uid) {
+      return (
+        <div className={wrapperClasses}>
+          {createAssignButton()}
+          {createChatLogsButton()}
+          {createBanButton()}
+          {createResolveButton()}
+        </div>
+      );
+    }
+
+    // If report not assigned to current user, only show assignment button
+    // Also set to the default display if previous cases are not met
+    return <div className={wrapperClasses}>{createAssignButton()}</div>;
   };
 
   const createTr = (data) => {

@@ -184,11 +184,12 @@ const ProfilePageBody = ({
           .select("index")
           .eq("reviewee_id", id);
 
-        setIndexAll(
-          (
-            indexData.reduce((x, y) => x + y.index, 0) / indexData.length
-          ).toPrecision(3)
-        );
+        if (indexData)
+          setIndexAll(
+            (
+              indexData.reduce((x, y) => x + y.index, 0) / indexData.length
+            ).toPrecision(3)
+          );
 
         if (error && status !== 406) throw error;
       } catch (error) {
@@ -196,24 +197,33 @@ const ProfilePageBody = ({
       }
     };
 
-    const getBlocked = async (id) => {
-      const checkBlocked = blockedArray.reduce(
-        (res, next) => res || next === id,
-        false
-      );
-      console.log(checkBlocked);
-      setIsBlocked(checkBlocked);
+    const getBlockedStatus = async (id) => {
+      try {
+        if (blockedArray) {
+          const checkBlocked = blockedArray.reduce(
+            (res, next) => res || next === id,
+            false
+          );
+        
+        setIsBlocked(checkBlocked);
+        
+          }
+          console.log(blockedArray)
+      } catch (error) {
+        alert(error.message);
+      }
     };
 
-    if (checkId === creator_id || creator_id === undefined) {
+    if (!creator_id || checkId === creator_id) {
+      if (!checkId) return;
       setcheckUser(false);
-      getBlocked(checkId);
+      getBlockedStatus(checkId);
       getProfile(checkId);
       getReview(checkId);
       getAllIndex(checkId);
     } else {
       setcheckUser(true);
-      getBlocked(creator_id);
+      getBlockedStatus(creator_id);
       getProfile(creator_id);
       getReview(creator_id);
       getAllIndex(creator_id);

@@ -7,12 +7,15 @@ import ReportStyles from "./viewReportsPage.module.css";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
+import Pagination from "react-bootstrap/Pagination";
 import Row from "react-bootstrap/Row";
 import Modal from "react-bootstrap/Modal";
 import Table from "react-bootstrap/Table";
 import {
   ChatDots,
+  CheckCircle,
   ExclamationCircle,
+  JournalPlus,
   PersonCheck,
   PersonX,
 } from "react-bootstrap-icons";
@@ -47,6 +50,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState([]);
+  const [getResolved, setGetResolved] = useState(false);
   const uid = supabaseClient.auth.user().id;
 
   // Check for authorisation, then get reports if authorised.
@@ -66,7 +70,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
           let { data, error } = await supabaseClient
             .from("reports")
             .select(
-              `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url), assigned(id, username)`
+              `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url, permissions), assigned(id, username)`
             )
             .order("id", { ascending: true });
           if (error) throw error;
@@ -91,7 +95,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             let { data, error } = await supabaseClient
               .from("reports")
               .select(
-                `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url), assigned(id, username)`
+                `id, description, status, reporter(id, username, avatar_url), reported(id, username, avatar_url, permissions), assigned(id, username)`
               )
               .eq("id", reportId)
               .single();
@@ -211,6 +215,89 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     });
   };
 
+  const updateTaskStatus = async (reportId, status) => {
+    try {
+      let { error } = await supabaseClient
+        .from("reports")
+        .update({ status })
+        .eq("id", reportId);
+      if (error) throw error;
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleResolveClick = async (reportId, status, assigned) => {
+    const isResolved = status === "resolved";
+    const modalTemplate = {
+      show: true,
+      titleContent: isResolved ? "Reopen Report" : "Resolve Issue",
+      bodyContent: isResolved
+        ? `Reopen report #${reportId}?`
+        : `Mark report #${reportId} as resolved?`,
+    };
+
+    setModalState({
+      ...modalTemplate,
+      footerContent: (
+        <>
+          <Button
+            onClick={async () => {
+              setModalState({
+                ...modalTemplate,
+                footerContent: <Spinner animation="border" />,
+              });
+              await updateTaskStatus(
+                reportId,
+                isResolved ? (assigned ? "assigned" : "unassigned") : "resolved"
+              );
+              setModalState({ show: false });
+            }}
+          >
+            Confirm
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => setModalState({ show: false })}
+          >
+            Cancel
+          </Button>
+        </>
+      ),
+    });
+  };
+
+  const handleBanClick = (reported) => {
+    const { username, permissions } = reported;
+    const isBanned = permissions < 0;
+    const modalTemplate = {
+      show: true,
+      titleContent: `${isBanned ? "Unban" : "Ban"} ${username}`,
+      bodyContent: (
+        <p className="text-danger fw-bold">
+          {isBanned
+            ? `Are you sure? ${username} will regain full access to the site.`
+            : `Are you sure? ${username}'s access will be severely restricted.`}
+        </p>
+      ),
+    };
+
+    setModalState({
+      ...modalTemplate,
+      footerContent: (
+        <>
+          <Button variant="danger">Confirm</Button>
+          <Button
+            variant="secondary"
+            onClick={() => setModalState({ show: false })}
+          >
+            Cancel
+          </Button>
+        </>
+      ),
+    });
+  };
+
   // Generate action buttons tied to the reported user's id.
   const generateActions = ({
     id,
@@ -221,14 +308,19 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     hasConvo,
   }) => {
     return (
-      <div className={`p-0 m-0`}>
+      <div className={`p-0 m-0 d-flex justify-evenly`}>
         <div className={ReportStyles.tooltip}>
           <Button
-            disabled={!(status === "unassigned" || assigned?.id === uid)}
-            className="me-2"
+            disabled={
+              !(
+                status === "unassigned" ||
+                (status === "assigned" && assigned?.id === uid)
+              )
+            }
+            className="m-1 my-lg-0"
             onClick={() => handleAssignClick(status, assigned, id)}
           >
-            {status === "assigned" && assigned.id === uid ? (
+            {status === "assigned" && assigned?.id === uid ? (
               <PersonX />
             ) : (
               <PersonCheck />
@@ -236,16 +328,19 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
           </Button>
           {(status === "unassigned" || assigned?.id === uid) && (
             <span className={ReportStyles.tooltiptext}>
-              {status === "unassigned"
+              {status === "resolved"
+                ? "Issue Resolved"
+                : status === "unassigned"
                 ? "Assign Yourself"
                 : "Remove Assignment"}
             </span>
           )}
         </div>
+
         <div className={ReportStyles.tooltip}>
           <Button
-            variant="light"
-            className="mx-2"
+            variant="secondary"
+            className="m-1 my-lg-0"
             onClick={() =>
               navigate("/chatlogs", {
                 state: {
@@ -254,20 +349,52 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
                 },
               })
             }
-            disabled={!hasConvo}
+            disabled={!(assigned?.id === uid && hasConvo)}
           >
             <ChatDots />
           </Button>
           <span className={ReportStyles.tooltiptext}>
-            {hasConvo ? "View Chat Log" : "No Started Chats"}
+            {status === "resolved"
+              ? "Issue Resolved"
+              : assigned?.id === uid
+              ? hasConvo
+                ? "View Chat Log"
+                : "No Started Chats"
+              : "Not Assigned To You"}
           </span>
         </div>
+
         <div className={ReportStyles.tooltip}>
-          <Button variant="danger" className="mx-2">
+          <Button
+            variant="danger"
+            className="m-1 my-lg-0"
+            disabled={assigned?.id !== uid}
+            onClick={() => handleBanClick(reported)}
+          >
             <ExclamationCircle />
           </Button>
           <span className={ReportStyles.tooltiptext}>
-            Ban {reported.username}
+            {assigned?.id === uid
+              ? `Ban ${reported.username}`
+              : "Not Assigned To You"}
+          </span>
+        </div>
+
+        <div className={ReportStyles.tooltip} onClick={() => {}}>
+          <Button
+            variant={status === "resolved" ? "warning" : "success"}
+            className="m-1 my-lg-0"
+            onClick={() => handleResolveClick(id, status, assigned)}
+            disabled={!(assigned?.id === uid)}
+          >
+            {status === "resolved" ? <JournalPlus /> : <CheckCircle />}
+          </Button>
+          <span className={ReportStyles.tooltiptext}>
+            {status === "resolved"
+              ? "Reopen Issue"
+              : assigned?.id === uid
+              ? "Mark As Resolved"
+              : "Not Assigned To You"}
           </span>
         </div>
       </div>
@@ -290,7 +417,11 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
             {reported.username}
           </Link>
         </td>
-        <td className={assigned || "text-danger"}>
+        <td
+          className={`${assigned || "text-danger"} ${
+            assigned?.id === uid && "fw-bold"
+          }`}
+        >
           {assigned ? assigned.username : "None"}
         </td>
         <td>{generateActions(data)}</td>
@@ -305,21 +436,49 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
       {loading ? (
         <Spinner size="xl" animation="grow" />
       ) : (
-        <Row>
-          <Table bordered hover>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Description</th>
-                <th>Reporter</th>
-                <th>Reported User</th>
-                <th>Assigned To</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>{reports.map(createTr)}</tbody>
-          </Table>
-        </Row>
+        <>
+          <Pagination>
+            <Pagination.Item
+              active={!getResolved}
+              onClick={() => setGetResolved(false)}
+            >
+              Unresolved
+            </Pagination.Item>
+            <Pagination.Item
+              active={getResolved}
+              onClick={() => setGetResolved(true)}
+            >
+              Resolved
+            </Pagination.Item>
+          </Pagination>
+          <Row>
+            <Table
+              bordered
+              hover
+              responsive
+              className="m-auto"
+              style={{ width: "95%" }}
+            >
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Description</th>
+                  <th>Reporter</th>
+                  <th>Reported User</th>
+                  <th>Assigned To</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reports
+                  .filter(
+                    ({ status }) => (status === "resolved") === getResolved
+                  )
+                  .map(createTr)}
+              </tbody>
+            </Table>
+          </Row>
+        </>
       )}
     </Container>
   );

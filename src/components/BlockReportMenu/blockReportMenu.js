@@ -48,6 +48,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
 
   const checkBlockedStatus = async () => {
     try {
+      if (!user) return;
       const { data: currentData, error } = await supabaseClient
         .from("profiles")
         .select("blocked")
@@ -115,6 +116,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
       if (blockedArray === null) {
         blockedArray = [];
       }
+      
       const prev = blockedArray;
 
       // Implement block functionality here
@@ -127,6 +129,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
         .single();
 
       if (error) throw error;
+      
       setBlockedArray(data.blocked);
       hideModal();
 

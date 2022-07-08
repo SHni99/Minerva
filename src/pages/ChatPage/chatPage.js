@@ -843,7 +843,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             newConversations[tempChatId] = {
               name,
               user_id,
-              src,
+              src: src || "/images/img_avatarDefault.jpg",
               message: "",
               actionState: 2,
               self_pos: 0,

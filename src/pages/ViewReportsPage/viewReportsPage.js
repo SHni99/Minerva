@@ -268,31 +268,98 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   };
 
   const handleBanClick = (reported) => {
-    const { username, permissions } = reported;
+    const { id, username, permissions } = reported;
     const isBanned = permissions < 0;
+    const cancelButton = (
+      <Button
+        variant="secondary"
+        onClick={() => setModalState({ show: false })}
+      >
+        Cancel
+      </Button>
+    );
     const modalTemplate = {
       show: true,
       titleContent: `${isBanned ? "Unban" : "Ban"} ${username}`,
-      bodyContent: (
-        <p className="text-danger fw-bold">
-          {isBanned
-            ? `Are you sure? ${username} will regain full access to the site.`
-            : `Are you sure? ${username}'s access will be severely restricted.`}
-        </p>
-      ),
+    };
+    const bodyContent = [
+      <p className="text-danger fw-bold">
+        {isBanned
+          ? `Are you sure? ${username} will regain full access to the site.`
+          : `Are you sure? ${username}'s access will be severely restricted.`}
+      </p>,
+      <p>
+        Please enter the reason for the ban:
+        <textarea
+          className="rounded-3 border-secondary w-100"
+          id="ban-reason"
+        />
+      </p>,
+    ];
+
+    const banUser = async (userId, reason) => {
+      try {
+        // Update permissions
+        const { error: permsError } = await supabaseClient
+          .from("profiles")
+          .update({ permissions: -1 })
+          .eq("id", userId);
+        if (permsError) throw permsError;
+
+        // Update ban reason
+        const { error: banError } = await supabaseClient
+          .from("banned")
+          .insert({ id: userId, reason });
+        if (banError) throw banError;
+      } catch (error) {
+        alert(error.message);
+      }
     };
 
     setModalState({
       ...modalTemplate,
+      bodyContent: bodyContent[0],
       footerContent: (
         <>
-          <Button variant="danger">Confirm</Button>
           <Button
-            variant="secondary"
-            onClick={() => setModalState({ show: false })}
+            variant="danger"
+            onClick={() =>
+              setModalState({
+                ...modalTemplate,
+                bodyContent: bodyContent[1],
+                footerContent: (
+                  <>
+                    <Button
+                      variant="danger"
+                      onClick={async () => {
+                        const reason =
+                          document.getElementById("ban-reason").value;
+                        if (!reason) {
+                          alert("Please enter a reason for the ban!");
+                          return;
+                        }
+                        setModalState({
+                          ...modalTemplate,
+                          bodyContent: bodyContent[1],
+                          footerContent: <Spinner animation="border" />,
+                        });
+
+                        await banUser(id, reason);
+
+                        setModalState({ show: false });
+                      }}
+                    >
+                      Submit
+                    </Button>
+                    {cancelButton}
+                  </>
+                ),
+              })
+            }
           >
-            Cancel
+            Confirm
           </Button>
+          {cancelButton}
         </>
       ),
     });

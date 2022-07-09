@@ -171,7 +171,8 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     }
   };
 
-  const handleAssignClick = (status, assigned, id) => {
+  const handleAssignClick = (status, id) => {
+    console.log(id);
     const index = status === "unassigned" ? 0 : 1;
     const cancelButton = (
       <Button
@@ -268,31 +269,131 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   };
 
   const handleBanClick = (reported) => {
-    const { username, permissions } = reported;
+    const { id, username, permissions } = reported;
     const isBanned = permissions < 0;
+    const cancelButton = (
+      <Button
+        variant="secondary"
+        onClick={() => setModalState({ show: false })}
+      >
+        Cancel
+      </Button>
+    );
     const modalTemplate = {
       show: true,
       titleContent: `${isBanned ? "Unban" : "Ban"} ${username}`,
-      bodyContent: (
-        <p className="text-danger fw-bold">
-          {isBanned
-            ? `Are you sure? ${username} will regain full access to the site.`
-            : `Are you sure? ${username}'s access will be severely restricted.`}
-        </p>
-      ),
+    };
+    const bodyContent = [
+      <p className="text-danger fw-bold">
+        {isBanned
+          ? `Are you sure? ${username} will regain full access to the site.`
+          : `Are you sure? ${username}'s access will be severely restricted.`}
+      </p>,
+      <p>
+        Please enter the reason for the ban:
+        <textarea
+          className="rounded-3 border-secondary w-100"
+          id="ban-reason"
+        />
+      </p>,
+    ];
+
+    const updateBanStatus = async (userId, reason, banUser) => {
+      try {
+        // Update permissions
+        const { error: permsError } = await supabaseClient
+          .from("profiles")
+          .update({ permissions: banUser ? -1 : 0 })
+          .eq("id", userId)
+          .single();
+        if (permsError) throw permsError;
+        // Update local state
+        setReports((old) => {
+          const newReports = [...old];
+          const updateIndex = newReports.findIndex(
+            (report) => report.reported.id === userId
+          );
+          newReports[updateIndex].reported.permissions = banUser ? -1 : 0;
+          return newReports;
+        });
+
+        // Update ban reason
+        if (banUser) {
+          const { error: banError } = await supabaseClient
+            .from("banned")
+            .insert({ id: userId, reason });
+          if (banError) throw banError;
+        } else {
+          const { error: banError } = await supabaseClient
+            .from("banned")
+            .delete()
+            .eq("id", userId);
+          if (banError) throw banError;
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    const handleConfirmClick = async () => {
+      if (!isBanned) {
+        // If user not already banned, proceed to confirm ban reason
+        setModalState({
+          ...modalTemplate,
+          bodyContent: bodyContent[1],
+          footerContent: (
+            <>
+              <Button
+                variant="danger"
+                onClick={async () => {
+                  const reason = document.getElementById("ban-reason").value;
+                  if (!reason) {
+                    alert("Please enter a reason for the ban!");
+                    return;
+                  }
+                  setModalState({
+                    ...modalTemplate,
+                    bodyContent: bodyContent[1],
+                    footerContent: <Spinner animation="border" />,
+                  });
+
+                  await updateBanStatus(id, reason, true);
+
+                  setModalState({ show: false });
+                }}
+              >
+                Submit
+              </Button>
+              {cancelButton}
+            </>
+          ),
+        });
+      } else {
+        // User is already banned. Unban user upon confirmation.
+        setModalState({
+          ...modalTemplate,
+          bodyContent: bodyContent[0],
+          footerContent: <Spinner animation="border" />,
+        });
+
+        await updateBanStatus(id, null, false);
+
+        setModalState({ show: false });
+      }
     };
 
     setModalState({
       ...modalTemplate,
+      bodyContent: bodyContent[0],
       footerContent: (
         <>
-          <Button variant="danger">Confirm</Button>
           <Button
-            variant="secondary"
-            onClick={() => setModalState({ show: false })}
+            variant={isBanned ? "primary" : "danger"}
+            onClick={handleConfirmClick}
           >
-            Cancel
+            Confirm
           </Button>
+          {cancelButton}
         </>
       ),
     });
@@ -307,98 +408,115 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
     reported,
     hasConvo,
   }) => {
-    return (
-      <div className={`p-0 m-0 d-flex justify-evenly`}>
-        <div className={ReportStyles.tooltip}>
-          <Button
-            disabled={
-              !(
-                status === "unassigned" ||
-                (status === "assigned" && assigned?.id === uid)
-              )
-            }
-            className="m-1 my-lg-0"
-            onClick={() => handleAssignClick(status, assigned, id)}
-          >
-            {status === "assigned" && assigned?.id === uid ? (
-              <PersonX />
-            ) : (
-              <PersonCheck />
-            )}
-          </Button>
-          {(status === "unassigned" || assigned?.id === uid) && (
-            <span className={ReportStyles.tooltiptext}>
-              {status === "resolved"
-                ? "Issue Resolved"
-                : status === "unassigned"
-                ? "Assign Yourself"
-                : "Remove Assignment"}
-            </span>
+    const wrapperClasses = "p-0 m-0 d-flex justify-evenly";
+
+    // Wrap all buttons in a create function to only generate them when needed.
+    const createAssignButton = () => (
+      <div className={ReportStyles.tooltip}>
+        <Button
+          disabled={
+            !(
+              status === "unassigned" ||
+              (status === "assigned" && assigned?.id === uid)
+            )
+          }
+          className="m-1 my-lg-0"
+          onClick={() => handleAssignClick(status, id)}
+        >
+          {status === "assigned" && assigned?.id === uid ? (
+            <PersonX />
+          ) : (
+            <PersonCheck />
           )}
-        </div>
-
-        <div className={ReportStyles.tooltip}>
-          <Button
-            variant="secondary"
-            className="m-1 my-lg-0"
-            onClick={() =>
-              navigate("/chatlogs", {
-                state: {
-                  recepient: reporter,
-                  sender: reported,
-                },
-              })
-            }
-            disabled={!(assigned?.id === uid && hasConvo)}
-          >
-            <ChatDots />
-          </Button>
-          <span className={ReportStyles.tooltiptext}>
-            {status === "resolved"
-              ? "Issue Resolved"
-              : assigned?.id === uid
-              ? hasConvo
-                ? "View Chat Log"
-                : "No Started Chats"
-              : "Not Assigned To You"}
-          </span>
-        </div>
-
-        <div className={ReportStyles.tooltip}>
-          <Button
-            variant="danger"
-            className="m-1 my-lg-0"
-            disabled={assigned?.id !== uid}
-            onClick={() => handleBanClick(reported)}
-          >
-            <ExclamationCircle />
-          </Button>
-          <span className={ReportStyles.tooltiptext}>
-            {assigned?.id === uid
-              ? `Ban ${reported.username}`
-              : "Not Assigned To You"}
-          </span>
-        </div>
-
-        <div className={ReportStyles.tooltip} onClick={() => {}}>
-          <Button
-            variant={status === "resolved" ? "warning" : "success"}
-            className="m-1 my-lg-0"
-            onClick={() => handleResolveClick(id, status, assigned)}
-            disabled={!(assigned?.id === uid)}
-          >
-            {status === "resolved" ? <JournalPlus /> : <CheckCircle />}
-          </Button>
-          <span className={ReportStyles.tooltiptext}>
-            {status === "resolved"
-              ? "Reopen Issue"
-              : assigned?.id === uid
-              ? "Mark As Resolved"
-              : "Not Assigned To You"}
-          </span>
-        </div>
+        </Button>
+        <span className={ReportStyles.tooltiptext}>
+          {status === "assigned" && assigned?.id !== uid
+            ? "Already Assigned"
+            : status === "unassigned"
+            ? "Assign Yourself"
+            : "Remove Assignment"}
+        </span>
       </div>
     );
+    const createChatLogsButton = () => (
+      <div className={ReportStyles.tooltip}>
+        <Button
+          variant="secondary"
+          className="m-1 my-lg-0"
+          onClick={() =>
+            navigate("/chatlogs", {
+              state: {
+                recepient: reporter,
+                sender: reported,
+              },
+            })
+          }
+          disabled={!(assigned?.id === uid && hasConvo)}
+        >
+          <ChatDots />
+        </Button>
+        <span className={ReportStyles.tooltiptext}>
+          {hasConvo ? "View Chat Log" : "No Started Chats"}
+        </span>
+      </div>
+    );
+
+    const createBanButton = () => (
+      <div className={ReportStyles.tooltip}>
+        <Button
+          variant={reported.permissions < 0 ? "info" : "danger"}
+          className="m-1 my-lg-0"
+          disabled={assigned?.id !== uid}
+          onClick={() => handleBanClick(reported)}
+        >
+          <ExclamationCircle />
+        </Button>
+        <span className={ReportStyles.tooltiptext}>
+          {reported.permissions < 0 ? "Unban" : "Ban"} {reported.username}
+        </span>
+      </div>
+    );
+
+    const createResolveButton = () => (
+      <div className={ReportStyles.tooltip} onClick={() => {}}>
+        <Button
+          variant={status === "resolved" ? "warning" : "success"}
+          className="m-1 my-lg-0"
+          onClick={() => handleResolveClick(id, status, assigned)}
+          disabled={!(assigned?.id === uid)}
+        >
+          {status === "resolved" ? <JournalPlus /> : <CheckCircle />}
+        </Button>
+        <span className={ReportStyles.tooltiptext}>
+          {assigned?.id === uid
+            ? status === "resolved"
+              ? "Reopen Issue"
+              : "Mark As Resolved"
+            : "Not Assigned To You"}
+        </span>
+      </div>
+    );
+
+    // If report is already resolved, only show resolve/reopen button
+    if (status === "resolved") {
+      return <div className={wrapperClasses}>{createResolveButton()}</div>;
+    }
+
+    // If report is assigned to current user, show all action buttons
+    if (status === "assigned" && assigned?.id === uid) {
+      return (
+        <div className={wrapperClasses}>
+          {createAssignButton()}
+          {createChatLogsButton()}
+          {createBanButton()}
+          {createResolveButton()}
+        </div>
+      );
+    }
+
+    // If report not assigned to current user, only show assignment button
+    // Also set to the default display if previous cases are not met
+    return <div className={wrapperClasses}>{createAssignButton()}</div>;
   };
 
   const createTr = (data) => {

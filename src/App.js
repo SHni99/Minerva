@@ -33,7 +33,7 @@ function App() {
   } = toastOptions;
   // ========================== End of global Toast ==========================
   const [option, setOption] = useState([]);
-  const [blockedArray, setBlockedArray] = useState("");
+  const [blockedArray, setBlockedArray] = useState([]);
   // =================== Start of AuthContext initialisation =================
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 

@@ -47,7 +47,6 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
           })
         );
         setFullBlockeddata(newBlockedData);
-        //console.log(newBlockedData);
       } catch (error) {
         alert(error.message);
       }
@@ -120,6 +119,10 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
       {
         value: 2,
         label: "Show bio",
+      },
+      {
+        value: 3,
+        label: "Show gender",
       },
     ];
 

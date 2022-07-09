@@ -45,7 +45,7 @@ const ViewProfilePage = ({
       />
       <ProfilePageBody
         blockedArray={blockedArray}
-        creator_id={state ? state.creator_id : undefined}
+        creator_id={state ? state.creator_id : supabaseClient.auth.user().id}
         setModalState={setModalState}
         hideModal={hideModal}
         setBlockedArray={setBlockedArray}
@@ -229,10 +229,11 @@ const ProfilePageBody = ({
       setShow({
         email: option.includes("Show email") ? true : false,
         bio: option.includes("Show bio") ? true : false,
+        gender: option.includes("Show gender") ? true : false,
       });
     };
 
-    if (!creator_id || checkId === creator_id) {
+    if (checkId === creator_id) {
       if (!checkId) return;
       setcheckUser(false);
       getBlockedStatus(checkId);
@@ -306,19 +307,23 @@ const ProfilePageBody = ({
                     </div>
                   </div>
                 </OverlayTrigger>
+                {show.gender ? (
+                  <div className="my-4 poppins-normal-black-24px">
+                    Gender:{" "}
+                    {profileData.gender === "Female" ? (
+                      <div className="poppins-normal-red-24px">Female</div>
+                    ) : profileData.gender === "Male" ? (
+                      <div className="poppins-normal-sapphire-24px">Male</div>
+                    ) : (
+                      <div className="poppins-normal-black-24px">
+                        User has not set a gender
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  ""
+                )}
 
-                <div className="my-4 poppins-normal-black-24px">
-                  Gender:{" "}
-                  {profileData.gender === "Female" ? (
-                    <div className="poppins-normal-red-24px">Female</div>
-                  ) : profileData.gender === "Male" ? (
-                    <div className="poppins-normal-sapphire-24px">Male</div>
-                  ) : (
-                    <div className="poppins-normal-black-24px">
-                      User has not set a gender
-                    </div>
-                  )}
-                </div>
                 {show.email ? (
                   <div>
                     <label className="poppins-normal-black-24px">Email:</label>
@@ -398,7 +403,7 @@ const ProfilePageBody = ({
                 >
                   <Tab eventKey="listings" title="Listings">
                     {isBlocked ? (
-                      <h2 className="bg-danger">User has been blocked</h2>
+                      <h2>User has been blocked</h2>
                     ) : (
                       <UserListings
                         check={creator_id || checkId}
@@ -408,7 +413,7 @@ const ProfilePageBody = ({
                   </Tab>
                   <Tab eventKey="reviews" title="Reviews">
                     {isBlocked ? (
-                      <h2 className="bg-danger">User has been blocked</h2>
+                      <h2>User has been blocked</h2>
                     ) : isEmpty ? (
                       <h2>No Reviews Found!</h2>
                     ) : loading ? (

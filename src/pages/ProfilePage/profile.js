@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "util/AuthContext";
 import { supabaseClient } from "../../config/supabase-client";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
@@ -18,12 +19,9 @@ import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 import Setting from "components/Setting/setting";
 import Modal from "react-bootstrap/Modal";
 
-const ViewProfilePage = ({
-  blockedArray,
-  setBlockedArray,
-  option,
-  setOption,
-}) => {
+const ViewProfilePage = ({ option, setOption }) => {
+  const { authData} = useContext(AuthContext);
+  const { blocked: blockedArray } = authData;
   const { state } = useLocation();
   const unusedModalState = {
     show: false,
@@ -48,7 +46,6 @@ const ViewProfilePage = ({
         creator_id={state ? state.creator_id : supabaseClient.auth.user().id}
         setModalState={setModalState}
         hideModal={hideModal}
-        setBlockedArray={setBlockedArray}
         option={option}
         setOption={setOption}
       />
@@ -65,7 +62,6 @@ const ProfilePageBody = ({
   setModalState,
   hideModal,
   blockedArray,
-  setBlockedArray,
   option,
   setOption,
 }) => {
@@ -390,7 +386,6 @@ const ProfilePageBody = ({
                       hideModal={hideModal}
                       target_id={creator_id}
                       blockedArray={blockedArray}
-                      setBlockedArray={setBlockedArray}
                     />
                   </div>
                 )}

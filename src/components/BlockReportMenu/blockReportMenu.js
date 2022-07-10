@@ -15,9 +15,14 @@ import { useEffect } from "react";
 //
 // target_id: ID of the user who is being reported/blocked
 
-const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlockedArray }) => {
+const BlockReportMenu = ({
+  showModal,
+  hideModal,
+  target_id,
+  blockedArray,
+}) => {
   const [loading, setLoading] = useState(false);
- 
+
   const user = supabaseClient.auth.user();
   const [isReported, setIsReported] = useState(false);
   const modalTitle = ["Report User", "Block User", "Unblock User"];
@@ -84,17 +89,9 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
 
   const unblockAction = async () => {
     try {
-      const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("blocked")
-        .eq("id", user.id)
-        .single();
+      const blockedUpdate = blockedArray.filter((i) => i !== target_id);
 
-      const blockedUpdate = data.blocked.filter((i) => i !== target_id);
-
-      if (error) throw error;
-
-      const { data: newData, error: unblockError } = await supabaseClient
+      const { error: unblockError } = await supabaseClient
         .from("profiles")
         .update({
           blocked: blockedUpdate,
@@ -103,7 +100,6 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
         .single();
 
       if (unblockError) throw unblockError;
-      setBlockedArray(newData.blocked);
       hideModal();
     } catch (error) {
       alert(error.message);
@@ -112,15 +108,14 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
 
   const blockAction = async () => {
     try {
-    
       if (blockedArray === null) {
         blockedArray = [];
       }
-      
+
       const prev = blockedArray;
 
       // Implement block functionality here
-      const { error, data } = await supabaseClient
+      const { error } = await supabaseClient
         .from("profiles")
         .update({
           blocked: [...prev, target_id],
@@ -129,10 +124,8 @@ const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray, setBlo
         .single();
 
       if (error) throw error;
-      
-      setBlockedArray(data.blocked);
-      hideModal();
 
+      hideModal();
     } catch (error) {
       alert(error.message);
     }

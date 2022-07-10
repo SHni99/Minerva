@@ -22,7 +22,7 @@ import ViewReportsPage from "pages/ViewReportsPage/viewReportsPage";
 import ChatLogsPage from "pages/ChatLogsPage/chatLogsPage";
 import HashLoader from "react-spinners/HashLoader";
 
-const ProjectRoutes = ({ setToastOptions, blockedArray, setBlockedArray, option, setOption }) => {
+const ProjectRoutes = ({ setToastOptions, option, setOption }) => {
   // Simplify toast showing
   const showSimpleToast = (title, message, timeout) =>
     setToastOptions({
@@ -53,8 +53,6 @@ const ProjectRoutes = ({ setToastOptions, blockedArray, setBlockedArray, option,
             showSimpleToast={showSimpleToast}
             setToastOptions={setToastOptions}
             authLoading={authLoading}
-            blockedArray={blockedArray}
-            setBlockedArray={setBlockedArray}
             option={option}
             setOption={setOption}
           />
@@ -71,10 +69,8 @@ const AnimatedRoutes = ({
   showSimpleToast,
   setToastOptions,
   authLoading,
-  blockedArray,
-  setBlockedArray,
   option,
-  setOption
+  setOption,
 }) => {
   // Add TransitionGroup and CSSTransition for animations
   return authLoading ? (
@@ -89,10 +85,7 @@ const AnimatedRoutes = ({
       />
       <Route path="/registerpage" element={<RegisterPage />} />
       <Route path="/aboutuspage" element={<AboutusPage />} />
-      <Route
-        path="/listingspage"
-        element={<ListingsPage blockedArray={blockedArray} />}
-      />
+      <Route path="/listingspage" element={<ListingsPage />} />
       <Route path="/profilepage" element={<UpdateProfilePage />} />
       <Route path="/create-listing" element={<CreateListingPage />} />
       <Route path="/passwordpage" element={<PasswordPage />} />
@@ -101,25 +94,10 @@ const AnimatedRoutes = ({
       <Route path="/formpage" element={<ReviewForm />} />
       <Route
         path="/profile"
-        element={
-          <ProfilePage
-            blockedArray={blockedArray}
-            setBlockedArray={setBlockedArray}
-            option={option}
-            setOption={setOption}
-          />
-        }
+        element={<ProfilePage option={option} setOption={setOption} />}
       />
       <Route path="/review" element={<ReviewPage />} />
-      <Route
-        path="/chats"
-        element={
-          <ChatPage
-            blockedArray={blockedArray}
-            setBlockedArray={setBlockedArray}
-          />
-        }
-      />
+      <Route path="/chats" element={<ChatPage />} />
       <Route
         path="/reports"
         element={<ViewReportsPage setToastOptions={setToastOptions} />}

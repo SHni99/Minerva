@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useContext } from "react";
+import AuthContext from "util/AuthContext";
 import moment from "moment";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -30,8 +31,10 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
-const ChatPage = ({ blockedArray, setBlockedArray }) => {
+const ChatPage = () => {
   const { state } = useLocation();
+  const { authData } = useContext(AuthContext);
+  const { blocked: blockedArray } = authData;
   const startChatData = state ? state.startChatData : null;
 
   const unusedModalState = {
@@ -56,7 +59,6 @@ const ChatPage = ({ blockedArray, setBlockedArray }) => {
       />
       <ChatPageBody
         blockedArray={blockedArray}
-        setBlockedArray={setBlockedArray}
         startChatData={startChatData}
         setModalState={setModalState}
         unusedModalState={unusedModalState}
@@ -72,8 +74,7 @@ const ChatPageBody = ({
   startChatData,
   setModalState,
   unusedModalState,
-  blockedArray,
-  setBlockedArray
+  blockedArray
 }) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
@@ -1133,7 +1134,6 @@ const ChatPageBody = ({
                     hideModal={() => setModalState(unusedModalState)}
                     target_id={conversations[activeChatId].user_id}
                     blockedArray={blockedArray}
-                    setBlockedArray={setBlockedArray}
                   />
                 </ConversationHeader.Actions>
               </ConversationHeader>

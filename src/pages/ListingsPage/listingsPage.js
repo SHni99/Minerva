@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import AuthContext from "util/AuthContext";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from "components/ListingCard/listingCard";
@@ -12,8 +13,9 @@ import Spinner from "react-bootstrap/Spinner";
 import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
 
-const ListingsPage = ({blockedArray}) => {
-  // Hooks
+const ListingsPage = () => {
+  const { authData } = useContext(AuthContext);
+  const { blocked: blockedArray } = authData;
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [listingData, setListingData] = useState([]);
   const [query, setQuery] = useState("");
@@ -55,7 +57,7 @@ const ListingPageBody = ({
   listingDataState,
   queryState,
   setModalState,
-  blockedArray
+  blockedArray,
 }) => {
   // Stores the text of the tutor/tutee toggle
   const [tutorTutee, setTutorTutee] = tutorTuteeState;
@@ -149,7 +151,13 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   );
 };
 
-const Listings = ({ tutorTutee, listingDataState, query, setModalState, blockedArray }) => {
+const Listings = ({
+  tutorTutee,
+  listingDataState,
+  query,
+  setModalState,
+  blockedArray,
+}) => {
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
@@ -225,17 +233,13 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState, blockedA
         // the listingData state/hook.
         const newListingData = await Promise.all(listingDb.map(parseListing));
 
-      
         //if no blocked user, it will return all the listings
         if (blockedArray === null) {
           setListingData(newListingData);
         } else {
           //filter blocked user from the listing data
-          const current = newListingData.filter(({creator_id}) =>
-            blockedArray.reduce(
-              (cur, next) => cur && creator_id !== next,
-              true
-            )
+          const current = newListingData.filter(({ creator_id }) =>
+            blockedArray.reduce((cur, next) => cur && creator_id !== next, true)
           );
           setListingData(current);
         }

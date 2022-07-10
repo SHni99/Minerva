@@ -33,12 +33,11 @@ function App() {
   } = toastOptions;
   // ========================== End of global Toast ==========================
   const [option, setOption] = useState([]);
-  const [blockedArray, setBlockedArray] = useState([]);
   // =================== Start of AuthContext initialisation =================
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
   const parseProfile = (profileData) => {
-    const { id, username, avatar_url, permissions } = profileData;
+    const { id, username, avatar_url, permissions, blocked } = profileData;
     return {
       logged_in: true,
       username,
@@ -47,7 +46,8 @@ function App() {
         ? supabaseClient.storage.from("avatars").getPublicUrl(avatar_url)
             .publicURL
         : "/images/img_avatarDefault.jpg",
-      id,
+      id, 
+      blocked
     };
   };
   // Initialise authData and setup listeners, only done once at the start.
@@ -113,32 +113,9 @@ function App() {
     return () => supabaseClient.removeSubscription(profileSub);
   }, [authData, setAuthData, setAuthLoading]);
 
-
-  useEffect(() => {
-    const getBlockedStatus = async () => {
-      try {
-        const user = supabaseClient.auth.user();
-        const { data: blockedData, error } = await supabaseClient
-          .from("profiles")
-          .select("blocked")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-
-        setBlockedArray(blockedData.blocked);
-        
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-    getBlockedStatus();
-  }, []);
-
   return (
     <>
-      <Routes setToastOptions={setToastOptions} blockedArray={blockedArray} 
-      setBlockedArray={setBlockedArray} option={option} setOption={setOption} />
+      <Routes setToastOptions={setToastOptions} option={option} setOption={setOption} />
       <ToastContainer
         position={position}
         className={"position-fixed " + containerClasses}

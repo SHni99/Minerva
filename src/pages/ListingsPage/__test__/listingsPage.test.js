@@ -26,4 +26,12 @@ describe("Tutor/Tutee toggle", () => {
     wrapPage();
     expect(getToggle()).toBeInTheDocument();
   });
+
+  // Planned: displays tutor/tutee based on user preferences (AuthContext)
+
+  // Planned: toggles correctly
+
+  // Planned: toggling causes update in Supabase profiles table, preferences column (mock Supabase)
+
+  // Planned: updating of Supabase profile preferences uses a debounce effect (timing around 0.25s)
 });

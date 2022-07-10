@@ -15,10 +15,14 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
   const user = supabaseClient.auth.user();
   const animatedComponents = makeAnimated();
   const [fullBlockedData, setFullBlockeddata] = useState("");
+  const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
+        if (blockedArray.length === 0) {
+          setIsEmpty(true);
+        }
         const newBlockedData = await Promise.all(
           blockedArray.map(async (id) => {
             let {
@@ -161,7 +165,10 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
         <Dropdown.Item
           eventKey="blockeduser"
           onClick={() => {
-            showModal("List of blocked users", blockedList());
+            showModal(
+              "List of blocked users",
+              isEmpty ? "No blocked users" : blockedList()
+            );
           }}
         >
           View blocked users

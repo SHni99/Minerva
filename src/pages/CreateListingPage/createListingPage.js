@@ -15,7 +15,7 @@ import Button from "react-bootstrap/Button";
 import { PlusCircle } from "react-bootstrap-icons";
 import LoadingOverlay from "react-loading-overlay-ts";
 
-const CreateListingPage = ({ _userLoggedIn }) => {
+const CreateListingPage = ({ isEditing, editData }) => {
   // Options to be shown under the selection field dropdown box. Edit if required!
   const fieldParams = {
     subject: "Subject",
@@ -35,7 +35,30 @@ const CreateListingPage = ({ _userLoggedIn }) => {
     others: "Others",
   };
 
-  // Hook declarations in root element to maintain single source of truth
+  return (
+    <div
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
+      <NavBar />
+      <CreateListingBody
+        fieldParams={fieldParams}
+        levelParams={levelParams}
+        isEditing={isEditing}
+        editData={editData}
+      />
+      <FooterBar />
+    </div>
+  );
+};
+
+export default CreateListingPage;
+
+const CreateListingBody = ({
+  fieldParams,
+  levelParams,
+  isEditing,
+  editData,
+}) => {
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [sFieldInputs, setSFieldInputs] = useState([]);
@@ -50,7 +73,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
 
   // Redirect user to login page if not logged in
   useEffect(() => {
-    if (!_userLoggedIn && !supabase.auth.user()) navigate("/loginpage");
+    if (!supabase.auth.user()) navigate("/loginpage");
 
     // We are disabling the following warning as there is
     // no point in including the navigate method into the
@@ -180,62 +203,6 @@ const CreateListingPage = ({ _userLoggedIn }) => {
       navigate("/listingspage");
     }
   };
-
-  // ------------------ End of method declarations ----------------------
-
-  return (
-    <div
-      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-    >
-      <NavBar />
-      <CreateListingBody
-        selectionFields={sFields}
-        sFieldInputStates={[sFieldInputs, setSFieldInputs]}
-        onImgUpload={onImgUpload}
-        onImgDelete={onImgDelete}
-        uploading={uploading}
-        onSFieldAdd={onSFieldAdd}
-        onSFieldDelete={onSFieldDelete}
-        tutorTutee={tutorTutee}
-        setTutorTutee={setTutorTutee}
-        handleSubmit={handleSubmit}
-        fieldParams={fieldParams}
-        submitting={submitting}
-        rates={rates}
-        setRates={setRates}
-        invalidRates={invalidRates}
-        setInvalidRates={setInvalidRates}
-        imageURLs={imageURLs}
-        levelParams={levelParams}
-      />
-      <FooterBar />
-    </div>
-  );
-};
-
-export default CreateListingPage;
-
-const CreateListingBody = (props) => {
-  const {
-    selectionFields,
-    sFieldInputStates,
-    onSFieldAdd,
-    onSFieldDelete,
-    onImgUpload,
-    onImgDelete,
-    uploading,
-    tutorTutee,
-    setTutorTutee,
-    handleSubmit,
-    fieldParams,
-    submitting,
-    rates,
-    setRates,
-    invalidRates,
-    setInvalidRates,
-    imageURLs,
-    levelParams,
-  } = props;
 
   // Check if submission is in progress. Show "Submitting..." if required.
   return submitting ? (
@@ -402,14 +369,14 @@ const CreateListingBody = (props) => {
             <Row
               className={`${createListingPageStyles["selection-fields"]} my-4 p-3`}
             >
-              {/* Creates a SelectionField for each object present in the selectionFields state.
+              {/* Creates a SelectionField for each object present in the sFields state.
         SelectionField implementation can be found below. */}
-              {selectionFields.map((sField) => (
+              {sFields.map((sField) => (
                 <SelectionField
                   key={sField.id}
                   id={sField.id}
                   onSFieldDelete={onSFieldDelete}
-                  sFieldInputStates={sFieldInputStates}
+                  sFieldInputStates={[sFieldInputs, setSFieldInputs]}
                   fieldParams={fieldParams}
                 />
               ))}

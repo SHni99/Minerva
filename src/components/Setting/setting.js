@@ -174,6 +174,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
           View blocked users
         </Dropdown.Item>
         <Dropdown.Item
+          style={{display: "none"}}
           eventKey="preference"
           onClick={() => {
             showModal(

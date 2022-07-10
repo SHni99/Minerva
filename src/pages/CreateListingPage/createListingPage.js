@@ -161,7 +161,7 @@ const CreateListingPage = ({ _userLoggedIn }) => {
         fields,
         rates,
         image_urls,
-        seeking_for: tutorTutee,
+        seeking_for: tutorTutee === "tutor" ? "tutee" : "tutor",
         level,
       };
 

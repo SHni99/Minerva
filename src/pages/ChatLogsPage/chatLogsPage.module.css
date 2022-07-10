@@ -1,0 +1,23 @@
+.body {
+    height: 75vh;
+    margin-bottom: 3vh;
+}
+
+.empty-chat {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    font-size: 150%;
+}
+
+.msg-footer * {
+    display: flex !important;
+    padding: 0 !important;
+}
+
+:global(.cs-conversation-header__avatar) {
+    width: auto !important;
+}

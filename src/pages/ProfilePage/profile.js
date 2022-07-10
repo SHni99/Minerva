@@ -14,16 +14,35 @@ import Rating from "components/Rating/Rating";
 import ReviewCard from "components/ReviewCard/reviewCard";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
+import Setting from "components/Setting/setting";
+import Modal from "react-bootstrap/Modal";
 
 const ViewProfilePage = () => {
   const { state } = useLocation();
+  const unusedModalState = {
+    show: false,
+    title: "",
+    body: "",
+    footer: "",
+  };
+  const [modalState, setModalState] = useState(unusedModalState);
+  const hideModal = () => setModalState(unusedModalState);
 
   return (
     <div
       style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <NavBar />
-      <ProfilePageBody creator_id={state ? state.creator_id : undefined} />
+      <ProfileModal
+        modalState={modalState}
+        onHide={() => setModalState(unusedModalState)}
+      />
+      <ProfilePageBody
+        creator_id={state ? state.creator_id : undefined}
+        setModalState={setModalState}
+        hideModal={hideModal}
+      />
       <FooterBar />
     </div>
   );
@@ -32,7 +51,7 @@ const ViewProfilePage = () => {
 export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = ({ creator_id }) => {
+const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
   const [profileData, setProfileData] = useState({
     username: "",
     bio: "",
@@ -47,20 +66,8 @@ const ProfilePageBody = ({ creator_id }) => {
   const [loading, setLoading] = useState(false);
   const [avatar_url, setAvatarurl] = useState("");
   const [isEmpty, setIsEmpty] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const navigate = useNavigate();
-
-  //log user out and redirect to landing page
-  const handleLogout = async (navigate, e) => {
-    e.preventDefault();
-    try {
-      const { error } = await supabaseClient.auth.signOut();
-      if (error) throw error;
-      //input logout popup
-      navigate("/");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
 
   useEffect(() => {
     const getReview = async (id) => {
@@ -81,7 +88,6 @@ const ProfilePageBody = ({ creator_id }) => {
           setIsEmpty(true);
           return;
         }
-
         setIsEmpty(false);
 
         const newReviewData = await Promise.all(
@@ -166,11 +172,12 @@ const ProfilePageBody = ({ creator_id }) => {
           .select("index")
           .eq("reviewee_id", id);
 
-        setIndexAll(
-          (
-            indexData.reduce((x, y) => x + y.index, 0) / indexData.length
-          ).toPrecision(3)
-        );
+        if (indexData)
+          setIndexAll(
+            (
+              indexData.reduce((x, y) => x + y.index, 0) / indexData.length
+            ).toPrecision(3)
+          );
 
         if (error && status !== 406) throw error;
       } catch (error) {
@@ -178,13 +185,42 @@ const ProfilePageBody = ({ creator_id }) => {
       }
     };
 
-    if (checkId === creator_id || creator_id === undefined) {
+    const getBlockedStatus = async (id) => {
+      try {
+        const user = supabaseClient.auth.user();
+        if (!user) return;
+        const { data: blockedData, error } = await supabaseClient
+          .from("profiles")
+          .select("blocked")
+          .eq("id", user?.id)
+          .single();
+
+        if (error) throw error;
+
+        if (blockedData && blockedData.blocked) {
+          const checkBlocked = blockedData.blocked?.reduce(
+            (res, next) => res || next === id,
+            false
+          );
+          setIsBlocked(checkBlocked);
+          console.log(checkBlocked);
+        }
+      } catch (error) {
+        console.log("2");
+        alert(error.message);
+      }
+    };
+
+    if (!creator_id || checkId === creator_id) {
+      if (!checkId) return;
       setcheckUser(false);
+      getBlockedStatus(checkId);
       getProfile(checkId);
       getReview(checkId);
       getAllIndex(checkId);
     } else {
       setcheckUser(true);
+      getBlockedStatus(creator_id);
       getProfile(creator_id);
       getReview(creator_id);
       getAllIndex(creator_id);
@@ -203,7 +239,7 @@ const ProfilePageBody = ({ creator_id }) => {
   );
 
   return (
-    <div className="text-center">
+    <div className="text-center pb-5">
       <div className={viewprofileStyles["container-center-horizontal"]}>
         <div className={`${viewprofileStyles["home-inner"]} container-fluid`}>
           <div className="row align-self-center">
@@ -264,32 +300,42 @@ const ProfilePageBody = ({ creator_id }) => {
 
             <div className="col-lg-8 col-sm-12">
               <div className="row">
-                {checkUser || (
-                  <div className="row-lg-3">
-                    <div className="row-lg-3 text-right my-3">
+                {!checkUser ? (
+                  <Setting
+                    showModal={(title, body, footer) =>
+                      setModalState({ show: true, title, body, footer })
+                    }
+                    onHide={hideModal}
+                  ></Setting>
+                ) : (
+                  <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
+                    {isBlocked ? (
+                      ""
+                    ) : (
                       <Button
-                        className="bg-primary"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/loginmainpage");
-                        }}
+                        className="m-2"
+                        onClick={() =>
+                          navigate("/chats", {
+                            state: {
+                              startChatData: {
+                                user_id: creator_id,
+                                name: profileData.username,
+                                src: avatar_url,
+                              },
+                            },
+                          })
+                        }
                       >
-                        Edit my profile
+                        Chat
                       </Button>
-                    </div>
-
-                    <div className="row-lg-3 text-right my-3">
-                      <div>
-                        <Button
-                          className="bg-primary"
-                          onClick={(e) => {
-                            handleLogout(navigate, e);
-                          }}
-                        >
-                          Log out
-                        </Button>
-                      </div>
-                    </div>
+                    )}
+                    <BlockReportMenu
+                      showModal={(title, body, footer) =>
+                        setModalState({ show: true, title, body, footer })
+                      }
+                      hideModal={hideModal}
+                      target_id={creator_id}
+                    />
                   </div>
                 )}
 
@@ -300,14 +346,20 @@ const ProfilePageBody = ({ creator_id }) => {
                   className="mb-3"
                 >
                   <Tab eventKey="listings" title="Listings">
-                    <UserListings
-                      check={creator_id || checkId}
-                      checkUser={checkUser}
-                    />
+                    {isBlocked ? (
+                      <h2 className="bg-danger">User has been blocked</h2>
+                    ) : (
+                      <UserListings
+                        check={creator_id || checkId}
+                        checkUser={checkUser}
+                      />
+                    )}
                   </Tab>
                   <Tab eventKey="reviews" title="Reviews">
-                    {isEmpty ? (
-                      <h1>No Reviews Found!</h1>
+                    {isBlocked ? (
+                      <h2 className="bg-danger">User has been blocked</h2>
+                    ) : isEmpty ? (
+                      <h2>No Reviews Found!</h2>
                     ) : loading ? (
                       <Spinner
                         animation="border"
@@ -346,5 +398,19 @@ const ProfilePageBody = ({ creator_id }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const ProfileModal = ({ modalState, onHide }) => {
+  const { show, title, body, footer } = modalState;
+
+  return (
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
+        <Modal.Title>{title}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>{body}</Modal.Body>
+      <Modal.Footer>{footer}</Modal.Footer>
+    </Modal>
   );
 };

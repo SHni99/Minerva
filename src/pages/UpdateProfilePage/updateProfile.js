@@ -159,11 +159,8 @@ const ProfilePageBody = (props) => {
                 url={avatar_url}
                 onUpload={(url) => {
                   setAvatarUrl(url);
-                  updateProfile({
-                    username,
-                    avatar_url: url,
-                  });
                 }}
+                loading={loading}
               />
 
               <div className="mt-4">

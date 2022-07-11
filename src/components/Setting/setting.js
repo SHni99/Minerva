@@ -168,7 +168,8 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
           onClick={() => {
             showModal(
               "List of blocked users",
-              isEmpty ? "No blocked users" : blockedList()
+              isEmpty ? <div className="text-center poppins-semi-bold-black-24px">Nothing here!</div> : blockedList(),
+              
             );
           }}
         >

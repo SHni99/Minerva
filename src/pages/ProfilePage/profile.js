@@ -350,7 +350,7 @@ const ProfilePageBody = ({
                 {!checkUser ? (
                   <Setting
                     showModal={(title, body, footer) =>
-                      setModalState({ show: true, title, body, footer })
+                      setModalState({ show: true, title, body, footer})
                     }
                     onHide={hideModal}
                     blockedArray={blockedArray}

@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     username: null,
     avatar_url: null,
     id: null,
+    blocked: []
   });
   const [authLoading, setAuthLoading] = useState(false);
   // Maximum permission level for a banned user

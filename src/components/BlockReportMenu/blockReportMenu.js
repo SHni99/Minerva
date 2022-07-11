@@ -15,8 +15,14 @@ import { useEffect } from "react";
 //
 // target_id: ID of the user who is being reported/blocked
 
-const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
+const BlockReportMenu = ({
+  showModal,
+  hideModal,
+  target_id,
+  blockedArray,
+}) => {
   const [loading, setLoading] = useState(false);
+
   const user = supabaseClient.auth.user();
   const [isReported, setIsReported] = useState(false);
   const modalTitle = ["Report User", "Block User", "Unblock User"];
@@ -83,15 +89,7 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
 
   const unblockAction = async () => {
     try {
-      const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("blocked")
-        .eq("id", user.id)
-        .single();
-
-      const blockedUpdate = data.blocked.filter((i) => i !== target_id);
-
-      if (error) throw error;
+      const blockedUpdate = blockedArray.filter((i) => i !== target_id);
 
       const { error: unblockError } = await supabaseClient
         .from("profiles")
@@ -110,17 +108,11 @@ const BlockReportMenu = ({ showModal, hideModal, target_id }) => {
 
   const blockAction = async () => {
     try {
-      const { data: prevData, error: blockedError } = await supabaseClient
-        .from("profiles")
-        .select("blocked")
-        .eq("id", user.id)
-        .single();
-
-      if (blockedError) throw blockedError;
-      if (prevData.blocked === null) {
-        prevData.blocked = [];
+      if (blockedArray === null) {
+        blockedArray = [];
       }
-      const prev = prevData.blocked;
+
+      const prev = blockedArray;
 
       // Implement block functionality here
       const { error } = await supabaseClient

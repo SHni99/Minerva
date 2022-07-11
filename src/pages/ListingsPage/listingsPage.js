@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import AuthContext from "util/AuthContext";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from "components/ListingCard/listingCard";
@@ -13,7 +14,8 @@ import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
 
 const ListingsPage = () => {
-  // Hooks
+  const { authData } = useContext(AuthContext);
+  const { blocked: blockedArray } = authData;
   const [tutorTutee, setTutorTutee] = useState("tutor");
   const [listingData, setListingData] = useState([]);
   const [query, setQuery] = useState("");
@@ -41,6 +43,7 @@ const ListingsPage = () => {
         listingDataState={[listingData, setListingData]}
         queryState={[query, setQuery]}
         setModalState={setModalState}
+        blockedArray={blockedArray}
       />
       <FooterBar />
     </div>
@@ -54,6 +57,7 @@ const ListingPageBody = ({
   listingDataState,
   queryState,
   setModalState,
+  blockedArray,
 }) => {
   // Stores the text of the tutor/tutee toggle
   const [tutorTutee, setTutorTutee] = tutorTuteeState;
@@ -125,6 +129,7 @@ const ListingPageBody = ({
         listingDataState={listingDataState}
         query={query}
         setModalState={setModalState}
+        blockedArray={blockedArray}
       />
     </Container>
   );
@@ -146,7 +151,13 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   );
 };
 
-const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
+const Listings = ({
+  tutorTutee,
+  listingDataState,
+  query,
+  setModalState,
+  blockedArray,
+}) => {
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
@@ -203,7 +214,6 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
     const getListings = async () => {
       try {
         setLoading(true);
-        const user = supabase.auth.user();
         // Fetch data from the 'listings' table
         let {
           data: listingDb,
@@ -223,29 +233,15 @@ const Listings = ({ tutorTutee, listingDataState, query, setModalState }) => {
         // the listingData state/hook.
         const newListingData = await Promise.all(listingDb.map(parseListing));
 
-        if (user) {
-          const { data: blockedData, error } = await supabase
-            .from("profiles")
-            .select("blocked")
-            .eq("id", user.id)
-            .single();
-
-          if (error) throw error;
-          //if no blocked user, it will return all the listings
-          if (blockedData.blocked === null) {
-            setListingData(newListingData);
-          } else {
-            //filter blocked user from the listing data
-            const current = newListingData.filter((res) =>
-              blockedData.blocked.reduce(
-                (cur, next) => cur && res.creator_id !== next,
-                true
-              )
-            );
-            setListingData(current);
-          }
-        } else {
+        //if no blocked user, it will return all the listings
+        if (blockedArray === null) {
           setListingData(newListingData);
+        } else {
+          //filter blocked user from the listing data
+          const current = newListingData.filter(({ creator_id }) =>
+            blockedArray.reduce((cur, next) => cur && creator_id !== next, true)
+          );
+          setListingData(current);
         }
       } catch (error) {
         alert(error.message);

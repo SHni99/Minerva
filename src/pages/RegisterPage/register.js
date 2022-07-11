@@ -221,28 +221,18 @@ const RegisterPagePage = () => {
                   </OverlayTrigger>
                 </div>
 
-                <div
+                <button
                   className=" btn btn-lg btn-outline-primary my-3"
                   style={{
                     backgroundColor: "#4169e1",
                     width: "100%",
                   }}
+                  type="submit"
                 >
-                  {loading ? (
-                    <h1 className={`nunitosans-bold-white-26px`}>
-                      {`Signing up`}
-                    </h1>
-                  ) : (
-                    <h1 className={`nunitosans-bold-white-26px`}>
-                      <button
-                        className={`nunitosans-bold-white-26px p-2`}
-                        type="submit"
-                      >
-                        {`Sign up`}
-                      </button>
-                    </h1>
-                  )}
-                </div>
+                  <label className={`nunitosans-bold-white-26px p-2`}>
+                    {loading ? "signing up" : `Sign up`}
+                  </label>
+                </button>
 
                 <div className="row nunitosans-normal-black-28px ">
                   <p>

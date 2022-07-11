@@ -20,7 +20,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
-        if(blockedArray === null) return;
+        if(blockedArray === null) return setIsEmpty(true);
         if (blockedArray.length === 0){
           setIsEmpty(true);
         }

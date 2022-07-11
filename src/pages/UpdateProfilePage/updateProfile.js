@@ -17,7 +17,7 @@ const UpdateProfilePage = ({ session }) => {
   const [gender, setGender] = useState("");
   const [bio, setBio] = useState("");
   const [preferences, setPreferences] = useState({
-    lookingFor : [],
+    lookingFor : false,
     gender: false,
     email: false,
     bio: false
@@ -203,7 +203,7 @@ const ProfilePageBody = (props) => {
         >
           <div className="card-body mt-4">
             <div className="row">
-              <div className="col-7">
+              <div className="col-12">
                 <PersonalAvatar //user can upload from his side, will update avatar_url under the profile table
                   className="align-self"
                   url={avatar_url}

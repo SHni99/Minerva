@@ -37,10 +37,12 @@ function App() {
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
   const parseProfile = (profileData) => {
-    const { id, username, avatar_url, permissions, blocked } = profileData;
+    const { id, username, avatar_url, permissions, blocked, gender, bio } = profileData;
     return {
       logged_in: true,
       username,
+      gender,
+      bio,
       permissions,
       avatar_url: avatar_url
         ? supabaseClient.storage.from("avatars").getPublicUrl(avatar_url)
@@ -84,6 +86,8 @@ function App() {
           username: null,
           avatar_url: null,
           id: null,
+          bio: null,
+          gender: null
         };
 
       const { user } = session;

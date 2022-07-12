@@ -58,7 +58,7 @@ const ListingModal = (props) => {
     }
   };
 
-  const generateDeleteFooter = () => {
+  const generateFooter = () => {
     switch (deleteState) {
       case 1:
         return (
@@ -87,10 +87,17 @@ const ListingModal = (props) => {
       default:
         return (
           <>
-            {/* Edit button hidden due to incomplete development */}
-            {/* <Button variant="primary" className="px-5">
+            <Button
+              variant="outline-secondary"
+              className="px-5"
+              onClick={() =>
+                navigate("/edit-listing", {
+                  state: { listingId: listing_id },
+                })
+              }
+            >
               Edit
-            </Button> */}
+            </Button>
             <Button
               variant="danger"
               className="px-5"
@@ -107,7 +114,7 @@ const ListingModal = (props) => {
     return (
       <Modal.Footer className="px-4 d-flex justify-content-evenly">
         {isOwnListing ? (
-          generateDeleteFooter()
+          generateFooter()
         ) : (
           <>
             <Button

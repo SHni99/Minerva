@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   supabaseClient as supabase,
   supabaseClient,
@@ -18,47 +18,42 @@ import Button from "react-bootstrap/Button";
 import { PlusCircle } from "react-bootstrap-icons";
 import LoadingOverlay from "react-loading-overlay-ts";
 
-const CreateListingPage = () =>
-  // { isEditing, listingId }
-  {
-    // MOCK DATA FOR TESTING
-    const isEditing = true;
-    const listingId = "cebe83e7-5464-435b-a185-b96df85c3d90";
-    // END OF MOCK DATA
-    // Options to be shown under the selection field dropdown box. Edit if required!
-    const fieldParams = {
-      subject: "Subject",
-      qualifications: "Qualifications",
-      timing: "Preferred Times",
-      commitment: "Commitment Period",
-      others: "Others",
-    };
-
-    // Options to be shown under the education level dropdown box. Edit if required!
-    const levelParams = {
-      primary: "Primary",
-      secondary: "Secondary",
-      tertiary: "Tertiary",
-      undergrad: "Undergraduate",
-      grad: "Graduate",
-      others: "Others",
-    };
-
-    return (
-      <div
-        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-      >
-        <NavBar />
-        <CreateListingBody
-          fieldParams={fieldParams}
-          levelParams={levelParams}
-          isEditing={isEditing}
-          listingId={listingId}
-        />
-        <FooterBar />
-      </div>
-    );
+const CreateListingPage = ({ isEditing }) => {
+  const listingId = useLocation().state?.listingId;
+  // Options to be shown under the selection field dropdown box. Edit if required!
+  const fieldParams = {
+    subject: "Subject",
+    qualifications: "Qualifications",
+    timing: "Preferred Times",
+    commitment: "Commitment Period",
+    others: "Others",
   };
+
+  // Options to be shown under the education level dropdown box. Edit if required!
+  const levelParams = {
+    primary: "Primary",
+    secondary: "Secondary",
+    tertiary: "Tertiary",
+    undergrad: "Undergraduate",
+    grad: "Graduate",
+    others: "Others",
+  };
+
+  return (
+    <div
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
+      <NavBar />
+      <CreateListingBody
+        fieldParams={fieldParams}
+        levelParams={levelParams}
+        isEditing={isEditing}
+        listingId={listingId}
+      />
+      <FooterBar />
+    </div>
+  );
+};
 
 export default CreateListingPage;
 
@@ -223,7 +218,7 @@ const CreateListingBody = ({
             if (error) throw error;
 
             const { seeking_for, level, rates, image_urls, fields } = data;
-            setTutorTutee(seeking_for);
+            setTutorTutee(seeking_for === "tutor" ? "tutee" : "tutor");
             setLevel(level);
             setRates(rates);
             setImageURLs(

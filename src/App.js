@@ -37,19 +37,29 @@ function App() {
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
   const parseProfile = (profileData) => {
-    const { id, username, avatar_url, permissions, blocked, gender, bio } = profileData;
+    const {
+      id,
+      username,
+      avatar_url,
+      permissions,
+      preferences,
+      blocked,
+      gender,
+      bio,
+    } = profileData;
     return {
       logged_in: true,
       username,
       gender,
       bio,
       permissions,
+      preferences,
       avatar_url: avatar_url
         ? supabaseClient.storage.from("avatars").getPublicUrl(avatar_url)
             .publicURL
         : "/images/img_avatarDefault.jpg",
-      id, 
-      blocked
+      id,
+      blocked,
     };
   };
   // Initialise authData and setup listeners, only done once at the start.
@@ -85,9 +95,10 @@ function App() {
           permissions: 0,
           username: null,
           avatar_url: null,
+          preferences: {},
           id: null,
           bio: null,
-          gender: null
+          gender: null,
         };
 
       const { user } = session;
@@ -119,7 +130,11 @@ function App() {
 
   return (
     <>
-      <Routes setToastOptions={setToastOptions} option={option} setOption={setOption} />
+      <Routes
+        setToastOptions={setToastOptions}
+        option={option}
+        setOption={setOption}
+      />
       <ToastContainer
         position={position}
         className={"position-fixed " + containerClasses}

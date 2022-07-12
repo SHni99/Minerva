@@ -15,10 +15,7 @@ import listingsPageStyles from "./listingsPage.module.css";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
-  const { blocked: blockedArray } = authData;
-  const [tutorTutee, setTutorTutee] = useState("tutor");
-  const [listingData, setListingData] = useState([]);
-  const [query, setQuery] = useState("");
+  const { blocked: blockedArray, preferences } = authData;
   const unusedModalState = {
     show: false,
     username: "",
@@ -39,11 +36,9 @@ const ListingsPage = () => {
         onHide={() => setModalState(unusedModalState)}
       />
       <ListingPageBody
-        tutorTuteeState={[tutorTutee, setTutorTutee]}
-        listingDataState={[listingData, setListingData]}
-        queryState={[query, setQuery]}
         setModalState={setModalState}
         blockedArray={blockedArray}
+        lookingFor={preferences?.lookingFor || "tutor"}
       />
       <FooterBar />
     </div>
@@ -52,17 +47,11 @@ const ListingsPage = () => {
 
 export default ListingsPage;
 
-const ListingPageBody = ({
-  tutorTuteeState,
-  listingDataState,
-  queryState,
-  setModalState,
-  blockedArray,
-}) => {
+const ListingPageBody = ({ setModalState, blockedArray }) => {
+  const [tutorTutee, setTutorTutee] = useState("tutor");
+  const [query, setQuery] = useState("");
   // Stores the text of the tutor/tutee toggle
-  const [tutorTutee, setTutorTutee] = tutorTuteeState;
   // Stores the text entered into the search bar
-  const [query, setQuery] = queryState;
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
@@ -126,7 +115,6 @@ const ListingPageBody = ({
       {/* Listings */}
       <Listings
         tutorTutee={tutorTutee}
-        listingDataState={listingDataState}
         query={query}
         setModalState={setModalState}
         blockedArray={blockedArray}
@@ -151,18 +139,12 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   );
 };
 
-const Listings = ({
-  tutorTutee,
-  listingDataState,
-  query,
-  setModalState,
-  blockedArray,
-}) => {
+const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
+  const [listingData, setListingData] = useState([]);
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
   // Array of objects containing the data of each listing
-  const [listingData, setListingData] = listingDataState;
 
   const parseListing = async ({
     creator_id,

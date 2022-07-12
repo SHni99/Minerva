@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import AuthContext from "util/AuthContext";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
+import { debounce } from "lodash";
 import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -15,7 +16,7 @@ import listingsPageStyles from "./listingsPage.module.css";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
-  const { blocked: blockedArray, preferences } = authData;
+  const { blocked: blockedArray } = authData;
   const unusedModalState = {
     show: false,
     username: "",
@@ -38,7 +39,6 @@ const ListingsPage = () => {
       <ListingPageBody
         setModalState={setModalState}
         blockedArray={blockedArray}
-        lookingFor={preferences?.lookingFor || "tutor"}
       />
       <FooterBar />
     </div>
@@ -48,10 +48,13 @@ const ListingsPage = () => {
 export default ListingsPage;
 
 const ListingPageBody = ({ setModalState, blockedArray }) => {
-  const [tutorTutee, setTutorTutee] = useState("tutor");
-  const [query, setQuery] = useState("");
   // Stores the text of the tutor/tutee toggle
+  // Loads previously saved tutor/tutee, if applicable
+  const [tutorTutee, setTutorTutee] = useState(
+    localStorage.getItem("lookingFor") || "tutor"
+  );
   // Stores the text entered into the search bar
+  const [query, setQuery] = useState("");
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
@@ -124,8 +127,19 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
 };
 
 const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
+  // Caches tutor/tutee state 500ms after last change
+  const updateLookingFor = (newState) => {
+    console.log(newState);
+    localStorage.setItem("lookingFor", newState);
+  };
+  const debouncedUpdate = useRef(
+    debounce(updateLookingFor, 500, { leading: false, trailing: true })
+  ).current;
+
   const handleClick = () => {
-    setTutorTutee(tutorTutee === "tutor" ? "tutee" : "tutor");
+    const newState = tutorTutee === "tutor" ? "tutee" : "tutor";
+    setTutorTutee(newState);
+    debouncedUpdate(newState);
   };
 
   return (

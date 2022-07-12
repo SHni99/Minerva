@@ -189,7 +189,7 @@
   display: flex;
   padding: 0px 1.5em 0px 0.6em;
   height: 40px;
-  font-size: calc(100% + 0.3vw);
+  font-size: 100%;
   position: relative;
   overflow: hidden;
 }

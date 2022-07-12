@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Badge from "react-bootstrap/Badge";
 import { useNavigate } from "react-router-dom";
 import {
   supabaseClient as supabase,
@@ -249,13 +250,28 @@ const CreateListingBody = ({
   return submitting || loading ? (
     <div className={createListingPageStyles["body"]}>
       <h1 className="nunito-medium-black-48px">
-        {submitting ? "Submitting..." : "Loading your previous listing..."}
+        {submitting
+          ? isEditing
+            ? "Updating your listing..."
+            : "Submitting..."
+          : "Loading your previous listing..."}
       </h1>
       <Spinner animation="border" />
     </div>
   ) : (
     // Actual submission form. Shown only if not submitting and user is logged in.
     <form className={createListingPageStyles["body"]} onSubmit={handleSubmit}>
+      {isEditing && (
+        <>
+          <h1 className="text-success mb-0">You are editing a listing</h1>
+          <hr
+            style={{
+              borderTop: "3px solid #bbb",
+              width: "100%",
+            }}
+          />
+        </>
+      )}
       {/* Fixed field 1: Tutor/Tutee toggle. Defaults to Tutor. */}
       <Row
         className={`${createListingPageStyles["choose-tutor-tutee"]} my-3 mx-4`}
@@ -442,12 +458,13 @@ const CreateListingBody = ({
       <Button
         type="submit"
         className="rounded-pill p-3 w-50"
+        variant={isEditing && "success"}
         style={{
           fontSize: "20px",
-          backgroundColor: "var(--primary400---0354a6)",
+          backgroundColor: isEditing ? "" : "var(--primary400---0354a6)",
         }}
       >
-        Let's Go!
+        {isEditing ? "Edit Listing" : "Let's Go!"}
       </Button>
     </form>
   );

@@ -2,11 +2,22 @@ import "@testing-library/jest-dom/extend-expect";
 import { render, screen } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
+import { supabaseClient } from "config/supabase-client";
 import AuthContext from "util/AuthContext";
 import ListingsPage from "../listingsPage";
 
+// Mock the alert function as jsdom does not implement this
+global.alert = jest.fn();
+
 const wrapPage = (authData = { logged_in: false }) => {
   const history = createMemoryHistory();
+  // Mock the subscribe method to prevent memory leakage during testing
+  supabaseClient.from = jest.fn(() => ({
+    on: jest.fn(() => ({
+      on: jest.fn().mockReturnThis(),
+      subscribe: jest.fn(),
+    })),
+  }));
 
   render(
     <AuthContext.Provider value={{ authData }}>
@@ -19,12 +30,15 @@ const wrapPage = (authData = { logged_in: false }) => {
   return history;
 };
 
+beforeEach(jest.clearAllMocks);
+
 describe("Tutor/Tutee toggle", () => {
   const getToggle = () => screen.getByTestId("tutorTuteeToggle");
 
   it("should be present in the document", () => {
     wrapPage();
     expect(getToggle()).toBeInTheDocument();
+    supabaseClient.from.mockClear();
   });
 
   // Planned: displays tutor/tutee based on user preferences (AuthContext)

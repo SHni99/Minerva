@@ -129,7 +129,6 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
 const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   // Caches tutor/tutee state 500ms after last change
   const updateLookingFor = (newState) => {
-    console.log(newState);
     localStorage.setItem("lookingFor", newState);
   };
   const debouncedUpdate = useRef(
@@ -239,10 +238,10 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
           );
           setListingData(current);
         }
+
+        setLoading(false);
       } catch (error) {
         alert(error.message);
-      } finally {
-        setLoading(false);
       }
     };
     getListings();
@@ -260,9 +259,7 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     const listingSub = supabase
       .from("listings")
       .on("INSERT", async (payload) => {
-        console.log(payload);
         const newListingData = await parseListing(payload.new);
-        console.log(newListingData);
         if (filterListing(newListingData)) {
           setListingData((oldListingData) => [
             ...oldListingData,

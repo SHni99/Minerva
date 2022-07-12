@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabaseClient as supabase } from "config/supabase-client";
+import {
+  supabaseClient as supabase,
+  supabaseClient,
+} from "config/supabase-client";
 
 import Accordion from "react-bootstrap/Accordion";
 import CloseButton from "react-bootstrap/CloseButton";
@@ -15,41 +18,47 @@ import Button from "react-bootstrap/Button";
 import { PlusCircle } from "react-bootstrap-icons";
 import LoadingOverlay from "react-loading-overlay-ts";
 
-const CreateListingPage = ({ isEditing, editData }) => {
-  // Options to be shown under the selection field dropdown box. Edit if required!
-  const fieldParams = {
-    subject: "Subject",
-    qualifications: "Qualifications",
-    timing: "Preferred Times",
-    commitment: "Commitment Period",
-    others: "Others",
-  };
+const CreateListingPage = () =>
+  // { isEditing, listingId }
+  {
+    // MOCK DATA FOR TESTING
+    const isEditing = true;
+    const listingId = "cebe83e7-5464-435b-a185-b96df85c3d90";
+    // END OF MOCK DATA
+    // Options to be shown under the selection field dropdown box. Edit if required!
+    const fieldParams = {
+      subject: "Subject",
+      qualifications: "Qualifications",
+      timing: "Preferred Times",
+      commitment: "Commitment Period",
+      others: "Others",
+    };
 
-  // Options to be shown under the education level dropdown box. Edit if required!
-  const levelParams = {
-    primary: "Primary",
-    secondary: "Secondary",
-    tertiary: "Tertiary",
-    undergrad: "Undergraduate",
-    grad: "Graduate",
-    others: "Others",
-  };
+    // Options to be shown under the education level dropdown box. Edit if required!
+    const levelParams = {
+      primary: "Primary",
+      secondary: "Secondary",
+      tertiary: "Tertiary",
+      undergrad: "Undergraduate",
+      grad: "Graduate",
+      others: "Others",
+    };
 
-  return (
-    <div
-      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-    >
-      <NavBar />
-      <CreateListingBody
-        fieldParams={fieldParams}
-        levelParams={levelParams}
-        isEditing={isEditing}
-        editData={editData}
-      />
-      <FooterBar />
-    </div>
-  );
-};
+    return (
+      <div
+        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      >
+        <NavBar />
+        <CreateListingBody
+          fieldParams={fieldParams}
+          levelParams={levelParams}
+          isEditing={isEditing}
+          listingId={listingId}
+        />
+        <FooterBar />
+      </div>
+    );
+  };
 
 export default CreateListingPage;
 
@@ -57,10 +66,12 @@ const CreateListingBody = ({
   fieldParams,
   levelParams,
   isEditing,
-  editData,
+  listingId,
 }) => {
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [level, setLevel] = useState("primary");
   const [sFieldInputs, setSFieldInputs] = useState([]);
   const [rates, setRates] = useState("");
   const [tutorTutee, setTutorTutee] = useState("tutor");
@@ -69,20 +80,10 @@ const CreateListingBody = ({
   const [invalidRates, setInvalidRates] = useState(null);
   const navigate = useNavigate();
 
-  // ------------------ End of variable declarations ----------------------
-
   // Redirect user to login page if not logged in
   useEffect(() => {
-    if (!supabase.auth.user()) navigate("/loginpage");
-
-    // We are disabling the following warning as there is
-    // no point in including the navigate method into the
-    // dependency array.
-
-    // eslint-disable-next-line
-  }, []);
-
-  // ------------------ Start of method declarations ----------------------
+    if (!supabaseClient.auth.user()) navigate("/loginpage");
+  }, [navigate]);
 
   // Handles uploading of images to Supabase
   const onImgUpload = async (event) => {
@@ -140,13 +141,8 @@ const CreateListingBody = ({
   };
 
   // Handles adding of selection fields
-  const onSFieldAdd = () => {
-    const newSFields = [
-      ...sFields,
-      { id: sFields.length ? sFields[sFields.length - 1].id + 1 : 0 },
-    ];
-    setSFields(newSFields);
-  };
+  const onSFieldAdd = (prevData) =>
+    setSFields((old) => [...old, { id: old?.length || 0, ...prevData }]);
 
   // Handles deletion of selection fields
   const onSFieldDelete = (id) => {
@@ -168,7 +164,7 @@ const CreateListingBody = ({
     const fields = sFieldInputs.map((sFieldInput) => {
       return {
         category: sFieldInput.requirement,
-        value: sFieldInput.getInput(),
+        value: sFieldInput.input.value,
       };
     });
     const image_urls = imageURLs.map((img) => img.publicURL);
@@ -204,10 +200,57 @@ const CreateListingBody = ({
     }
   };
 
+  // Switch to Edit Listing Mode if isEditing === true
+  useEffect(() => {
+    if (isEditing) {
+      if (!listingId) navigate("/listingspage");
+      else {
+        (async () => {
+          setLoading(true);
+          try {
+            const { data, error } = await supabaseClient
+              .from("listings")
+              .select("*")
+              .eq("listing_id", listingId)
+              .single();
+            if (error) throw error;
+
+            const { seeking_for, level, rates, image_urls, fields } = data;
+            setTutorTutee(seeking_for);
+            setLevel(level);
+            setRates(rates);
+            setImageURLs(
+              image_urls.map((publicURL) => ({
+                publicURL,
+                filePath: publicURL.split("/").at(-1),
+              }))
+            );
+            setSFields(
+              fields.map((field, id) => ({
+                id,
+                category: field.category,
+                value: field.value,
+              }))
+            );
+
+            setLoading(false);
+          } catch (error) {
+            alert(error.message);
+          }
+        })();
+      }
+    }
+
+    // Disabling warnings as we only wish to run this once at the start.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Check if submission is in progress. Show "Submitting..." if required.
-  return submitting ? (
+  return submitting || loading ? (
     <div className={createListingPageStyles["body"]}>
-      <h1 className="nunito-medium-black-48px">Submitting...</h1>
+      <h1 className="nunito-medium-black-48px">
+        {submitting ? "Submitting..." : "Loading your previous listing..."}
+      </h1>
       <Spinner animation="border" />
     </div>
   ) : (
@@ -247,6 +290,8 @@ const CreateListingBody = ({
           as="select"
           className={`${createListingPageStyles["level-dropdown"]} py-0 mx-3`}
           id="level"
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
           xs={12}
           sm="auto"
         >
@@ -373,11 +418,13 @@ const CreateListingBody = ({
         SelectionField implementation can be found below. */}
               {sFields.map((sField) => (
                 <SelectionField
-                  key={sField.id}
+                  key={`sField-${sField.id}`}
                   id={sField.id}
                   onSFieldDelete={onSFieldDelete}
                   sFieldInputStates={[sFieldInputs, setSFieldInputs]}
                   fieldParams={fieldParams}
+                  value={sField.value}
+                  category={sField.category}
                 />
               ))}
               {/* Button to add selection fields. onClick handler can be found above, under CreateListingPage. */}
@@ -426,14 +473,16 @@ const SelectionField = ({
   onSFieldDelete,
   sFieldInputStates,
   fieldParams,
+  value,
+  category,
 }) => {
   // Array of objects containing these three details:
   // 1. SelectionField id
   // 2. Value of the selected item in the dropdown box
   // 3. A method to get the value of the corresponding input box
   const [sFieldInputs, setSFieldInputs] = sFieldInputStates;
-  const [previewText, setPreviewText] = useState("Preview");
-  const [previewCategory, setPreviewCategory] = useState("subject");
+  const [previewText, setPreviewText] = useState(value || "Preview");
+  const [previewCategory, setPreviewCategory] = useState(category || "subject");
 
   // Called whenever there is a change in the dropdown box selection.
   // Records the changes into the sFieldInputs state.
@@ -444,7 +493,7 @@ const SelectionField = ({
       {
         id,
         requirement: dropdown.value,
-        getInput: () => input.value,
+        input,
       },
     ]);
   };
@@ -465,7 +514,7 @@ const SelectionField = ({
       <Col
         as="select"
         className={createListingPageStyles["selection-dropdown-box-master"]}
-        defaultValue="subject"
+        defaultValue={category || "subject"}
         onChange={handleDropdownChange}
         xs={12}
         sm={6}
@@ -495,6 +544,7 @@ const SelectionField = ({
       >
         <input
           placeholder="Tell us more..."
+          defaultValue={value}
           maxLength={30}
           onChange={(e) => setPreviewText(e.target.value || "Preview")}
           onFocus={(e) =>
@@ -569,7 +619,7 @@ const ListingImage = ({
             type="file"
             id={`fileUpload-${numPics || 0}`}
             accept="image/*"
-            value=""
+            value={imgUrl}
             onChange={onImgUpload}
             disabled={uploading}
             style={{

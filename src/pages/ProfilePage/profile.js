@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "util/AuthContext";
 import { supabaseClient } from "../../config/supabase-client";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
@@ -18,7 +19,9 @@ import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 import Setting from "components/Setting/setting";
 import Modal from "react-bootstrap/Modal";
 
-const ViewProfilePage = () => {
+const ViewProfilePage = ({ option, setOption }) => {
+  const { authData} = useContext(AuthContext);
+  const { blocked: blockedArray } = authData;
   const { state } = useLocation();
   const unusedModalState = {
     show: false,
@@ -39,9 +42,12 @@ const ViewProfilePage = () => {
         onHide={() => setModalState(unusedModalState)}
       />
       <ProfilePageBody
-        creator_id={state ? state.creator_id : undefined}
+        blockedArray={blockedArray}
+        creator_id={state ? state.creator_id : supabaseClient.auth.user().id}
         setModalState={setModalState}
         hideModal={hideModal}
+        option={option}
+        setOption={setOption}
       />
       <FooterBar />
     </div>
@@ -51,7 +57,14 @@ const ViewProfilePage = () => {
 export default ViewProfilePage;
 
 //the body which is the card container in the middle
-const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
+const ProfilePageBody = ({
+  creator_id,
+  setModalState,
+  hideModal,
+  blockedArray,
+  option,
+  setOption,
+}) => {
   const [profileData, setProfileData] = useState({
     username: "",
     bio: "",
@@ -64,9 +77,14 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [avatar_url, setAvatarurl] = useState("");
   const [isEmpty, setIsEmpty] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [show, setShow] = useState({
+    email: false,
+    bio: false,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -130,6 +148,7 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
 
     const getProfile = async (id) => {
       try {
+        setProfileLoading(true);
         let { data, error, status } = await supabaseClient
           .from("profiles")
           .select(`username, avatar_url, bio, gender `)
@@ -158,6 +177,8 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
         setAvatarurl(publicURL);
       } catch (error) {
         alert(error.message);
+      } finally {
+        setProfileLoading(false);
       }
     };
 
@@ -187,37 +208,35 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
 
     const getBlockedStatus = async (id) => {
       try {
-        const user = supabaseClient.auth.user();
-        if (!user) return;
-        const { data: blockedData, error } = await supabaseClient
-          .from("profiles")
-          .select("blocked")
-          .eq("id", user?.id)
-          .single();
-
-        if (error) throw error;
-
-        if (blockedData && blockedData.blocked) {
-          const checkBlocked = blockedData.blocked?.reduce(
+        if (blockedArray) {
+          const checkBlocked = blockedArray.reduce(
             (res, next) => res || next === id,
             false
           );
+
           setIsBlocked(checkBlocked);
-          console.log(checkBlocked);
         }
       } catch (error) {
-        console.log("2");
-        alert(error.message);
+        alert("error.message");
       }
     };
 
-    if (!creator_id || checkId === creator_id) {
+    const getOptions = async (option) => {
+      setShow({
+        email: option.includes("Show email") ? true : false,
+        bio: option.includes("Show bio") ? true : false,
+        gender: option.includes("Show gender") ? true : false,
+      });
+    };
+
+    if (checkId === creator_id) {
       if (!checkId) return;
       setcheckUser(false);
       getBlockedStatus(checkId);
       getProfile(checkId);
       getReview(checkId);
       getAllIndex(checkId);
+      getOptions(option);
     } else {
       setcheckUser(true);
       getBlockedStatus(creator_id);
@@ -225,7 +244,7 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
       getReview(creator_id);
       getAllIndex(creator_id);
     }
-  }, [checkId, creator_id]);
+  }, [checkId, creator_id, blockedArray, option]);
 
   const popover = (
     <Popover>
@@ -244,13 +263,21 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
         <div className={`${viewprofileStyles["home-inner"]} container-fluid`}>
           <div className="row align-self-center">
             <div className="col-lg-3 col-sm-12">
-              <div className="col">
-                <img
-                  src={avatar_url || "/images/img_avatarDefault.jpg"}
-                  className={`${viewprofileStyles["avatar"]} rounded-pill`}
-                  alt="avatar"
-                ></img>
-              </div>
+              {profileLoading ? (
+                <Spinner
+                  animation="border"
+                  role="status"
+                  aria-label="Loading"
+                />
+              ) : (
+                <div className="col">
+                  <img
+                    src={avatar_url || "/images/img_avatarDefault.jpg"}
+                    className={`${viewprofileStyles["avatar"]} rounded-pill`}
+                    alt="avatar"
+                  ></img>
+                </div>
+              )}
 
               <div className="col mt-5">
                 <h3>
@@ -276,25 +303,45 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
                     </div>
                   </div>
                 </OverlayTrigger>
-
-                <div className="my-4 poppins-normal-black-24px">
-                  Gender:{" "}
-                  {profileData.gender === "Female" ? (
-                    <div className="poppins-normal-red-24px">Female</div>
-                  ) : profileData.gender === "Male" ? (
-                    <div className="poppins-normal-sapphire-24px">Male</div>
-                  ) : (
-                    <div className="poppins-normal-black-24px">
-                      User has not set a gender
-                    </div>
-                  )}
-                </div>
-                <label className="poppins-normal-black-24px">BIO:</label>
-                <div className="card">
-                  <div className="card-body bg-light border-dark">
-                    {profileData.bio}
+                {show.gender ? (
+                  <div className="my-4 poppins-normal-black-24px">
+                    Gender:{" "}
+                    {profileData.gender === "Female" ? (
+                      <div className="poppins-normal-red-24px">Female</div>
+                    ) : profileData.gender === "Male" ? (
+                      <div className="poppins-normal-sapphire-24px">Male</div>
+                    ) : (
+                      <div className="poppins-normal-black-24px">
+                        User has not set a gender
+                      </div>
+                    )}
                   </div>
-                </div>
+                ) : (
+                  ""
+                )}
+
+                {show.email ? (
+                  <div>
+                    <label className="poppins-normal-black-24px">Email:</label>
+                    <div className="text mb-3">
+                      {supabaseClient.auth.user().email}
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
+                {show.bio ? (
+                  <div>
+                    <label className="poppins-normal-black-24px">BIO:</label>
+                    <div className="card">
+                      <div className="card-body bg-light border-dark">
+                        {profileData.bio}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
 
@@ -303,9 +350,12 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
                 {!checkUser ? (
                   <Setting
                     showModal={(title, body, footer) =>
-                      setModalState({ show: true, title, body, footer })
+                      setModalState({ show: true, title, body, footer})
                     }
                     onHide={hideModal}
+                    blockedArray={blockedArray}
+                    setOption={setOption}
+                    option={option}
                   ></Setting>
                 ) : (
                   <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
@@ -335,6 +385,7 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
                       }
                       hideModal={hideModal}
                       target_id={creator_id}
+                      blockedArray={blockedArray}
                     />
                   </div>
                 )}
@@ -347,7 +398,7 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
                 >
                   <Tab eventKey="listings" title="Listings">
                     {isBlocked ? (
-                      <h2 className="bg-danger">User has been blocked</h2>
+                      <h2>User has been blocked</h2>
                     ) : (
                       <UserListings
                         check={creator_id || checkId}
@@ -357,7 +408,7 @@ const ProfilePageBody = ({ creator_id, setModalState, hideModal }) => {
                   </Tab>
                   <Tab eventKey="reviews" title="Reviews">
                     {isBlocked ? (
-                      <h2 className="bg-danger">User has been blocked</h2>
+                      <h2>User has been blocked</h2>
                     ) : isEmpty ? (
                       <h2>No Reviews Found!</h2>
                     ) : loading ? (

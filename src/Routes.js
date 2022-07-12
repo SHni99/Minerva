@@ -22,7 +22,7 @@ import ViewReportsPage from "pages/ViewReportsPage/viewReportsPage";
 import ChatLogsPage from "pages/ChatLogsPage/chatLogsPage";
 import HashLoader from "react-spinners/HashLoader";
 
-const ProjectRoutes = ({ setToastOptions }) => {
+const ProjectRoutes = ({ setToastOptions, option, setOption }) => {
   // Simplify toast showing
   const showSimpleToast = (title, message, timeout) =>
     setToastOptions({
@@ -39,7 +39,6 @@ const ProjectRoutes = ({ setToastOptions }) => {
   // Determine if user is banned :(((((
   const { authData, authLoading, BANNED_THRESHOLD } = useContext(AuthContext);
   const isBanned = authData.permissions <= BANNED_THRESHOLD;
-
   return (
     <LoadingOverlay
       active={authLoading}
@@ -54,6 +53,8 @@ const ProjectRoutes = ({ setToastOptions }) => {
             showSimpleToast={showSimpleToast}
             setToastOptions={setToastOptions}
             authLoading={authLoading}
+            option={option}
+            setOption={setOption}
           />
         )}
       </Router>
@@ -68,6 +69,8 @@ const AnimatedRoutes = ({
   showSimpleToast,
   setToastOptions,
   authLoading,
+  option,
+  setOption,
 }) => {
   // Add TransitionGroup and CSSTransition for animations
   return authLoading ? (
@@ -89,7 +92,10 @@ const AnimatedRoutes = ({
       <Route path="/resetpage" element={<ResetPage />} />
       <Route path="/loginmainpage" element={<LoginMainPage />} />
       <Route path="/formpage" element={<ReviewForm />} />
-      <Route path="/profile" element={<ProfilePage />} />
+      <Route
+        path="/profile"
+        element={<ProfilePage option={option} setOption={setOption} />}
+      />
       <Route path="/review" element={<ReviewPage />} />
       <Route path="/chats" element={<ChatPage />} />
       <Route

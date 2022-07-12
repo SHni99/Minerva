@@ -7,29 +7,25 @@ import { ChevronRight } from "react-bootstrap-icons";
 import { Card } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import settingStyles from "./setting.module.css";
+import makeAnimated from "react-select/animated";
+import Select from "react-select";
 
-const Setting = ({ showModal, onHide }) => {
+const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
   const navigate = useNavigate();
   const user = supabaseClient.auth.user();
+  const animatedComponents = makeAnimated();
   const [fullBlockedData, setFullBlockeddata] = useState("");
+  const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
-        if (!user) return;
-        const { data: currentData, error } = await supabaseClient
-          .from("profiles")
-          .select("blocked")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-        if (currentData.blocked === null) {
-          currentData.blocked = [];
+        if(blockedArray === null) return setIsEmpty(true);
+        if (blockedArray.length === 0){
+          setIsEmpty(true);
         }
-
         const newBlockedData = await Promise.all(
-          currentData.blocked.map(async (id) => {
+          blockedArray.map(async (id) => {
             let {
               data: { avatar_url: avatar, username },
               error,
@@ -56,13 +52,12 @@ const Setting = ({ showModal, onHide }) => {
           })
         );
         setFullBlockeddata(newBlockedData);
-        //console.log(newBlockedData);
       } catch (error) {
         alert(error.message);
       }
     };
-
     checkBlockedUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   //log user out and redirect to landing page
@@ -120,6 +115,39 @@ const Setting = ({ showModal, onHide }) => {
     );
   };
 
+  const preferenceList = () => {
+    const preferences = [
+      {
+        value: 1,
+        label: "Show email",
+      },
+      {
+        value: 2,
+        label: "Show bio",
+      },
+      {
+        value: 3,
+        label: "Show gender",
+      },
+    ];
+
+    const handler = (e) => {
+      setOption(e.map((x) => x.label));
+    };
+
+    return (
+      <Select
+        name="form-field-name"
+        closeMenuOnSelect={false}
+        onChange={handler}
+        defaultValue={option}
+        isMulti
+        components={animatedComponents}
+        options={preferences}
+      />
+    );
+  };
+
   return (
     <Dropdown className="d-flex justify-end">
       <Dropdown.Toggle variant="secondary">
@@ -138,12 +166,30 @@ const Setting = ({ showModal, onHide }) => {
         <Dropdown.Item
           eventKey="blockeduser"
           onClick={() => {
-            showModal("List of blocked users", blockedList());
+            showModal(
+              "List of blocked users",
+              isEmpty ? <div className="text-center poppins-semi-bold-black-24px">Nothing here!</div> : blockedList(),
+              
+            );
           }}
         >
           View blocked users
         </Dropdown.Item>
+        <Dropdown.Item
+          style={{display: "none"}}
+          eventKey="preference"
+          onClick={() => {
+            showModal(
+              "",
+              preferenceList(),
+              "please clear input box before selecting"
+            );
+          }}
+        >
+          Customize display preference
+        </Dropdown.Item>
         <Dropdown.Divider />
+
         <Dropdown.Item
           eventKey="logout"
           onClick={(e) => {

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Badge from "react-bootstrap/Badge";
 import { useNavigate } from "react-router-dom";
 import {
   supabaseClient as supabase,
@@ -162,42 +161,49 @@ const CreateListingBody = ({
       document.getElementById("rates").focus();
       return;
     }
-    const fields = sFieldInputs.map((sFieldInput) => {
-      return {
+    const fields = [
+      ...sFieldInputs.map((sFieldInput) => ({
         category: sFieldInput.requirement,
-        value: sFieldInput.input.value,
-      };
-    });
+        value: sFieldInput.input().value,
+      })),
+    ];
     const image_urls = imageURLs.map((img) => img.publicURL);
+
+    // Pack the data to be uploaded to Supabase
+    const data = {
+      creator_id: supabase.auth.user().id,
+      fields,
+      rates,
+      image_urls,
+      seeking_for: tutorTutee === "tutor" ? "tutee" : "tutor",
+      level,
+    };
 
     // Update Supabase with input
     try {
       // Causes screen to show "Submitting..."
       setSubmitting(true);
 
-      // Pack the data to be uploaded to Supabase
-      const data = {
-        creator_id: supabase.auth.user().id,
-        fields,
-        rates,
-        image_urls,
-        seeking_for: tutorTutee === "tutor" ? "tutee" : "tutor",
-        level,
-      };
+      if (isEditing) {
+        // Attempt to update data in Supabase
+        let { error } = await supabase
+          .from("listings")
+          .update(data, { returning: "minimal" })
+          .eq("listing_id", listingId);
+        if (error) throw error;
+      } else {
+        // Attempt to upload data to Supabase
+        let { error } = await supabase
+          .from("listings")
+          .insert(data, { returning: "minimal" });
+        if (error) throw error;
+      }
 
-      // Attempt to upload data to Supabase
-      let { error } = await supabase
-        .from("listings")
-        .insert(data, { returning: "minimal" });
-
-      // If error encountered, handle it in the catch block
-      if (error) throw error;
+      // Successful! Return to listings page
+      navigate("/listingspage");
     } catch (error) {
       // Displays error message
       alert(error.message);
-    } finally {
-      // After submission, regardless of whether it succeeded or not, redirect user to the listings page
-      navigate("/listingspage");
     }
   };
 
@@ -231,6 +237,16 @@ const CreateListingBody = ({
                 id,
                 category: field.category,
                 value: field.value,
+              }))
+            );
+            setSFieldInputs(
+              fields.map((field, id) => ({
+                id,
+                requirement: field.category,
+                input: () =>
+                  document.getElementsByClassName(
+                    createListingPageStyles["selection-input-box-master"]
+                  )[id].firstChild,
               }))
             );
 
@@ -458,7 +474,7 @@ const CreateListingBody = ({
       <Button
         type="submit"
         className="rounded-pill p-3 w-50"
-        variant={isEditing && "success"}
+        variant={isEditing ? "success" : "primary"}
         style={{
           fontSize: "20px",
           backgroundColor: isEditing ? "" : "var(--primary400---0354a6)",
@@ -510,7 +526,7 @@ const SelectionField = ({
       {
         id,
         requirement: dropdown.value,
-        input,
+        input: () => input,
       },
     ]);
   };

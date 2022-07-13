@@ -85,7 +85,7 @@ const AnimatedRoutes = ({
       <Route path="/create-listing" element={<CreateListingPage />} />
       <Route path="/passwordpage" element={<PasswordPage />} />
       <Route path="/resetpage" element={<ResetPage />} />
-      <Route path="/loginmainpage" element={<LoginMainPage />} />
+      <Route path="/loginmainpage" element={<LoginMainPage showSimpleToast={showSimpleToast}/>} />
       <Route path="/formpage" element={<ReviewForm />} />
       <Route
         path="/profile"

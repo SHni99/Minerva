@@ -326,7 +326,7 @@ const ProfilePageBody = ({
                 )}
 
                 {show.email ? (
-                  <div className="mb-3">
+                  <div className="my-3">
                     <label className="poppins-normal-black-24px">Email:</label>
                     <div className="text ">{profileData.email}</div>
                   </div>

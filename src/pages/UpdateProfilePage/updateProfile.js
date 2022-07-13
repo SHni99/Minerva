@@ -10,9 +10,9 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
 //retrieve session from loginmain page and call getProfile method if session is read
-const UpdateProfilePage = ({ session }) => {
+const UpdateProfilePage = ({ session, showSimpleToast }) => {
   const { authData } = useContext(AuthContext);
-  const { username, gender, preferences, bio, avatar_url} = authData;
+  const { username, gender, preferences, bio, avatar_url } = authData;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [genderOption, setGender] = useState(gender);
@@ -59,6 +59,8 @@ const UpdateProfilePage = ({ session }) => {
       });
 
       if (error) throw error;
+      showSimpleToast("Updated", "You have successfully updated!", 2000);
+      navigate("/listingspage");
     } catch (error) {
       alert(error.message);
     } finally {
@@ -236,8 +238,6 @@ const ProfilePageBody = (props) => {
                     }}
                     onClick={() => {
                       updateProfile();
-                      alert("updated");
-                      navigate("/listingspage");
                     }}
                   >
                     <strong>{loading ? "Updating" : "Update"}</strong>

@@ -159,43 +159,6 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
 
   // Array of objects containing the data of each listing
 
-  const parseListing = async ({
-    creator_id,
-    level,
-    rates,
-    fields,
-    image_urls,
-    listing_id,
-  }) => {
-    let {
-      data: { avatar_url: avatarTitle, username },
-      error: avatarError,
-      status: avatarStatus,
-    } = await supabase
-      .from("profiles")
-      .select("username, avatar_url")
-      .eq("id", creator_id)
-      .single();
-    if (avatarError && avatarStatus !== 406) throw avatarError;
-
-    const { publicURL: avatarUrl, error: urlError } =
-      avatarTitle === ""
-        ? {}
-        : supabase.storage.from("avatars").getPublicUrl(avatarTitle);
-    if (urlError) throw urlError;
-
-    return {
-      avatarUrl,
-      username,
-      level,
-      rates,
-      fields,
-      image_urls,
-      listing_id,
-      creator_id,
-    };
-  };
-
   const filterListing = ({ level, rates, fields }) =>
     `${level} ${rates} ${Object.keys(fields).reduce(
       (acc, key) => `${acc} ${fields[key].value}`,
@@ -209,24 +172,15 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     const getListings = async () => {
       try {
         setLoading(true);
-        // Fetch data from the 'listings' table
-        let {
-          data: listingDb,
-          listingError,
-          listingStatus,
-        } = await supabase
-          .from("listings")
-          .select("creator_id, level, rates, fields, image_urls, listing_id")
+        // Fetch data using `get_listings()` RPC call
+        let { data: listingDb, error: listingError } = await supabase
+          .rpc("get_listings")
           .eq("seeking_for", tutorTutee);
-        if (listingError && listingStatus !== 406) throw listingError;
+        if (listingError) throw listingError;
 
-        // Filter using the entered query (set to "" by default/on clearing the textbox)
-        listingDb = listingDb.filter(filterListing);
-
-        // Map each of the fetched rows into an async call to obtain each listing creators'
-        // avatar URL. After all asynchronous calls have been resolved, set the result to
-        // the listingData state/hook.
-        const newListingData = await Promise.all(listingDb.map(parseListing));
+        // Filter using the selected criteria
+        const newListingData = listingDb.filter(filterListing);
+        // listingDb = listingDb.filter(filterListing);
 
         //if no blocked user, it will return all the listings
         if (blockedArray === null) {
@@ -259,12 +213,21 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     const listingSub = supabase
       .from("listings")
       .on("INSERT", async (payload) => {
-        const newListingData = await parseListing(payload.new);
-        if (filterListing(newListingData)) {
-          setListingData((oldListingData) => [
-            ...oldListingData,
-            newListingData,
-          ]);
+        // const newListingData = await parseListing(payload.new);
+        try {
+          const { data: newListingData, error } = await supabase
+            .rpc("get_listings")
+            .eq("listing_id", payload.new.listing_id);
+          if (error) throw error;
+
+          if (filterListing(newListingData)) {
+            setListingData((oldListingData) => [
+              ...oldListingData,
+              newListingData,
+            ]);
+          }
+        } catch (error) {
+          alert(error.message);
         }
       })
       .on("DELETE", (payload) => {
@@ -289,7 +252,7 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
         <React.Fragment>
           {listingData.map(
             ({
-              avatarUrl,
+              avatar_url,
               username,
               level,
               rates,
@@ -300,7 +263,11 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
             }) => {
               return (
                 <ListingCard
-                  avatarUrl={avatarUrl}
+                  avatarUrl={
+                    avatar_url &&
+                    supabase.storage.from("avatars").getPublicUrl(avatar_url)
+                      .publicURL
+                  }
                   username={username}
                   key={listing_id}
                   listing_id={listing_id}

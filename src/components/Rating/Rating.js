@@ -8,7 +8,7 @@ const colors = {
 };
 
 const Rating = ({ setReviews, ratingHover, index: index1, className }) => {
-  const [currentValue, setCurrentValue] = setReviews;
+  const [currentValue, setCurrentValue] = setReviews || [];
   const [hoverValue, setHoverValue] = useState(0);
   const handleClick = (value) => {
     setCurrentValue(value);

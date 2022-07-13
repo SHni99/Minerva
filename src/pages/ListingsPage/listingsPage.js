@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import AuthContext from "util/AuthContext";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
+import { debounce } from "lodash";
 import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -16,9 +17,6 @@ import listingsPageStyles from "./listingsPage.module.css";
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
   const { blocked: blockedArray } = authData;
-  const [tutorTutee, setTutorTutee] = useState("tutor");
-  const [listingData, setListingData] = useState([]);
-  const [query, setQuery] = useState("");
   const unusedModalState = {
     show: false,
     username: "",
@@ -39,9 +37,6 @@ const ListingsPage = () => {
         onHide={() => setModalState(unusedModalState)}
       />
       <ListingPageBody
-        tutorTuteeState={[tutorTutee, setTutorTutee]}
-        listingDataState={[listingData, setListingData]}
-        queryState={[query, setQuery]}
         setModalState={setModalState}
         blockedArray={blockedArray}
       />
@@ -52,17 +47,14 @@ const ListingsPage = () => {
 
 export default ListingsPage;
 
-const ListingPageBody = ({
-  tutorTuteeState,
-  listingDataState,
-  queryState,
-  setModalState,
-  blockedArray,
-}) => {
+const ListingPageBody = ({ setModalState, blockedArray }) => {
   // Stores the text of the tutor/tutee toggle
-  const [tutorTutee, setTutorTutee] = tutorTuteeState;
+  // Loads previously saved tutor/tutee, if applicable
+  const [tutorTutee, setTutorTutee] = useState(
+    localStorage.getItem("lookingFor") || "tutor"
+  );
   // Stores the text entered into the search bar
-  const [query, setQuery] = queryState;
+  const [query, setQuery] = useState("");
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
@@ -126,7 +118,6 @@ const ListingPageBody = ({
       {/* Listings */}
       <Listings
         tutorTutee={tutorTutee}
-        listingDataState={listingDataState}
         query={query}
         setModalState={setModalState}
         blockedArray={blockedArray}
@@ -136,8 +127,18 @@ const ListingPageBody = ({
 };
 
 const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
+  // Caches tutor/tutee state 500ms after last change
+  const updateLookingFor = (newState) => {
+    localStorage.setItem("lookingFor", newState);
+  };
+  const debouncedUpdate = useRef(
+    debounce(updateLookingFor, 500, { leading: false, trailing: true })
+  ).current;
+
   const handleClick = () => {
-    setTutorTutee(tutorTutee === "tutor" ? "tutee" : "tutor");
+    const newState = tutorTutee === "tutor" ? "tutee" : "tutor";
+    setTutorTutee(newState);
+    debouncedUpdate(newState);
   };
 
   return (
@@ -151,18 +152,12 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   );
 };
 
-const Listings = ({
-  tutorTutee,
-  listingDataState,
-  query,
-  setModalState,
-  blockedArray,
-}) => {
+const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
+  const [listingData, setListingData] = useState([]);
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
   // Array of objects containing the data of each listing
-  const [listingData, setListingData] = listingDataState;
 
   const parseListing = async ({
     creator_id,
@@ -243,10 +238,10 @@ const Listings = ({
           );
           setListingData(current);
         }
+
+        setLoading(false);
       } catch (error) {
         alert(error.message);
-      } finally {
-        setLoading(false);
       }
     };
     getListings();
@@ -264,9 +259,7 @@ const Listings = ({
     const listingSub = supabase
       .from("listings")
       .on("INSERT", async (payload) => {
-        console.log(payload);
         const newListingData = await parseListing(payload.new);
-        console.log(newListingData);
         if (filterListing(newListingData)) {
           setListingData((oldListingData) => [
             ...oldListingData,

@@ -32,12 +32,11 @@ function App() {
     closeButton,
   } = toastOptions;
   // ========================== End of global Toast ==========================
-  const [option, setOption] = useState([]);
   // =================== Start of AuthContext initialisation =================
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
   const parseProfile = (profileData) => {
-    const { id, username, avatar_url, permissions, blocked, gender, bio } = profileData;
+    const { id, username, avatar_url, permissions, blocked, gender, bio, preferences } = profileData;
     return {
       logged_in: true,
       username,
@@ -49,7 +48,8 @@ function App() {
             .publicURL
         : "/images/img_avatarDefault.jpg",
       id, 
-      blocked
+      blocked,
+      preferences
     };
   };
   // Initialise authData and setup listeners, only done once at the start.
@@ -119,7 +119,7 @@ function App() {
 
   return (
     <>
-      <Routes setToastOptions={setToastOptions} option={option} setOption={setOption} />
+      <Routes setToastOptions={setToastOptions} />
       <ToastContainer
         position={position}
         className={"position-fixed " + containerClasses}

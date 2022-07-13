@@ -21,7 +21,7 @@ import Modal from "react-bootstrap/Modal";
 
 const ViewProfilePage = () => {
   const { authData } = useContext(AuthContext);
-  const { blocked: blockedArray, preferences } = authData;
+  const { blocked: blockedArray, preferences, email } = authData;
   const { state } = useLocation();
   const unusedModalState = {
     show: false,
@@ -44,6 +44,7 @@ const ViewProfilePage = () => {
       <ProfilePageBody
         blockedArray={blockedArray}
         preferences={preferences}
+        email={email}
         creator_id={state ? state.creator_id : supabaseClient.auth.user().id}
         setModalState={setModalState}
         hideModal={hideModal}
@@ -61,7 +62,7 @@ const ProfilePageBody = ({
   setModalState,
   hideModal,
   blockedArray,
-  preferences,
+  email,
 }) => {
   const [profileData, setProfileData] = useState({
     username: "",
@@ -150,7 +151,7 @@ const ProfilePageBody = ({
         setProfileLoading(true);
         let { data, error, status } = await supabaseClient
           .from("profiles")
-          .select(`username, avatar_url, bio, gender `)
+          .select(`username, avatar_url, bio, gender, email `)
           .eq("id", id)
           .single();
 
@@ -163,6 +164,7 @@ const ProfilePageBody = ({
             username: data.username,
             bio: data.bio,
             gender: data.gender,
+            email: data.email,
           });
         }
 
@@ -227,8 +229,8 @@ const ProfilePageBody = ({
           .select("preferences")
           .eq("id", id)
           .single();
-          
-          console.log(operation.preferences.email)
+
+        console.log(operation.preferences.email);
         if (error) throw error;
         setShow({
           email: operation.preferences.email,
@@ -307,7 +309,7 @@ const ProfilePageBody = ({
                   </div>
                 </OverlayTrigger>
                 {show.gender ? (
-                  <div className="my-4 poppins-normal-black-24px">
+                  <div className="my-3 poppins-normal-black-24px">
                     Gender:{" "}
                     {profileData.gender === "Female" ? (
                       <div className="poppins-normal-red-24px">Female</div>
@@ -324,11 +326,9 @@ const ProfilePageBody = ({
                 )}
 
                 {show.email ? (
-                  <div>
+                  <div className="mb-3">
                     <label className="poppins-normal-black-24px">Email:</label>
-                    <div className="text mb-3">
-                      {supabaseClient.auth.user().email}
-                    </div>
+                    <div className="text ">{profileData.email}</div>
                   </div>
                 ) : (
                   ""

@@ -211,7 +211,12 @@ const PersonalAvatar = ({ url, loading }) => {
         />
       </div>
 
-      <Modal size="lg" show={modalShow} onHide={() => setModalShow(false)}>
+      <Modal
+        size="lg"
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        backdrop="static"
+      >
         <Modal.Title>
           <Modal.Header className="nunito-semi-bold-black-24px" closeButton>
             Crop Profile Picture

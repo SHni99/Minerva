@@ -36,20 +36,31 @@ function App() {
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
   const parseProfile = (profileData) => {
-    const { id, username, avatar_url, permissions, blocked, gender, bio, preferences } = profileData;
+    const {
+      id,
+      username,
+      avatar_url,
+      permissions,
+      preferences,
+      blocked,
+      gender,
+      bio,
+      email
+    } = profileData;
     return {
       logged_in: true,
       username,
       gender,
       bio,
       permissions,
+      preferences,
       avatar_url: avatar_url
         ? supabaseClient.storage.from("avatars").getPublicUrl(avatar_url)
             .publicURL
         : "/images/img_avatarDefault.jpg",
       id, 
-      blocked,
-      preferences
+      blocked, 
+      email
     };
   };
   // Initialise authData and setup listeners, only done once at the start.
@@ -85,9 +96,11 @@ function App() {
           permissions: 0,
           username: null,
           avatar_url: null,
+          preferences: {},
           id: null,
           bio: null,
-          gender: null
+          gender: null,
+          email: null
         };
 
       const { user } = session;

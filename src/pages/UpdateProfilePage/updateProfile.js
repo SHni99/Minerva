@@ -12,7 +12,7 @@ import Form from "react-bootstrap/Form";
 //retrieve session from loginmain page and call getProfile method if session is read
 const UpdateProfilePage = ({ session }) => {
   const { authData } = useContext(AuthContext);
-  const { username, gender, preferences, bio, avatar_url } = authData;
+  const { username, gender, preferences, bio, avatar_url} = authData;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [genderOption, setGender] = useState(gender);
@@ -44,12 +44,12 @@ const UpdateProfilePage = ({ session }) => {
         gender: newShowGender,
         bio: newShowBio,
       };
-      console.log(newShowEmail);
       const updates = {
         id: user.id,
         username: newUsername,
         gender: newGender,
         bio: newBio,
+        email: session.user.email,
         preferences: preferencesUpdate,
         updated_at: new Date(),
       };
@@ -250,8 +250,8 @@ const ProfilePageBody = (props) => {
                     <div class="vr d-flex" style={{ height: "800px" }}></div>
                   </div>
                   <div className="col-10">
-                    <div className="nunitosans-bold-black-32px">
-                      preference setting: toggle on to display it publicly
+                    <div className="nunitosans-bold-black-32px text-center">
+                      Preference setting:
                     </div>
                     <Form>
                       <div className="row my-3">

@@ -101,6 +101,7 @@ const AnimatedRoutes = ({
         path="/chatlogs"
         element={<ChatLogsPage setToastOptions={setToastOptions} />}
       />
+      <Route path="/edit-listing" element={<CreateListingPage isEditing />} />
     </Routes>
   ) : (
     <Routes>

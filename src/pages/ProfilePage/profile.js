@@ -21,7 +21,7 @@ import Modal from "react-bootstrap/Modal";
 
 const ViewProfilePage = () => {
   const { authData } = useContext(AuthContext);
-  const { blocked: blockedArray, preferences, email } = authData;
+  const { blocked: blockedArray, preferences } = authData;
   const { state } = useLocation();
   const unusedModalState = {
     show: false,
@@ -44,7 +44,6 @@ const ViewProfilePage = () => {
       <ProfilePageBody
         blockedArray={blockedArray}
         preferences={preferences}
-        email={email}
         creator_id={state ? state.creator_id : supabaseClient.auth.user().id}
         setModalState={setModalState}
         hideModal={hideModal}
@@ -62,17 +61,17 @@ const ProfilePageBody = ({
   setModalState,
   hideModal,
   blockedArray,
-  email,
 }) => {
   const [profileData, setProfileData] = useState({
     username: "",
     bio: "",
     gender: "",
+    email: "",
   });
   const [checkUser, setcheckUser] = useState(false);
   const [currentValue, setCurrentValue] = useState(false);
   const [indexAll, setIndexAll] = useState("");
-  const checkId = supabaseClient.auth.user()?.id || "";
+  const checkId = supabaseClient.auth.user()?.id || null;
   const ratinghover = useState(true);
   const [reviewData, setReviewData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -230,7 +229,7 @@ const ProfilePageBody = ({
           .eq("id", id)
           .single();
 
-        console.log(operation.preferences.email);
+      
         if (error) throw error;
         setShow({
           email: operation.preferences.email,
@@ -242,13 +241,12 @@ const ProfilePageBody = ({
       }
     };
 
-    setcheckUser(checkId === creator_id ? false : true);
+    setcheckUser(checkId !== null ? true : false);
     getBlockedStatus(checkId === creator_id ? checkId : creator_id);
     getProfile(checkId === creator_id ? checkId : creator_id);
     getReview(checkId === creator_id ? checkId : creator_id);
     getAllIndex(checkId === creator_id ? checkId : creator_id);
     getOptions(checkId === creator_id ? checkId : creator_id);
-    //getEmail(checkId === creator_id ? checkId : creator_id);
   }, [checkId, creator_id, blockedArray]);
 
   const popover = (
@@ -350,45 +348,49 @@ const ProfilePageBody = ({
 
             <div className="col-lg-8 col-sm-12">
               <div className="row">
-                {!checkUser ? (
-                  <Setting
-                    showModal={(title, body, footer) =>
-                      setModalState({ show: true, title, body, footer })
-                    }
-                    onHide={hideModal}
-                    blockedArray={blockedArray}
-                  ></Setting>
-                ) : (
-                  <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
-                    {isBlocked ? (
-                      ""
-                    ) : (
-                      <Button
-                        className="m-2"
-                        onClick={() =>
-                          navigate("/chats", {
-                            state: {
-                              startChatData: {
-                                user_id: creator_id,
-                                name: profileData.username,
-                                src: avatar_url,
-                              },
-                            },
-                          })
-                        }
-                      >
-                        Chat
-                      </Button>
-                    )}
-                    <BlockReportMenu
+                {checkUser ? (
+                  checkId === creator_id ? (
+                    <Setting
                       showModal={(title, body, footer) =>
                         setModalState({ show: true, title, body, footer })
                       }
-                      hideModal={hideModal}
-                      target_id={creator_id}
+                      onHide={hideModal}
                       blockedArray={blockedArray}
-                    />
-                  </div>
+                    ></Setting>
+                  ) : (
+                    <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">
+                      {isBlocked ? (
+                        ""
+                      ) : (
+                        <Button
+                          className="m-2"
+                          onClick={() =>
+                            navigate("/chats", {
+                              state: {
+                                startChatData: {
+                                  user_id: creator_id,
+                                  name: profileData.username,
+                                  src: avatar_url,
+                                },
+                              },
+                            })
+                          }
+                        >
+                          Chat
+                        </Button>
+                      )}
+                      <BlockReportMenu
+                        showModal={(title, body, footer) =>
+                          setModalState({ show: true, title, body, footer })
+                        }
+                        hideModal={hideModal}
+                        target_id={creator_id}
+                        blockedArray={blockedArray}
+                      />
+                    </div>
+                  )
+                ) : (
+                  ""
                 )}
 
                 <Tabs

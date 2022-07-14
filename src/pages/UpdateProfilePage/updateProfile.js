@@ -7,7 +7,7 @@ import NavBar from "components/NavBar/navBar";
 import profileStyles from "./updateProfile.module.css";
 import PersonalAvatar from "components/Avatar/avatar";
 import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+import BootstrapSwitchButton from "bootstrap-switch-button-react";
 
 //retrieve session from loginmain page and call getProfile method if session is read
 const UpdateProfilePage = ({ session, showSimpleToast }) => {
@@ -36,13 +36,11 @@ const UpdateProfilePage = ({ session, showSimpleToast }) => {
         "input[name='inlineRadioOptions']:checked"
       ).value;
       const newBio = document.getElementById("bio").value;
-      const newShowEmail = document.getElementById("showemail").checked;
-      const newShowGender = document.getElementById("showgender").checked;
-      const newShowBio = document.getElementById("showbio").checked;
+
       const preferencesUpdate = {
-        email: newShowEmail,
-        gender: newShowGender,
-        bio: newShowBio,
+        email: emailPreferences,
+        gender: genderPreferences,
+        bio: bioPreferences,
       };
       const updates = {
         id: user.id,
@@ -181,31 +179,29 @@ const ProfilePageBody = (props) => {
                       className="form-check-input"
                       type="radio"
                       name="inlineRadioOptions"
-                      id="gender1"
                       value="Male"
                       checked={genderOption === "Male" ? true : ""}
                       onChange={(e) => setGender(e.target.value)}
                     />
-                    <label className="form-check-label inter-medium-sapphire-20px ">
+                    <text className="form-check-label inter-medium-sapphire-20px ">
                       Male
-                    </label>
+                    </text>
                   </div>
                   <div className="form-check form-check-inline">
                     <input
                       className="form-check-input"
                       type="radio"
                       name="inlineRadioOptions"
-                      id="gender2"
                       value="Female"
                       checked={genderOption === "Female" ? true : ""}
                       onChange={(e) => setGender(e.target.value)}
                     />
-                    <label
+                    <text
                       className="form-check-label inter-medium-red-20px"
                       htmlFor="inlineRadio2"
                     >
                       Female
-                    </label>
+                    </text>
                   </div>
 
                   <div className="mt-8">
@@ -250,18 +246,20 @@ const ProfilePageBody = (props) => {
                     <div class="vr d-flex" style={{ height: "800px" }}></div>
                   </div>
                   <div className="col-10">
-                    <div className="nunitosans-bold-black-32px text-center">
-                      Preference setting:
+                    <div className="nunitosans-bold-black-32px my-3">
+                      Privacy setting:
                     </div>
-                    <Form>
+                    <div>
                       <div className="row my-3">
                         <label className="col-8 poppins-normal-black-24px">
                           Show email
                         </label>
-                        <Form.Check
+
+                        <BootstrapSwitchButton
                           className="col"
-                          type="switch"
-                          id="showemail"
+                          onstyle="primary"
+                          width={65}
+                          height={30}
                           checked={emailPreferences}
                           onChange={() =>
                             setEmailPreferences(
@@ -270,14 +268,16 @@ const ProfilePageBody = (props) => {
                           }
                         />
                       </div>
+
                       <div className="row">
                         <label className="col-8 poppins-normal-black-24px">
                           Show gender
                         </label>
-                        <Form.Check
+                        <BootstrapSwitchButton
                           className="col"
-                          type="switch"
-                          id="showgender"
+                          onstyle="success"
+                          width={65}
+                          height={30}
                           checked={genderPreferences}
                           onChange={() =>
                             setGenderPreferences(
@@ -291,10 +291,11 @@ const ProfilePageBody = (props) => {
                         <label className="col-8 poppins-normal-black-24px">
                           Show bio
                         </label>
-                        <Form.Check
+                        <BootstrapSwitchButton
+                          onstyle="warning"
                           className="col"
-                          type="switch"
-                          id="showbio"
+                          width={65}
+                          height={30}
                           checked={bioPreferences}
                           onChange={() =>
                             setBioPreferences(
@@ -303,7 +304,7 @@ const ProfilePageBody = (props) => {
                           }
                         />
                       </div>
-                    </Form>
+                    </div>
                   </div>
                 </div>
               </div>

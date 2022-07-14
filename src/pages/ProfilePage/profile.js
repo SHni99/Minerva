@@ -19,9 +19,9 @@ import BlockReportMenu from "components/BlockReportMenu/blockReportMenu";
 import Setting from "components/Setting/setting";
 import Modal from "react-bootstrap/Modal";
 
-const ViewProfilePage = ({ option, setOption }) => {
-  const { authData} = useContext(AuthContext);
-  const { blocked: blockedArray } = authData;
+const ViewProfilePage = () => {
+  const { authData } = useContext(AuthContext);
+  const { blocked: blockedArray, preferences, email } = authData;
   const { state } = useLocation();
   const unusedModalState = {
     show: false,
@@ -43,11 +43,11 @@ const ViewProfilePage = ({ option, setOption }) => {
       />
       <ProfilePageBody
         blockedArray={blockedArray}
+        preferences={preferences}
+        email={email}
         creator_id={state ? state.creator_id : supabaseClient.auth.user().id}
         setModalState={setModalState}
         hideModal={hideModal}
-        option={option}
-        setOption={setOption}
       />
       <FooterBar />
     </div>
@@ -62,8 +62,7 @@ const ProfilePageBody = ({
   setModalState,
   hideModal,
   blockedArray,
-  option,
-  setOption,
+  email,
 }) => {
   const [profileData, setProfileData] = useState({
     username: "",
@@ -84,6 +83,7 @@ const ProfilePageBody = ({
   const [show, setShow] = useState({
     email: false,
     bio: false,
+    gender: false,
   });
   const navigate = useNavigate();
 
@@ -151,7 +151,7 @@ const ProfilePageBody = ({
         setProfileLoading(true);
         let { data, error, status } = await supabaseClient
           .from("profiles")
-          .select(`username, avatar_url, bio, gender `)
+          .select(`username, avatar_url, bio, gender, email `)
           .eq("id", id)
           .single();
 
@@ -164,6 +164,7 @@ const ProfilePageBody = ({
             username: data.username,
             bio: data.bio,
             gender: data.gender,
+            email: data.email,
           });
         }
 
@@ -221,30 +222,34 @@ const ProfilePageBody = ({
       }
     };
 
-    const getOptions = async (option) => {
-      setShow({
-        email: option.includes("Show email") ? true : false,
-        bio: option.includes("Show bio") ? true : false,
-        gender: option.includes("Show gender") ? true : false,
-      });
+    const getOptions = async (id) => {
+      try {
+        const { data: operation, error } = await supabaseClient
+          .from("profiles")
+          .select("preferences")
+          .eq("id", id)
+          .single();
+
+        console.log(operation.preferences.email);
+        if (error) throw error;
+        setShow({
+          email: operation.preferences.email,
+          bio: operation.preferences.bio,
+          gender: operation.preferences.gender,
+        });
+      } catch (error) {
+        alert(error.message);
+      }
     };
 
-    if (checkId === creator_id) {
-      if (!checkId) return;
-      setcheckUser(false);
-      getBlockedStatus(checkId);
-      getProfile(checkId);
-      getReview(checkId);
-      getAllIndex(checkId);
-      getOptions(option);
-    } else {
-      setcheckUser(true);
-      getBlockedStatus(creator_id);
-      getProfile(creator_id);
-      getReview(creator_id);
-      getAllIndex(creator_id);
-    }
-  }, [checkId, creator_id, blockedArray, option]);
+    setcheckUser(checkId === creator_id ? false : true);
+    getBlockedStatus(checkId === creator_id ? checkId : creator_id);
+    getProfile(checkId === creator_id ? checkId : creator_id);
+    getReview(checkId === creator_id ? checkId : creator_id);
+    getAllIndex(checkId === creator_id ? checkId : creator_id);
+    getOptions(checkId === creator_id ? checkId : creator_id);
+    //getEmail(checkId === creator_id ? checkId : creator_id);
+  }, [checkId, creator_id, blockedArray]);
 
   const popover = (
     <Popover>
@@ -304,7 +309,7 @@ const ProfilePageBody = ({
                   </div>
                 </OverlayTrigger>
                 {show.gender ? (
-                  <div className="my-4 poppins-normal-black-24px">
+                  <div className="my-3 poppins-normal-black-24px">
                     Gender:{" "}
                     {profileData.gender === "Female" ? (
                       <div className="poppins-normal-red-24px">Female</div>
@@ -321,11 +326,9 @@ const ProfilePageBody = ({
                 )}
 
                 {show.email ? (
-                  <div>
+                  <div className="my-3">
                     <label className="poppins-normal-black-24px">Email:</label>
-                    <div className="text mb-3">
-                      {supabaseClient.auth.user().email}
-                    </div>
+                    <div className="text ">{profileData.email}</div>
                   </div>
                 ) : (
                   ""
@@ -350,12 +353,10 @@ const ProfilePageBody = ({
                 {!checkUser ? (
                   <Setting
                     showModal={(title, body, footer) =>
-                      setModalState({ show: true, title, body, footer})
+                      setModalState({ show: true, title, body, footer })
                     }
                     onHide={hideModal}
                     blockedArray={blockedArray}
-                    setOption={setOption}
-                    option={option}
                   ></Setting>
                 ) : (
                   <div className="d-flex justify-center justify-content-lg-end align-items-center mb-5 mt-3 my-lg-0">

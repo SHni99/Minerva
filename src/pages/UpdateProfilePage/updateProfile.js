@@ -1,5 +1,6 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "util/AuthContext";
 import { supabaseClient } from "../../config/supabase-client";
 import FooterBar from "components/FooterBar/footerBar";
 import NavBar from "components/NavBar/navBar";
@@ -9,67 +10,47 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
 //retrieve session from loginmain page and call getProfile method if session is read
-const UpdateProfilePage = ({ session }) => {
+const UpdateProfilePage = ({ session, showSimpleToast }) => {
+  const { authData } = useContext(AuthContext);
+  const { username, gender, preferences, bio, avatar_url } = authData;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
-  const [avatar_url, setAvatarUrl] = useState("");
-  const [gender, setGender] = useState("");
-  const [bio, setBio] = useState("");
-  const [preferences, setPreferences] = useState({
-    lookingFor : false,
-    gender: false,
-    email: false,
-    bio: false
-  })
+  const [genderOption, setGender] = useState(gender);
+  const [emailPreferences, setEmailPreferences] = useState(
+    preferences.email === (undefined || false) ? false : true
+  );
+  const [genderPreferences, setGenderPreferences] = useState(
+    preferences.gender === (undefined || false) ? false : true
+  );
+  const [bioPreferences, setBioPreferences] = useState(
+    preferences.bio === (undefined || false) ? false : true
+  );
 
-  useEffect(() => {
-    getProfile();
-  }, [session]);
-
-  // get data from profiles table in supabase
-  const getProfile = async () => {
-    try {
-      setLoading(true);
-      const user = supabaseClient.auth.user();
-
-      let { data, error, status } = await supabaseClient
-        .from("profiles")
-        .select(`username, avatar_url, gender, bio, preferences`)
-        .eq("id", user.id)
-        .single();
-
-      if (error && status !== 406) {
-        throw error;
-      }
-
-      if (data) {
-        setPreferences(data.preferences);
-        setUsername(data.username);
-        setAvatarUrl(data.avatar_url);
-        setGender(data.gender);
-        setBio(data.bio);
-      }
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  //modify the data components in supabase and set its states to new values
   async function updateProfile() {
     try {
       setLoading(true);
-      const user = supabaseClient.auth.user();
 
+      const user = supabaseClient.auth.user();
+      const newUsername = document.getElementById("username").value;
+      const newGender = document.querySelector(
+        "input[name='inlineRadioOptions']:checked"
+      ).value;
+      const newBio = document.getElementById("bio").value;
+      const newShowEmail = document.getElementById("showemail").checked;
+      const newShowGender = document.getElementById("showgender").checked;
+      const newShowBio = document.getElementById("showbio").checked;
+      const preferencesUpdate = {
+        email: newShowEmail,
+        gender: newShowGender,
+        bio: newShowBio,
+      };
       const updates = {
         id: user.id,
-        username,
-        avatar_url,
-        gender,
-        bio,
-        preferences,
+        username: newUsername,
+        gender: newGender,
+        bio: newBio,
+        email: session.user.email,
+        preferences: preferencesUpdate,
         updated_at: new Date(),
       };
 
@@ -78,6 +59,8 @@ const UpdateProfilePage = ({ session }) => {
       });
 
       if (error) throw error;
+      showSimpleToast("Updated", "You have successfully updated!", 2000);
+      navigate("/listingspage");
     } catch (error) {
       alert(error.message);
     } finally {
@@ -109,20 +92,21 @@ const UpdateProfilePage = ({ session }) => {
     >
       <NavBar />
       <ProfilePageBody
+        bio={bio}
         session={session}
         username={username}
-        avatar_url={avatar_url}
-        setUsername={setUsername}
-        gender={gender}
+        avatar_url={avatar_url.split("/").at(-1)}
+        genderOption={genderOption}
         setGender={setGender}
-        bio={bio}
-        setBio={setBio}
+        genderPreferences={genderPreferences}
+        bioPreferences={bioPreferences}
+        setBioPreferences={setBioPreferences}
+        setGenderPreferences={setGenderPreferences}
+        setEmailPreferences={setEmailPreferences}
+        emailPreferences={emailPreferences}
         navigate={navigate}
-        preferences={preferences}
-        setPreferences={setPreferences}
         handleLogout={handleLogout}
         updateProfile={updateProfile}
-        setAvatarUrl={setAvatarUrl}
         loading={loading}
       />
       <FooterBar />
@@ -136,58 +120,23 @@ export default UpdateProfilePage;
 const ProfilePageBody = (props) => {
   //call every params under props (from ProfilePage)
   const {
+    bio,
     session,
     username,
-    setUsername,
-    gender,
+    genderOption,
     setGender,
-    bio,
-    preferences,
-    setPreferences,
-    setBio,
+    genderPreferences,
+    bioPreferences,
+    setBioPreferences,
+    setGenderPreferences,
+    setEmailPreferences,
+    emailPreferences,
     navigate,
     handleLogout,
     avatar_url,
     updateProfile,
-    setAvatarUrl,
     loading,
   } = props;
-
-  const isChecked = () => {
-    //var switch_1 = document.getElementById("tutee");
-    //var switch_2 = document.getElementById("tutor");
-    var switch_3 = document.getElementById("email");
-    var switch_4 = document.getElementById("gender");
-    //var switch_5 = document.getElementById("bio");
-
-    if(switch_3.checked){
-      setPreferences(
-        ...preferences,
-        {
-          email: true
-        }
-      )
-    } else{
-      setPreferences(
-        ...preferences,
-        {
-          gemail: false
-        }
-      )
-    }
-
-    if(switch_4.checked){
-      setPreferences(
-        ...preferences,
-        {
-          gender: true
-        }
-      )
-    } else{
-      
-    }
-  }
-
 
   return (
     <div
@@ -203,14 +152,12 @@ const ProfilePageBody = (props) => {
         >
           <div className="card-body mt-4">
             <div className="row">
-              <div className="col-12">
+              <div className="col-7">
                 <PersonalAvatar //user can upload from his side, will update avatar_url under the profile table
                   className="align-self"
                   url={avatar_url}
-                  onUpload={(url) => {
-                    setAvatarUrl(url);
-                  }}
                   loading={loading}
+                  id="avatar"
                 />
 
                 <div className="mt-4">
@@ -222,8 +169,8 @@ const ProfilePageBody = (props) => {
                 <form>
                   <input
                     type="text"
-                    value={username || ""}
-                    onChange={(e) => setUsername(e.target.value)}
+                    id="username"
+                    defaultValue={username || ""}
                     className="form-control form-control-lg m-auto"
                   ></input>
                   <div className="mt-8">
@@ -234,15 +181,12 @@ const ProfilePageBody = (props) => {
                       className="form-check-input"
                       type="radio"
                       name="inlineRadioOptions"
-                      id="inlineRadio1"
+                      id="gender1"
                       value="Male"
-                      checked={gender === "Male" ? true : ""}
+                      checked={genderOption === "Male" ? true : ""}
                       onChange={(e) => setGender(e.target.value)}
                     />
-                    <label
-                      className="form-check-label inter-medium-sapphire-20px "
-                      htmlFor="inlineRadio1"
-                    >
+                    <label className="form-check-label inter-medium-sapphire-20px ">
                       Male
                     </label>
                   </div>
@@ -251,9 +195,9 @@ const ProfilePageBody = (props) => {
                       className="form-check-input"
                       type="radio"
                       name="inlineRadioOptions"
-                      id="inlineRadio2"
+                      id="gender2"
                       value="Female"
-                      checked={gender === "Female" ? true : ""}
+                      checked={genderOption === "Female" ? true : ""}
                       onChange={(e) => setGender(e.target.value)}
                     />
                     <label
@@ -268,10 +212,9 @@ const ProfilePageBody = (props) => {
                     <h2>Bio</h2>
                   </div>
                   <input
-                    type="text"
-                    placeholder={bio || ""}
-                    onChange={(e) => setBio(e.target.value)}
+                    defaultValue={bio}
                     className="form-control form-control-lg m-auto"
+                    id="bio"
                   ></input>
 
                   <Button //logout button: supabase logout function
@@ -295,55 +238,71 @@ const ProfilePageBody = (props) => {
                     }}
                     onClick={() => {
                       updateProfile();
-                      alert("updated");
-                      navigate("/listingspage");
                     }}
                   >
                     <strong>{loading ? "Updating" : "Update"}</strong>
                   </Button>
                 </form>
               </div>
-              <div className="col-5" style={{display: "none"}}>
+              <div className="col-5">
                 <div className="row">
                   <div className="col-1">
                     <div class="vr d-flex" style={{ height: "800px" }}></div>
                   </div>
                   <div className="col-10">
-                    <div className="nunitosans-bold-black-32px">preference setting: toggle on to display it publicly</div>
+                    <div className="nunitosans-bold-black-32px text-center">
+                      Preference setting:
+                    </div>
                     <Form>
-                    <div className="row my-3"><label className="col-8 poppins-normal-black-24px">Show tutee</label>
-                      <Form.Check
-                        className=" col"
-                        type="switch"
-                        id="tutee"
-                      /></div>
-                      <div className="row"><label className="col-8 poppins-normal-black-24px">Show tutor</label>
-                      <Form.Check
-                        className=" col"
-                        type="switch"
-                        id="tutor"
-                      /></div>
-                      <div className="row my-3"><label className="col-8 poppins-normal-black-24px">Show email</label>
-                      <Form.Check
-                        className=" col"
-                        type="switch"
-                        id="email"
-                        onClick={isChecked}
-                      /></div>
-                      <div className="row"><label className="col-8 poppins-normal-black-24px">Show gender</label>
-                      <Form.Check
-                        className="col"
-                        type="switch"
-                        id="gender"
-                        onClick={isChecked}
-                      /></div>
-                      
-                      <div className="row my-3"><label className="col-8 poppins-normal-black-24px">Show bio</label>
-                      <Form.Check
-                        className=" col "
-                        type="switch"
-                        id="bio"
-                      /></div>
+                      <div className="row my-3">
+                        <label className="col-8 poppins-normal-black-24px">
+                          Show email
+                        </label>
+                        <Form.Check
+                          className="col"
+                          type="switch"
+                          id="showemail"
+                          checked={emailPreferences}
+                          onChange={() =>
+                            setEmailPreferences(
+                              emailPreferences === false ? true : false
+                            )
+                          }
+                        />
+                      </div>
+                      <div className="row">
+                        <label className="col-8 poppins-normal-black-24px">
+                          Show gender
+                        </label>
+                        <Form.Check
+                          className="col"
+                          type="switch"
+                          id="showgender"
+                          checked={genderPreferences}
+                          onChange={() =>
+                            setGenderPreferences(
+                              genderPreferences === false ? true : false
+                            )
+                          }
+                        />
+                      </div>
+
+                      <div className="row my-3">
+                        <label className="col-8 poppins-normal-black-24px">
+                          Show bio
+                        </label>
+                        <Form.Check
+                          className="col"
+                          type="switch"
+                          id="showbio"
+                          checked={bioPreferences}
+                          onChange={() =>
+                            setBioPreferences(
+                              bioPreferences === false ? true : false
+                            )
+                          }
+                        />
+                      </div>
                     </Form>
                   </div>
                 </div>

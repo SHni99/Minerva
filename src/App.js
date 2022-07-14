@@ -32,7 +32,6 @@ function App() {
     closeButton,
   } = toastOptions;
   // ========================== End of global Toast ==========================
-  const [option, setOption] = useState([]);
   // =================== Start of AuthContext initialisation =================
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
 
@@ -46,6 +45,7 @@ function App() {
       blocked,
       gender,
       bio,
+      email
     } = profileData;
     return {
       logged_in: true,
@@ -58,8 +58,9 @@ function App() {
         ? supabaseClient.storage.from("avatars").getPublicUrl(avatar_url)
             .publicURL
         : "/images/img_avatarDefault.jpg",
-      id,
-      blocked,
+      id, 
+      blocked, 
+      email
     };
   };
   // Initialise authData and setup listeners, only done once at the start.
@@ -99,6 +100,7 @@ function App() {
           id: null,
           bio: null,
           gender: null,
+          email: null
         };
 
       const { user } = session;
@@ -130,11 +132,7 @@ function App() {
 
   return (
     <>
-      <Routes
-        setToastOptions={setToastOptions}
-        option={option}
-        setOption={setOption}
-      />
+      <Routes setToastOptions={setToastOptions} />
       <ToastContainer
         position={position}
         className={"position-fixed " + containerClasses}

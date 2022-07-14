@@ -17,12 +17,11 @@ import ProfilePage from "pages/ProfilePage/profile";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFound from "pages/NotFound";
 import ChatPage from "pages/ChatPage/chatPage";
-import ReviewPage from "pages/ReviewPage/reviewPage";
 import ViewReportsPage from "pages/ViewReportsPage/viewReportsPage";
 import ChatLogsPage from "pages/ChatLogsPage/chatLogsPage";
 import HashLoader from "react-spinners/HashLoader";
 
-const ProjectRoutes = ({ setToastOptions, option, setOption }) => {
+const ProjectRoutes = ({ setToastOptions }) => {
   // Simplify toast showing
   const showSimpleToast = (title, message, timeout) =>
     setToastOptions({
@@ -53,8 +52,6 @@ const ProjectRoutes = ({ setToastOptions, option, setOption }) => {
             showSimpleToast={showSimpleToast}
             setToastOptions={setToastOptions}
             authLoading={authLoading}
-            option={option}
-            setOption={setOption}
           />
         )}
       </Router>
@@ -69,8 +66,6 @@ const AnimatedRoutes = ({
   showSimpleToast,
   setToastOptions,
   authLoading,
-  option,
-  setOption,
 }) => {
   // Add TransitionGroup and CSSTransition for animations
   return authLoading ? (
@@ -90,13 +85,13 @@ const AnimatedRoutes = ({
       <Route path="/create-listing" element={<CreateListingPage />} />
       <Route path="/passwordpage" element={<PasswordPage />} />
       <Route path="/resetpage" element={<ResetPage />} />
-      <Route path="/loginmainpage" element={<LoginMainPage />} />
+      <Route path="/loginmainpage" element={<LoginMainPage showSimpleToast={showSimpleToast}/>} />
       <Route path="/formpage" element={<ReviewForm />} />
       <Route
         path="/profile"
-        element={<ProfilePage option={option} setOption={setOption} />}
+        element={<ProfilePage />}
       />
-      <Route path="/review" element={<ReviewPage />} />
+    
       <Route path="/chats" element={<ChatPage />} />
       <Route
         path="/reports"

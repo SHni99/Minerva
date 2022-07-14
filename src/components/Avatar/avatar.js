@@ -25,7 +25,7 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   );
 }
 
-const PersonalAvatar = ({ url, onUpload, loading }) => {
+const PersonalAvatar = ({ url, loading }) => {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [tempAvatar, setTempAvatar] = useState(null);
@@ -143,7 +143,7 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
           if (getURLError) throw getURLError;
 
           setAvatarUrl(publicURL);
-          onUpload(fileName);
+          
         } catch (error) {
           alert(error.message);
         } finally {

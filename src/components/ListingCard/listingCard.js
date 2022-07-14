@@ -14,6 +14,7 @@ const ListingCard = ({
   setModalState,
   creator_id,
   listing_id,
+  avg_rating,
 }) => {
   const levelParams = {
     primary: "Primary",
@@ -34,6 +35,7 @@ const ListingCard = ({
       fields,
       creator_id,
       listing_id,
+      avg_rating,
     });
   };
   return (

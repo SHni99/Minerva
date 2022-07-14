@@ -213,7 +213,6 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     const listingSub = supabase
       .from("listings")
       .on("INSERT", async (payload) => {
-        // const newListingData = await parseListing(payload.new);
         try {
           const { data: newListingData, error } = await supabase
             .rpc("get_listings")
@@ -260,6 +259,7 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
               image_urls,
               listing_id,
               creator_id,
+              avg_rating,
             }) => {
               return (
                 <ListingCard
@@ -277,6 +277,7 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
                   fields={fields}
                   setModalState={setModalState}
                   creator_id={creator_id}
+                  avg_rating={avg_rating}
                 />
               );
             }

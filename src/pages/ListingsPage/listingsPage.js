@@ -13,6 +13,7 @@ import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
 import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
+import Select from "react-select";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
@@ -48,6 +49,25 @@ const ListingsPage = () => {
 export default ListingsPage;
 
 const ListingPageBody = ({ setModalState, blockedArray }) => {
+  // Options for sort field
+  const sortOptions = [
+    { value: "created_at desc", label: "Newest to Oldest" },
+    { value: "created_at asc", label: "Oldest to Newest" },
+    { value: "avg_rating desc", label: "Highest to Lowest Rating" },
+    { value: "avg_rating asc", label: "Lowest to Highest Rating" },
+    { value: "num_reviews desc", label: "Most to Least Reviews" },
+    { value: "num_reviews asc", label: "Least to Most Reviews" },
+  ];
+
+  // Options for the targeted education level filter
+  const levelOptions = [
+    { value: "primary", label: "Primary" },
+    { value: "secondary", label: "Secondary" },
+    { value: "tertiary", label: "Tertiary" },
+    { value: "undergrad", label: "Undergraduate" },
+    { value: "grad", label: "Graduate" },
+    { value: "others", label: "Others" },
+  ];
   // Stores the text of the tutor/tutee toggle
   // Loads previously saved tutor/tutee, if applicable
   const [tutorTutee, setTutorTutee] = useState(
@@ -55,9 +75,23 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   );
   // Stores the text entered into the search bar
   const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState([]);
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
+  };
+
+  const createFilterHandler = (filterName) => {
+    return (option, action) => {
+      console.log(option, action);
+      if (action.action === "clear")
+        setFilters((old) => old.filter(({ name }) => name !== filterName));
+      else
+        setFilters((old) => [
+          ...old,
+          { name: filterName, value: option.value },
+        ]);
+    };
   };
 
   return (
@@ -101,9 +135,79 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
         </div>
       </div>
 
+      <Row className="py-2">
+        <Col xs="auto">
+          <Select
+            placeholder="Sort by..."
+            options={sortOptions}
+            defaultValue={sortOptions[0]}
+            styles={{
+              control: (props) => ({
+                ...props,
+                borderRadius: "20px",
+              }),
+              singleValue: (props) => ({
+                ...props,
+                display: "flex",
+                justifyContent: "center",
+                "::before": {
+                  content: '"Sort: "',
+                  display: "block",
+                  marginRight: "4px",
+                  color: "gray",
+                },
+              }),
+            }}
+            components={{
+              IndicatorSeparator: () => null,
+              DropdownIndicator: () => null,
+            }}
+            isSearchable={false}
+          />
+        </Col>
+        <Col xs="auto d-flex p-0">
+          <div className="vr my-auto" style={{ height: "24px" }} />
+        </Col>
+        <Col xs="auto">
+          <Select
+            placeholder="Level"
+            options={levelOptions}
+            styles={{
+              control: (props) => ({
+                ...props,
+                borderRadius: "20px",
+                backgroundColor:
+                  filters.filter(({ name }) => name === "level").length === 0
+                    ? "white"
+                    : "#d4e9e4",
+              }),
+              singleValue: (props) => ({
+                ...props,
+                display: "flex",
+                justifyContent: "center",
+                paddingLeft: "4px",
+                color: "#026958",
+              }),
+              menu: (props) => ({ ...props, width: "10em" }),
+              clearIndicator: (props) => ({
+                ...props,
+                paddingLeft: 0,
+              }),
+            }}
+            components={{
+              IndicatorSeparator: () => null,
+              DropdownIndicator: () => null,
+            }}
+            onChange={createFilterHandler("level")}
+            isSearchable={false}
+            isClearable
+          />
+        </Col>
+      </Row>
+
       {/* Legend for the listing field badge colors */}
       <div
-        className="pt-5 pb-2 px-sm-2 d-flex flex-row justify-center"
+        className="pb-2 px-sm-2 d-flex flex-row justify-center"
         style={{ fontFamily: "Nunito" }}
       >
         <h5 className="text-center">

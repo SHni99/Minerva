@@ -141,3 +141,7 @@
   margin: 0px 30px;
   width: 90%;
 }
+
+:global(.carousel-control-next), :global(.carousel-control-prev) {
+  z-index: 0 !important
+}

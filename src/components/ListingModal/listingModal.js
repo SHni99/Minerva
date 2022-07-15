@@ -128,22 +128,24 @@ const ListingModal = (props) => {
             >
               View Profile
             </Button>
-            <Button
-              className="px-5"
-              onClick={() =>
-                navigate("/chats", {
-                  state: {
-                    startChatData: {
-                      user_id: creator_id,
-                      name: username,
-                      src: avatarUrl,
+            {supabase.auth.user() && (
+              <Button
+                className="px-5"
+                onClick={() =>
+                  navigate("/chats", {
+                    state: {
+                      startChatData: {
+                        user_id: creator_id,
+                        name: username,
+                        src: avatarUrl,
+                      },
                     },
-                  },
-                })
-              }
-            >
-              Chat
-            </Button>
+                  })
+                }
+              >
+                Chat
+              </Button>
+            )}
           </>
         )}
       </Modal.Footer>

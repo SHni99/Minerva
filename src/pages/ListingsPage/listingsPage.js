@@ -6,6 +6,7 @@ import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
 import { debounce } from "lodash";
+import { components } from "react-select";
 import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -192,26 +193,25 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                     ? "white"
                     : "#d4e9e4",
               }),
-              // multiValueLabel: (props) => ({
-              //   ...props,
-              //   display: "flex",
-              //   justifyContent: "center",
-              //   paddingLeft: "4px",
-              //   color: "#026958",
-              // }),
-              // multiValue: (props) => ({
-              //   ...props,
-              //   backgroundColor: "none",
-              // }),
-              menu: (props) => ({ ...props, width: "10em" }),
+              menu: (props) => ({ ...props, width: "12em" }),
               clearIndicator: (props) => ({
                 ...props,
                 paddingLeft: 0,
               }),
+              valueContainer: (props) => ({ ...props, paddingRight: "0px" }),
+              dropdownIndicator: (props, state) => ({
+                ...props,
+                paddingLeft: "0px",
+                display: state.getValue().length > 0 ? "none" : "flex",
+              }),
+              option: (props, state) => ({
+                ...props,
+                backgroundColor: "white",
+                color: "black",
+              }),
             }}
             components={{
               IndicatorSeparator: () => null,
-              DropdownIndicator: () => null,
               MultiValueRemove: () => null,
               MultiValue: (state) => {
                 const numSelected = state.getValue().length;
@@ -228,10 +228,12 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                   </p>
                 );
               },
+              Option: CheckboxOption,
             }}
             onChange={createFilterHandler("level", true)}
             isSearchable={false}
             closeMenuOnSelect={false}
+            hideSelectedOptions={false}
             isClearable
             isMulti
           />
@@ -434,4 +436,13 @@ const MultiBadge = ({ children }) => (
   >
     {children}
   </Badge>
+);
+
+const CheckboxOption = (props) => (
+  <div>
+    <components.Option {...props}>
+      <input type="checkbox" checked={props.isSelected} className="me-2" />
+      <label>{props.label}</label>
+    </components.Option>
+  </div>
 );

@@ -14,6 +14,7 @@ import Spinner from "react-bootstrap/Spinner";
 import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
 import Select from "react-select";
+import Badge from "react-bootstrap/Badge";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
@@ -81,17 +82,27 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
     setQuery(document.getElementById("search-input").value);
   };
 
-  const createFilterHandler = (filterName) => {
-    return (option, action) => {
-      console.log(option, action);
-      if (action.action === "clear")
-        setFilters((old) => old.filter(({ name }) => name !== filterName));
-      else
-        setFilters((old) => [
-          ...old,
-          { name: filterName, value: option.value },
-        ]);
-    };
+  const createFilterHandler = (filterName, isMulti) => {
+    if (!isMulti)
+      return (option, action) => {
+        if (action.action === "clear")
+          setFilters((old) => old.filter(({ name }) => name !== filterName));
+        else
+          setFilters((old) => [
+            ...old,
+            { name: filterName, value: option.value },
+          ]);
+      };
+    else
+      return (option) => {
+        if (option.length === 0)
+          setFilters((old) => old.filter(({ name }) => name !== filterName));
+        else
+          setFilters((old) => [
+            ...old.filter(({ name }) => name !== filterName),
+            { name: filterName, value: option },
+          ]);
+      };
   };
 
   return (
@@ -181,13 +192,17 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                     ? "white"
                     : "#d4e9e4",
               }),
-              singleValue: (props) => ({
-                ...props,
-                display: "flex",
-                justifyContent: "center",
-                paddingLeft: "4px",
-                color: "#026958",
-              }),
+              // multiValueLabel: (props) => ({
+              //   ...props,
+              //   display: "flex",
+              //   justifyContent: "center",
+              //   paddingLeft: "4px",
+              //   color: "#026958",
+              // }),
+              // multiValue: (props) => ({
+              //   ...props,
+              //   backgroundColor: "none",
+              // }),
               menu: (props) => ({ ...props, width: "10em" }),
               clearIndicator: (props) => ({
                 ...props,
@@ -197,10 +212,28 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             components={{
               IndicatorSeparator: () => null,
               DropdownIndicator: () => null,
+              MultiValueRemove: () => null,
+              MultiValue: (state) => {
+                const numSelected = state.getValue().length;
+                if (numSelected > 1 && state.index > 0) return <></>;
+                return (
+                  <p
+                    className="m-0 ps-1 d-flex align-center"
+                    style={{
+                      color: "#026958",
+                    }}
+                  >
+                    {numSelected > 1 ? "Levels" : state.data.label}
+                    {numSelected > 1 && <MultiBadge>{numSelected}</MultiBadge>}
+                  </p>
+                );
+              },
             }}
-            onChange={createFilterHandler("level")}
+            onChange={createFilterHandler("level", true)}
             isSearchable={false}
+            closeMenuOnSelect={false}
             isClearable
+            isMulti
           />
         </Col>
       </Row>
@@ -391,3 +424,14 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     </div>
   );
 };
+
+const MultiBadge = ({ children }) => (
+  <Badge
+    bg="success"
+    className="ms-2 my-auto"
+    style={{ padding: "4px 6px" }}
+    pill
+  >
+    {children}
+  </Badge>
+);

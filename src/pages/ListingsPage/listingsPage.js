@@ -15,6 +15,7 @@ import Spinner from "react-bootstrap/Spinner";
 import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
 import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 import Badge from "react-bootstrap/Badge";
 
 const ListingsPage = () => {
@@ -70,6 +71,16 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
     { value: "grad", label: "Graduate" },
     { value: "others", label: "Others" },
   ];
+
+  // Options for the Subject filter
+  const subjectOptions = [
+    { value: "math", label: "Math" },
+    { value: "english", label: "English" },
+    { value: "science", label: "Science" },
+    { value: "literature", label: "Literature" },
+    { value: "geography", label: "Geography" },
+  ];
+
   // Stores the text of the tutor/tutee toggle
   // Loads previously saved tutor/tutee, if applicable
   const [tutorTutee, setTutorTutee] = useState(
@@ -83,7 +94,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
     setQuery(document.getElementById("search-input").value);
   };
 
-  const createFilterHandler = (filterName, isMulti) => {
+  const createFilterHandler = (filterName, isMulti, setCreatableState) => {
     if (!isMulti)
       return (option, action) => {
         if (action.action === "clear")
@@ -95,7 +106,12 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
           ]);
       };
     else
-      return (option) => {
+      return (option, action) => {
+        // Check if new option is being created
+        if (action.action === "create-option") {
+          setCreatableState((old) => [...old, action.option]);
+        }
+
         if (option.length === 0)
           setFilters((old) => old.filter(({ name }) => name !== filterName));
         else
@@ -206,7 +222,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
               }),
               option: (props, state) => ({
                 ...props,
-                backgroundColor: "white",
+                backgroundColor: state.isSelected ? "#F0F0F0" : "white",
                 color: "black",
               }),
             }}
@@ -223,7 +239,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                       color: "#026958",
                     }}
                   >
-                    {numSelected > 1 ? "Levels" : state.data.label}
+                    {numSelected > 1 ? "Level" : state.data.label}
                     {numSelected > 1 && <MultiBadge>{numSelected}</MultiBadge>}
                   </p>
                 );
@@ -236,6 +252,15 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             hideSelectedOptions={false}
             isClearable
             isMulti
+          />
+        </Col>
+        <Col xs="auto" className="ps-0">
+          <TagFilter
+            tagType="subject"
+            tagLabel="Subject"
+            defaultOptions={subjectOptions}
+            filterState={[filters, setFilters]}
+            createFilterHandler={createFilterHandler}
           />
         </Col>
       </Row>
@@ -438,10 +463,83 @@ const MultiBadge = ({ children }) => (
   </Badge>
 );
 
+const TagFilter = ({
+  tagType,
+  tagLabel,
+  defaultOptions,
+  filterState: [filters, setFilters],
+  createFilterHandler,
+}) => {
+  const [options, setOptions] = useState(defaultOptions);
+
+  return (
+    <CreatableSelect
+      options={options}
+      placeholder={tagLabel}
+      styles={{
+        control: (props) => ({
+          ...props,
+          borderRadius: "20px",
+          backgroundColor:
+            filters.filter(({ name }) => name === tagType).length === 0
+              ? "white"
+              : "#d4e9e4",
+        }),
+        menu: (props) => ({ ...props, width: "12em" }),
+        clearIndicator: (props) => ({
+          ...props,
+          paddingLeft: 0,
+        }),
+        valueContainer: (props) => ({ ...props, paddingRight: "0px" }),
+        dropdownIndicator: (props, state) => ({
+          ...props,
+          paddingLeft: "0px",
+          display: state.getValue().length > 0 ? "none" : "flex",
+        }),
+        option: (props, state) => ({
+          ...props,
+          backgroundColor: state.isSelected ? "#F0F0F0" : "white",
+          color: "black",
+        }),
+      }}
+      components={{
+        IndicatorSeparator: () => null,
+        MultiValueRemove: () => null,
+        MultiValue: (state) => {
+          const numSelected = state.getValue().length;
+          if (numSelected > 1 && state.index > 0) return <></>;
+          return (
+            <p
+              className="m-0 ps-1 d-flex align-center"
+              style={{
+                color: "#026958",
+              }}
+            >
+              {numSelected > 1 ? tagLabel : state.data.label}
+              {numSelected > 1 && <MultiBadge>{numSelected}</MultiBadge>}
+            </p>
+          );
+        },
+        Option: CheckboxOption,
+      }}
+      onChange={createFilterHandler(tagType, true, setOptions)}
+      closeMenuOnSelect={false}
+      hideSelectedOptions={false}
+      isClearable
+      isMulti
+    />
+  );
+};
+
 const CheckboxOption = (props) => (
   <div>
     <components.Option {...props}>
-      <input type="checkbox" checked={props.isSelected} className="me-2" />
+      <input
+        type="checkbox"
+        checked={props.isSelected}
+        className="me-2"
+        readOnly
+      />
       <label>{props.label}</label>
     </components.Option>
   </div>

@@ -74,7 +74,7 @@ const ChatPageBody = ({
   startChatData,
   setModalState,
   unusedModalState,
-  blockedArray
+  blockedArray,
 }) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
@@ -119,7 +119,7 @@ const ChatPageBody = ({
   const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
-  const uid = supabase.auth.user().id;
+  const uid = supabase.auth.user()?.id;
 
   // Helper functions to add/remove classes from elements
   const removeClass = (elem, name) => {
@@ -800,6 +800,9 @@ const ChatPageBody = ({
   // Run only once, at the start.
   // Currently only supports direct messages. Group chats might be added (TBC)
   useEffect(() => {
+    // First check if user is signed in! Guests should not be able to see this page.
+    if (!uid) navigate("/loginpage");
+
     const fetchConvos = async () => {
       try {
         setLoadingConvos(true);

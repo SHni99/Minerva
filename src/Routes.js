@@ -61,7 +61,6 @@ const ProjectRoutes = ({ setToastOptions }) => {
           isBanned={isBanned}
           showSimpleToast={showSimpleToast}
           setToastOptions={setToastOptions}
-          authLoading={authLoading}
           option={option}
           setOption={setOption}
         />
@@ -76,7 +75,8 @@ const AnimatedRoutes = ({
   isBanned,
   showSimpleToast,
   setToastOptions,
-  authLoading,
+  option,
+  setOption,
 }) => {
   // Add TransitionGroup and CSSTransition for animations
   return !isBanned ? (

@@ -102,7 +102,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   // Stores the text entered into the search bar
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState([]);
-  const [sortBy, setSortBy] = useState(null);
+  const [sortBy, setSortBy] = useState("created_at desc");
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
@@ -342,7 +342,14 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   );
 };
 
-const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
+const Listings = ({
+  tutorTutee,
+  query,
+  setModalState,
+  blockedArray,
+  filters,
+  sortBy,
+}) => {
   const [listingData, setListingData] = useState([]);
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
@@ -357,15 +364,24 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
       .toLowerCase()
       .includes(query.toLowerCase());
 
+  const createComparator = (sortBy) => {
+    if (!sortBy) return () => 0;
+    const [field, order] = sortBy.split(" ");
+    if (order === "asc") return (a, b) => a[field] - b[field];
+    else return (a, b) => b[field] - a[field];
+  };
+
   // Fetch listings from Supabase and display using ListingCards
   useEffect(() => {
     const getListings = async () => {
+      const [sortField, sortOrder] = sortBy.split(" ");
       try {
         setLoading(true);
         // Fetch data using `get_listings()` RPC call
         let { data: listingDb, error: listingError } = await supabase
           .rpc("get_listings")
-          .eq("seeking_for", tutorTutee);
+          .eq("seeking_for", tutorTutee)
+          .order(sortField, { ascending: sortOrder === "asc" });
         if (listingError) throw listingError;
 
         // Filter using the selected criteria
@@ -396,7 +412,7 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     // (because we are actively mutating `listingData` on each call!)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tutorTutee, query]);
+  }, [tutorTutee, query, sortBy]);
 
   useEffect(() => {
     // Setup listener
@@ -409,7 +425,7 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
           );
           if (error) throw error;
 
-          setListingData(newListingData);
+          setListingData(newListingData.sort(createComparator(sortBy)));
         } catch (error) {
           alert(error.message);
         }
@@ -424,6 +440,11 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
       .subscribe();
 
     return () => supabase.removeSubscription(listingSub);
+
+    // We are disabling the dependency warning as we only wish to
+    // run this block once, at the start.
+    //
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

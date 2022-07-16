@@ -103,7 +103,9 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   // Stores the text entered into the search bar
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState([]);
-  const [sortBy, setSortBy] = useState("created_at desc");
+  const [sortBy, setSortBy] = useState(
+    localStorage.getItem("sortBy") || "created_at desc"
+  );
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
@@ -186,7 +188,11 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
           <Select
             placeholder="Sort by..."
             options={sortOptions}
-            defaultValue={sortOptions[0]}
+            defaultValue={
+              sortOptions.filter(
+                ({ value }) => value === localStorage.getItem("sortBy")
+              ) || sortOptions[0]
+            }
             styles={{
               control: (props) => ({
                 ...props,
@@ -208,7 +214,10 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
               IndicatorSeparator: () => null,
               DropdownIndicator: () => null,
             }}
-            onChange={(option) => setSortBy(option.value)}
+            onChange={(option) => {
+              setSortBy(option.value);
+              localStorage.setItem("sortBy", option.value);
+            }}
             isSearchable={false}
           />
         </Col>

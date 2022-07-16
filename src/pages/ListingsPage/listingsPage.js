@@ -84,15 +84,15 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
 
   // Options for the Qualifications Filter
   const qualificationsOptions = [
-    { value: "psle", label: "PSLE" },
-    { value: "o levels", label: "O Levels" },
-    { value: "diploma", label: "Diploma" },
-    { value: "a levels", label: "A Levels" },
-    { value: "undergraduate", label: "Undergraduate" },
-    { value: "degree", label: "Degree" },
-    { value: "masters", label: "Masters" },
     { value: "phd", label: "PhD" },
+    { value: "masters", label: "Masters" },
     { value: "moe teacher", label: "MOE Teacher" },
+    { value: "degree", label: "Degree" },
+    { value: "undergraduate", label: "Undergraduate" },
+    { value: "a levels", label: "A Levels" },
+    { value: "diploma", label: "Diploma" },
+    { value: "o levels", label: "O Levels" },
+    { value: "psle", label: "PSLE" },
   ];
 
   // Stores the text of the tutor/tutee toggle
@@ -463,25 +463,32 @@ const Listings = ({
 
   // Filter listings, if necessary
   useEffect(() => {
+    const createFilter = ({ name, value }) => {
+      if (!name && !value) return true;
+      return (listing) => {
+        const valueArray = value.map(({ value }) => value);
+        if (name === "level") {
+          if (valueArray.includes(listing.level)) return true;
+        } else {
+          const relevantFields = listing.fields.filter(
+            ({ category }) => category === name
+          );
+          for (let filterVal of value)
+            for (let field of relevantFields)
+              if (fuzzy(filterVal.value, field.value) > 0.8) return true;
+        }
+        return false;
+      };
+    };
     if (filters.length === 0) setFilteredListings(listingData);
     else
       setFilteredListings(
-        listingData.filter((listing) => {
-          for (let filterData of filters) {
-            const { name, value } = filterData;
-            const valueArray = value.map(({ value, label }) => value);
-            if (name === "level") {
-              if (valueArray.includes(listing.level)) return true;
-            } else {
-              const relevantFields = listing.fields.filter(
-                ({ category, value }) =>
-                  category === name && search(value, valueArray).length > 0
-              );
-              if (relevantFields.length > 0) return true;
-            }
-          }
-          return false;
-        })
+        listingData.filter((listing) =>
+          filters.reduce(
+            (acc, filterData) => acc && createFilter(filterData)(listing),
+            true
+          )
+        )
       );
   }, [filters, listingData]);
 

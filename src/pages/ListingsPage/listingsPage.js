@@ -472,6 +472,12 @@ const TagFilter = ({
 }) => {
   const [options, setOptions] = useState(defaultOptions);
 
+  const removeOption = (props, event) => {
+    const toRemove = props.value;
+    if (!props.hasValue) event.stopPropagation();
+    setOptions((old) => old.filter(({ value }) => value !== toRemove));
+  };
+
   return (
     <CreatableSelect
       options={options}
@@ -520,7 +526,13 @@ const TagFilter = ({
             </p>
           );
         },
-        Option: CheckboxOption,
+        Option: (props) =>
+          CheckboxOption(
+            props,
+            defaultOptions.filter(({ value }) => value === props.value).length >
+              0,
+            removeOption
+          ),
       }}
       onChange={createFilterHandler(tagType, true, setOptions)}
       closeMenuOnSelect={false}
@@ -531,9 +543,9 @@ const TagFilter = ({
   );
 };
 
-const CheckboxOption = (props) => (
+const CheckboxOption = (props, isDefault, removeOption) => (
   <div>
-    <components.Option {...props}>
+    <components.Option {...props} className="d-flex align-items-center">
       <input
         type="checkbox"
         checked={props.isSelected}
@@ -541,6 +553,12 @@ const CheckboxOption = (props) => (
         readOnly
       />
       <label>{props.label}</label>
+      {isDefault || props.data.label.includes('Create "') || (
+        <CloseButton
+          className="ms-auto"
+          onClick={(event) => removeOption(props, event)}
+        />
+      )}
     </components.Option>
   </div>
 );

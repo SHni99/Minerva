@@ -17,6 +17,7 @@ import listingsPageStyles from "./listingsPage.module.css";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import Badge from "react-bootstrap/Badge";
+import { fuzzy, search } from "fast-fuzzy";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
@@ -177,8 +178,8 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
         </div>
       </div>
 
-      <Row className="py-2">
-        <Col xs="auto">
+      <Row className="py-2 px-3">
+        <Col xs="auto" className="p-1">
           <Select
             placeholder="Sort by..."
             options={sortOptions}
@@ -209,9 +210,9 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
           />
         </Col>
         <Col xs="auto d-flex p-0">
-          <div className="vr my-auto" style={{ height: "24px" }} />
+          <div className="vr my-auto mx-2" style={{ height: "24px" }} />
         </Col>
-        <Col xs="auto">
+        <Col xs="auto" className="p-1">
           <Select
             placeholder="Level"
             options={levelOptions}
@@ -269,7 +270,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             isMulti
           />
         </Col>
-        <Col xs="auto" className="ps-0">
+        <Col xs="auto" className="p-1">
           <TagFilter
             tagType="subject"
             tagLabel="Subject"
@@ -278,7 +279,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             createFilterHandler={createFilterHandler}
           />
         </Col>
-        <Col xs="auto" className="ps-0">
+        <Col xs="auto" className="p-1">
           <TagFilter
             tagType="qualifications"
             tagLabel="Qualifications"
@@ -351,18 +352,28 @@ const Listings = ({
   sortBy,
 }) => {
   const [listingData, setListingData] = useState([]);
+  const [filteredListings, setFilteredListings] = useState([]);
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
   // Array of objects containing the data of each listing
 
+  // const filterListing = ({ level, rates, fields }) =>
+  //   `${level} ${rates} ${Object.keys(fields).reduce(
+  //     (acc, key) => `${acc} ${fields[key].value}`,
+  //     ""
+  //   )}`
+  //     .toLowerCase()
+  //     .includes(query.toLowerCase());
+
   const filterListing = ({ level, rates, fields }) =>
-    `${level} ${rates} ${Object.keys(fields).reduce(
-      (acc, key) => `${acc} ${fields[key].value}`,
-      ""
-    )}`
-      .toLowerCase()
-      .includes(query.toLowerCase());
+    fuzzy(
+      query,
+      `${level} ${rates} ${Object.keys(fields).reduce(
+        (acc, key) => `${acc} ${fields[key].value}`,
+        ""
+      )}`
+    ) > 0.6;
 
   const createComparator = (sortBy) => {
     if (!sortBy) return () => 0;
@@ -447,15 +458,39 @@ const Listings = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Filter listings, if necessary
+  useEffect(() => {
+    if (filters.length === 0) setFilteredListings(listingData);
+    else
+      setFilteredListings(
+        listingData.filter((listing) => {
+          for (let filterData of filters) {
+            const { name, value } = filterData;
+            const valueArray = value.map(({ value, label }) => value);
+            if (name === "level") {
+              if (valueArray.includes(listing.level)) return true;
+            } else {
+              const relevantFields = listing.fields.filter(
+                ({ category, value }) =>
+                  category === name && search(value, valueArray).length > 0
+              );
+              if (relevantFields.length > 0) return true;
+            }
+          }
+          return false;
+        })
+      );
+  }, [filters, listingData]);
+
   return (
     <div className={listingsPageStyles["listings"]}>
       {loading ? (
         <Spinner animation="border" role="status" aria-label="Loading" />
-      ) : listingData.length === 0 ? (
+      ) : filteredListings.length === 0 ? (
         <h1>Nothing here!</h1>
       ) : (
         <React.Fragment>
-          {listingData.map(
+          {filteredListings.map(
             ({
               avatar_url,
               username,
@@ -558,7 +593,7 @@ const TagFilter = ({
           if (numSelected > 1 && state.index > 0) return <></>;
           return (
             <p
-              className="m-0 ps-1 d-flex align-center"
+              className="m-0 px-1 d-flex align-center"
               style={{
                 color: "#026958",
               }}

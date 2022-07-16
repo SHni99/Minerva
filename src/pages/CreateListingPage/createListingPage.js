@@ -157,10 +157,12 @@ const CreateListingBody = ({
       return;
     }
     const fields = [
-      ...sFieldInputs.map((sFieldInput) => ({
-        category: sFieldInput.requirement,
-        value: sFieldInput.input().value,
-      })),
+      ...sFieldInputs
+        .filter((sFieldInput) => sFieldInput.value)
+        .map((sFieldInput) => ({
+          category: sFieldInput.requirement,
+          value: sFieldInput.input().value,
+        })),
     ];
     const image_urls = imageURLs.map((img) => img.publicURL);
 

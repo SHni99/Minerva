@@ -17,7 +17,7 @@ import listingsPageStyles from "./listingsPage.module.css";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import Badge from "react-bootstrap/Badge";
-import { fuzzy, search } from "fast-fuzzy";
+import { fuzzy } from "fast-fuzzy";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);

@@ -42,18 +42,22 @@ const ProjectRoutes = ({ setToastOptions }) => {
     <LoadingOverlay
       active={authLoading}
       spinner={<HashLoader color="silver" size="30vw" />}
+      styles={{
+        overlay: (base) => ({
+          ...base,
+          background: "gray",
+        }),
+      }}
     >
       <Router>
-        {authLoading ? (
-          <div style={{ width: "100vw", height: "100vh" }}></div>
-        ) : (
-          <AnimatedRoutes
-            isBanned={isBanned}
-            showSimpleToast={showSimpleToast}
-            setToastOptions={setToastOptions}
-            authLoading={authLoading}
-          />
-        )}
+        <AnimatedRoutes
+          isBanned={isBanned}
+          showSimpleToast={showSimpleToast}
+          setToastOptions={setToastOptions}
+          authLoading={authLoading}
+          option={option}
+          setOption={setOption}
+        />
       </Router>
     </LoadingOverlay>
   );
@@ -68,9 +72,7 @@ const AnimatedRoutes = ({
   authLoading,
 }) => {
   // Add TransitionGroup and CSSTransition for animations
-  return authLoading ? (
-    <div style={{ width: "100vw", height: "100vh" }}></div>
-  ) : !isBanned ? (
+  return !isBanned ? (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="*" element={<NotFound />} />
@@ -85,13 +87,13 @@ const AnimatedRoutes = ({
       <Route path="/create-listing" element={<CreateListingPage />} />
       <Route path="/passwordpage" element={<PasswordPage />} />
       <Route path="/resetpage" element={<ResetPage />} />
-      <Route path="/loginmainpage" element={<LoginMainPage showSimpleToast={showSimpleToast}/>} />
-      <Route path="/formpage" element={<ReviewForm />} />
       <Route
-        path="/profile"
-        element={<ProfilePage />}
+        path="/loginmainpage"
+        element={<LoginMainPage showSimpleToast={showSimpleToast} />}
       />
-    
+      <Route path="/formpage" element={<ReviewForm />} />
+      <Route path="/profile" element={<ProfilePage />} />
+
       <Route path="/chats" element={<ChatPage />} />
       <Route
         path="/reports"

@@ -81,6 +81,19 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
     { value: "geography", label: "Geography" },
   ];
 
+  // Options for the Qualifications Filter
+  const qualificationsOptions = [
+    { value: "psle", label: "PSLE" },
+    { value: "o levels", label: "O Levels" },
+    { value: "diploma", label: "Diploma" },
+    { value: "a levels", label: "A Levels" },
+    { value: "undergraduate", label: "Undergraduate" },
+    { value: "degree", label: "Degree" },
+    { value: "masters", label: "Masters" },
+    { value: "phd", label: "PhD" },
+    { value: "moe teacher", label: "MOE Teacher" },
+  ];
+
   // Stores the text of the tutor/tutee toggle
   // Loads previously saved tutor/tutee, if applicable
   const [tutorTutee, setTutorTutee] = useState(
@@ -89,6 +102,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   // Stores the text entered into the search bar
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState([]);
+  const [sortBy, setSortBy] = useState(null);
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
@@ -190,6 +204,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
               IndicatorSeparator: () => null,
               DropdownIndicator: () => null,
             }}
+            onChange={(option) => setSortBy(option.value)}
             isSearchable={false}
           />
         </Col>
@@ -244,7 +259,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                   </p>
                 );
               },
-              Option: CheckboxOption,
+              Option: (props) => CheckboxOption(props, true),
             }}
             onChange={createFilterHandler("level", true)}
             isSearchable={false}
@@ -259,6 +274,15 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             tagType="subject"
             tagLabel="Subject"
             defaultOptions={subjectOptions}
+            filterState={[filters, setFilters]}
+            createFilterHandler={createFilterHandler}
+          />
+        </Col>
+        <Col xs="auto" className="ps-0">
+          <TagFilter
+            tagType="qualifications"
+            tagLabel="Qualifications"
+            defaultOptions={qualificationsOptions}
             filterState={[filters, setFilters]}
             createFilterHandler={createFilterHandler}
           />
@@ -285,6 +309,8 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
         query={query}
         setModalState={setModalState}
         blockedArray={blockedArray}
+        filters={filters}
+        sortBy={sortBy}
       />
     </Container>
   );
@@ -372,33 +398,28 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorTutee, query]);
 
-  // Listen for live changes to listings
-  useState(() => {
+  useEffect(() => {
+    // Setup listener
     const listingSub = supabase
       .from("listings")
       .on("INSERT", async (payload) => {
         try {
-          const { data: newListingData, error } = await supabase
-            .rpc("get_listings")
-            .eq("listing_id", payload.new.listing_id);
+          const { data: newListingData, error } = await supabase.rpc(
+            "get_listings"
+          );
           if (error) throw error;
 
-          if (filterListing(newListingData)) {
-            setListingData((oldListingData) => [
-              ...oldListingData,
-              newListingData,
-            ]);
-          }
+          setListingData(newListingData);
         } catch (error) {
           alert(error.message);
         }
       })
       .on("DELETE", (payload) => {
-        setListingData((oldListingData) =>
-          oldListingData.filter(
+        setListingData((oldListingData) => {
+          return oldListingData.filter(
             (data) => data.listing_id !== payload.old.listing_id
-          )
-        );
+          );
+        });
       })
       .subscribe();
 

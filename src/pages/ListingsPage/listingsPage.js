@@ -161,6 +161,9 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
           <input
             className={listingsPageStyles["input-text-1"]}
             id="search-input"
+            onKeyDown={(event) => {
+              if (event.key === "Enter") searchHandler();
+            }}
           />
           <CloseButton
             onClick={() => {
@@ -373,7 +376,7 @@ const Listings = ({
         (acc, key) => `${acc} ${fields[key].value}`,
         ""
       )}`
-    ) > 0.6;
+    ) > 0.8;
 
   const createComparator = (sortBy) => {
     if (!sortBy) return () => 0;

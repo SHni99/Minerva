@@ -61,8 +61,6 @@ const ProjectRoutes = ({ setToastOptions }) => {
           isBanned={isBanned}
           showSimpleToast={showSimpleToast}
           setToastOptions={setToastOptions}
-          option={option}
-          setOption={setOption}
         />
       </Router>
     </LoadingOverlay>
@@ -71,13 +69,7 @@ const ProjectRoutes = ({ setToastOptions }) => {
 
 export default ProjectRoutes;
 
-const AnimatedRoutes = ({
-  isBanned,
-  showSimpleToast,
-  setToastOptions,
-  option,
-  setOption,
-}) => {
+const AnimatedRoutes = ({ isBanned, showSimpleToast, setToastOptions }) => {
   // Add TransitionGroup and CSSTransition for animations
   return !isBanned ? (
     <Routes>

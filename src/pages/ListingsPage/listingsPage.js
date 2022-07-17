@@ -6,6 +6,7 @@ import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
 import { debounce } from "lodash";
+import { components } from "react-select";
 import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -13,6 +14,10 @@ import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
 import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
+import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
+import Badge from "react-bootstrap/Badge";
+import { fuzzy } from "fast-fuzzy";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
@@ -48,6 +53,48 @@ const ListingsPage = () => {
 export default ListingsPage;
 
 const ListingPageBody = ({ setModalState, blockedArray }) => {
+  // Options for sort field
+  const sortOptions = [
+    { value: "created_at desc", label: "Newest to Oldest" },
+    { value: "created_at asc", label: "Oldest to Newest" },
+    { value: "avg_rating desc", label: "Highest to Lowest Rating" },
+    { value: "avg_rating asc", label: "Lowest to Highest Rating" },
+    { value: "num_reviews desc", label: "Most to Least Reviews" },
+    { value: "num_reviews asc", label: "Least to Most Reviews" },
+  ];
+
+  // Options for the targeted education level filter
+  const levelOptions = [
+    { value: "primary", label: "Primary" },
+    { value: "secondary", label: "Secondary" },
+    { value: "tertiary", label: "Tertiary" },
+    { value: "undergrad", label: "Undergraduate" },
+    { value: "grad", label: "Graduate" },
+    { value: "others", label: "Others" },
+  ];
+
+  // Options for the Subject filter
+  const subjectOptions = [
+    { value: "math", label: "Math" },
+    { value: "english", label: "English" },
+    { value: "science", label: "Science" },
+    { value: "literature", label: "Literature" },
+    { value: "geography", label: "Geography" },
+  ];
+
+  // Options for the Qualifications Filter
+  const qualificationsOptions = [
+    { value: "phd", label: "PhD" },
+    { value: "masters", label: "Masters" },
+    { value: "moe teacher", label: "MOE Teacher" },
+    { value: "degree", label: "Degree" },
+    { value: "undergraduate", label: "Undergraduate" },
+    { value: "a levels", label: "A Levels" },
+    { value: "diploma", label: "Diploma" },
+    { value: "o levels", label: "O Levels" },
+    { value: "psle", label: "PSLE" },
+  ];
+
   // Stores the text of the tutor/tutee toggle
   // Loads previously saved tutor/tutee, if applicable
   const [tutorTutee, setTutorTutee] = useState(
@@ -55,9 +102,41 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   );
   // Stores the text entered into the search bar
   const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState([]);
+  const [sortBy, setSortBy] = useState(
+    localStorage.getItem("sortBy") || "created_at desc"
+  );
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
+  };
+
+  const createFilterHandler = (filterName, isMulti, setCreatableState) => {
+    if (!isMulti)
+      return (option, action) => {
+        if (action.action === "clear")
+          setFilters((old) => old.filter(({ name }) => name !== filterName));
+        else
+          setFilters((old) => [
+            ...old,
+            { name: filterName, value: option.value },
+          ]);
+      };
+    else
+      return (option, action) => {
+        // Check if new option is being created
+        if (action.action === "create-option") {
+          setCreatableState((old) => [...old, action.option]);
+        }
+
+        if (option.length === 0)
+          setFilters((old) => old.filter(({ name }) => name !== filterName));
+        else
+          setFilters((old) => [
+            ...old.filter(({ name }) => name !== filterName),
+            { name: filterName, value: option },
+          ]);
+      };
   };
 
   return (
@@ -84,6 +163,9 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
           <input
             className={listingsPageStyles["input-text-1"]}
             id="search-input"
+            onKeyDown={(event) => {
+              if (event.key === "Enter") searchHandler();
+            }}
           />
           <CloseButton
             onClick={() => {
@@ -101,9 +183,128 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
         </div>
       </div>
 
+      <Row className="py-2 px-3">
+        <Col xs="auto" className="p-1">
+          <Select
+            placeholder="Sort by..."
+            options={sortOptions}
+            defaultValue={
+              sortOptions.filter(
+                ({ value }) => value === localStorage.getItem("sortBy")
+              ) || sortOptions[0]
+            }
+            styles={{
+              control: (props) => ({
+                ...props,
+                borderRadius: "20px",
+              }),
+              singleValue: (props) => ({
+                ...props,
+                display: "flex",
+                justifyContent: "center",
+                "::before": {
+                  content: '"Sort: "',
+                  display: "block",
+                  marginRight: "4px",
+                  color: "gray",
+                },
+              }),
+            }}
+            components={{
+              IndicatorSeparator: () => null,
+              DropdownIndicator: () => null,
+            }}
+            onChange={(option) => {
+              setSortBy(option.value);
+              localStorage.setItem("sortBy", option.value);
+            }}
+            isSearchable={false}
+          />
+        </Col>
+        <Col xs="auto d-flex p-0">
+          <div className="vr my-auto mx-2" style={{ height: "24px" }} />
+        </Col>
+        <Col xs="auto" className="p-1">
+          <Select
+            placeholder="Level"
+            options={levelOptions}
+            styles={{
+              control: (props) => ({
+                ...props,
+                borderRadius: "20px",
+                backgroundColor:
+                  filters.filter(({ name }) => name === "level").length === 0
+                    ? "white"
+                    : "#d4e9e4",
+              }),
+              menu: (props) => ({ ...props, width: "12em" }),
+              clearIndicator: (props) => ({
+                ...props,
+                paddingLeft: 0,
+              }),
+              valueContainer: (props) => ({ ...props, paddingRight: "0px" }),
+              dropdownIndicator: (props, state) => ({
+                ...props,
+                paddingLeft: "0px",
+                display: state.getValue().length > 0 ? "none" : "flex",
+              }),
+              option: (props, state) => ({
+                ...props,
+                backgroundColor: state.isSelected ? "#F0F0F0" : "white",
+                color: "black",
+              }),
+            }}
+            components={{
+              IndicatorSeparator: () => null,
+              MultiValueRemove: () => null,
+              MultiValue: (state) => {
+                const numSelected = state.getValue().length;
+                if (numSelected > 1 && state.index > 0) return <></>;
+                return (
+                  <p
+                    className="m-0 ps-1 d-flex align-center"
+                    style={{
+                      color: "#026958",
+                    }}
+                  >
+                    {numSelected > 1 ? "Level" : state.data.label}
+                    {numSelected > 1 && <MultiBadge>{numSelected}</MultiBadge>}
+                  </p>
+                );
+              },
+              Option: (props) => CheckboxOption(props, true),
+            }}
+            onChange={createFilterHandler("level", true)}
+            isSearchable={false}
+            closeMenuOnSelect={false}
+            hideSelectedOptions={false}
+            isClearable
+            isMulti
+          />
+        </Col>
+        <Col xs="auto" className="p-1">
+          <TagFilter
+            tagType="subject"
+            tagLabel="Subject"
+            defaultOptions={subjectOptions}
+            filterState={[filters, setFilters]}
+            createFilterHandler={createFilterHandler}
+          />
+        </Col>
+        <Col xs="auto" className="p-1">
+          <TagFilter
+            tagType="qualifications"
+            tagLabel="Qualifications"
+            defaultOptions={qualificationsOptions}
+            filterState={[filters, setFilters]}
+            createFilterHandler={createFilterHandler}
+          />
+        </Col>
+      </Row>
+
       {/* Legend for the listing field badge colors */}
       <div
-        className="pt-5 pb-2 px-sm-2 d-flex flex-row justify-center"
+        className="pb-2 px-sm-2 d-flex flex-row justify-center"
         style={{ fontFamily: "Nunito" }}
       >
         <h5 className="text-center">
@@ -121,6 +322,8 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
         query={query}
         setModalState={setModalState}
         blockedArray={blockedArray}
+        filters={filters}
+        sortBy={sortBy}
       />
     </Container>
   );
@@ -152,81 +355,61 @@ const TutorTuteeToggle = ({ tutorTutee, setTutorTutee }) => {
   );
 };
 
-const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
+const Listings = ({
+  tutorTutee,
+  query,
+  setModalState,
+  blockedArray,
+  filters,
+  sortBy,
+}) => {
   const [listingData, setListingData] = useState([]);
+  const [filteredListings, setFilteredListings] = useState([]);
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
   // Array of objects containing the data of each listing
 
-  const parseListing = async ({
-    creator_id,
-    level,
-    rates,
-    fields,
-    image_urls,
-    listing_id,
-  }) => {
-    let {
-      data: { avatar_url: avatarTitle, username },
-      error: avatarError,
-      status: avatarStatus,
-    } = await supabase
-      .from("profiles")
-      .select("username, avatar_url")
-      .eq("id", creator_id)
-      .single();
-    if (avatarError && avatarStatus !== 406) throw avatarError;
-
-    const { publicURL: avatarUrl, error: urlError } =
-      avatarTitle === ""
-        ? {}
-        : supabase.storage.from("avatars").getPublicUrl(avatarTitle);
-    if (urlError) throw urlError;
-
-    return {
-      avatarUrl,
-      username,
-      level,
-      rates,
-      fields,
-      image_urls,
-      listing_id,
-      creator_id,
-    };
-  };
+  // const filterListing = ({ level, rates, fields }) =>
+  //   `${level} ${rates} ${Object.keys(fields).reduce(
+  //     (acc, key) => `${acc} ${fields[key].value}`,
+  //     ""
+  //   )}`
+  //     .toLowerCase()
+  //     .includes(query.toLowerCase());
 
   const filterListing = ({ level, rates, fields }) =>
-    `${level} ${rates} ${Object.keys(fields).reduce(
-      (acc, key) => `${acc} ${fields[key].value}`,
-      ""
-    )}`
-      .toLowerCase()
-      .includes(query.toLowerCase());
+    fuzzy(
+      query,
+      `${level} ${rates} ${Object.keys(fields).reduce(
+        (acc, key) => `${acc} ${fields[key].value}`,
+        ""
+      )}`
+    ) > 0.8;
+
+  const createComparator = (sortBy) => {
+    if (!sortBy) return () => 0;
+    const [field, order] = sortBy.split(" ");
+    if (order === "asc") return (a, b) => a[field] - b[field];
+    else return (a, b) => b[field] - a[field];
+  };
 
   // Fetch listings from Supabase and display using ListingCards
   useEffect(() => {
     const getListings = async () => {
+      const [sortField, sortOrder] = sortBy.split(" ");
       try {
         setLoading(true);
-        // Fetch data from the 'listings' table
-        let {
-          data: listingDb,
-          listingError,
-          listingStatus,
-        } = await supabase
-          .from("listings")
-          .select("creator_id, level, rates, fields, image_urls, listing_id")
-          .eq("seeking_for", tutorTutee);
-        if (listingError && listingStatus !== 406) throw listingError;
+        // Fetch data using `get_listings()` RPC call
+        let { data: listingDb, error: listingError } = await supabase
+          .rpc("get_listings")
+          .eq("seeking_for", tutorTutee)
+          .order(sortField, { ascending: sortOrder === "asc" });
+        if (listingError) throw listingError;
 
-        // Filter using the entered query (set to "" by default/on clearing the textbox)
-        listingDb = listingDb.filter(filterListing);
-
-        // Map each of the fetched rows into an async call to obtain each listing creators'
-        // avatar URL. After all asynchronous calls have been resolved, set the result to
-        // the listingData state/hook.
-        const newListingData = await Promise.all(listingDb.map(parseListing));
+        // Filter using the selected criteria
+        const newListingData = listingDb.filter(filterListing);
+        // listingDb = listingDb.filter(filterListing);
 
         //if no blocked user, it will return all the listings
         if (blockedArray === null) {
@@ -252,44 +435,83 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     // (because we are actively mutating `listingData` on each call!)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tutorTutee, query]);
+  }, [tutorTutee, query, sortBy]);
 
-  // Listen for live changes to listings
-  useState(() => {
+  useEffect(() => {
+    // Setup listener
     const listingSub = supabase
       .from("listings")
       .on("INSERT", async (payload) => {
-        const newListingData = await parseListing(payload.new);
-        if (filterListing(newListingData)) {
-          setListingData((oldListingData) => [
-            ...oldListingData,
-            newListingData,
-          ]);
+        try {
+          const { data: newListingData, error } = await supabase.rpc(
+            "get_listings"
+          );
+          if (error) throw error;
+
+          setListingData(newListingData.sort(createComparator(sortBy)));
+        } catch (error) {
+          alert(error.message);
         }
       })
       .on("DELETE", (payload) => {
-        setListingData((oldListingData) =>
-          oldListingData.filter(
+        setListingData((oldListingData) => {
+          return oldListingData.filter(
             (data) => data.listing_id !== payload.old.listing_id
-          )
-        );
+          );
+        });
       })
       .subscribe();
 
     return () => supabase.removeSubscription(listingSub);
+
+    // We are disabling the dependency warning as we only wish to
+    // run this block once, at the start.
+    //
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Filter listings, if necessary
+  useEffect(() => {
+    const createFilter = ({ name, value }) => {
+      if (!name && !value) return true;
+      return (listing) => {
+        const valueArray = value.map(({ value }) => value);
+        if (name === "level") {
+          if (valueArray.includes(listing.level)) return true;
+        } else {
+          const relevantFields = listing.fields.filter(
+            ({ category }) => category === name
+          );
+          for (let filterVal of value)
+            for (let field of relevantFields)
+              if (fuzzy(filterVal.value, field.value) > 0.8) return true;
+        }
+        return false;
+      };
+    };
+    if (filters.length === 0) setFilteredListings(listingData);
+    else
+      setFilteredListings(
+        listingData.filter((listing) =>
+          filters.reduce(
+            (acc, filterData) => acc && createFilter(filterData)(listing),
+            true
+          )
+        )
+      );
+  }, [filters, listingData]);
 
   return (
     <div className={listingsPageStyles["listings"]}>
       {loading ? (
         <Spinner animation="border" role="status" aria-label="Loading" />
-      ) : listingData.length === 0 ? (
+      ) : filteredListings.length === 0 ? (
         <h1>Nothing here!</h1>
       ) : (
         <React.Fragment>
-          {listingData.map(
+          {filteredListings.map(
             ({
-              avatarUrl,
+              avatar_url,
               username,
               level,
               rates,
@@ -297,10 +519,15 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
               image_urls,
               listing_id,
               creator_id,
+              avg_rating,
             }) => {
               return (
                 <ListingCard
-                  avatarUrl={avatarUrl}
+                  avatarUrl={
+                    avatar_url &&
+                    supabase.storage.from("avatars").getPublicUrl(avatar_url)
+                      .publicURL
+                  }
                   username={username}
                   key={listing_id}
                   listing_id={listing_id}
@@ -310,6 +537,7 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
                   fields={fields}
                   setModalState={setModalState}
                   creator_id={creator_id}
+                  avg_rating={avg_rating}
                 />
               );
             }
@@ -319,3 +547,114 @@ const Listings = ({ tutorTutee, query, setModalState, blockedArray }) => {
     </div>
   );
 };
+
+const MultiBadge = ({ children }) => (
+  <Badge
+    bg="success"
+    className="ms-2 my-auto"
+    style={{ padding: "4px 6px" }}
+    pill
+  >
+    {children}
+  </Badge>
+);
+
+const TagFilter = ({
+  tagType,
+  tagLabel,
+  defaultOptions,
+  filterState: [filters, setFilters],
+  createFilterHandler,
+}) => {
+  const [options, setOptions] = useState(defaultOptions);
+
+  const removeOption = (props, event) => {
+    const toRemove = props.value;
+    if (!props.hasValue) event.stopPropagation();
+    setOptions((old) => old.filter(({ value }) => value !== toRemove));
+  };
+
+  return (
+    <CreatableSelect
+      options={options}
+      placeholder={tagLabel}
+      styles={{
+        control: (props) => ({
+          ...props,
+          borderRadius: "20px",
+          backgroundColor:
+            filters.filter(({ name }) => name === tagType).length === 0
+              ? "white"
+              : "#d4e9e4",
+        }),
+        menu: (props) => ({ ...props, width: "12em" }),
+        clearIndicator: (props) => ({
+          ...props,
+          paddingLeft: 0,
+        }),
+        valueContainer: (props) => ({ ...props, paddingRight: "0px" }),
+        dropdownIndicator: (props, state) => ({
+          ...props,
+          paddingLeft: "0px",
+          display: state.getValue().length > 0 ? "none" : "flex",
+        }),
+        option: (props, state) => ({
+          ...props,
+          backgroundColor: state.isSelected ? "#F0F0F0" : "white",
+          color: "black",
+        }),
+      }}
+      components={{
+        IndicatorSeparator: () => null,
+        MultiValueRemove: () => null,
+        MultiValue: (state) => {
+          const numSelected = state.getValue().length;
+          if (numSelected > 1 && state.index > 0) return <></>;
+          return (
+            <p
+              className="m-0 px-1 d-flex align-center"
+              style={{
+                color: "#026958",
+              }}
+            >
+              {numSelected > 1 ? tagLabel : state.data.label}
+              {numSelected > 1 && <MultiBadge>{numSelected}</MultiBadge>}
+            </p>
+          );
+        },
+        Option: (props) =>
+          CheckboxOption(
+            props,
+            defaultOptions.filter(({ value }) => value === props.value).length >
+              0,
+            removeOption
+          ),
+      }}
+      onChange={createFilterHandler(tagType, true, setOptions)}
+      closeMenuOnSelect={false}
+      hideSelectedOptions={false}
+      isClearable
+      isMulti
+    />
+  );
+};
+
+const CheckboxOption = (props, isDefault, removeOption) => (
+  <div>
+    <components.Option {...props} className="d-flex align-items-center">
+      <input
+        type="checkbox"
+        checked={props.isSelected}
+        className="me-2"
+        readOnly
+      />
+      <label>{props.label}</label>
+      {isDefault || props.data.label.includes('Create "') || (
+        <CloseButton
+          className="ms-auto"
+          onClick={(event) => removeOption(props, event)}
+        />
+      )}
+    </components.Option>
+  </div>
+);

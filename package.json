@@ -12,6 +12,7 @@
     "bootstrap": "^5.2.0-beta1",
     "bootstrap-icons": "^1.8.3",
     "bootstrap-switch-button-react": "^1.2.0",
+    "fast-fuzzy": "^1.11.2",
     "lodash": "^4.17.21",
     "moment": "^2.29.3",
     "msw": "^0.43.1",

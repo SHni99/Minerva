@@ -18,6 +18,7 @@ const wrapPage = (authData = { logged_in: false }) => {
       subscribe: jest.fn(),
     })),
   }));
+  supabaseClient.removeSubscription = jest.fn();
 
   render(
     <AuthContext.Provider value={{ authData }}>
@@ -38,7 +39,6 @@ describe("Tutor/Tutee toggle", () => {
   it("should be present in the document", () => {
     wrapPage();
     expect(getToggle()).toBeInTheDocument();
-    supabaseClient.from.mockClear();
   });
 
   // Planned: displays tutor/tutee based on user preferences (AuthContext)

@@ -50,6 +50,8 @@ const mockRpc = () => {
   }));
 };
 
+const getReactSelect = (ariaLabel) => screen.getByLabelText(ariaLabel);
+
 beforeEach(jest.clearAllMocks);
 
 describe("Tutor/Tutee toggle", () => {
@@ -126,11 +128,12 @@ describe("Search Bar", () => {
   const getInput = () => screen.getByRole("textbox");
   const getButton = () => screen.getByText(/search/i);
   const queryCards = () => screen.queryAllByRole("figure");
+  const getToggle = () => screen.getByTestId("tutorTuteeToggle");
   const setupListings = async () => {
     mockRpc();
     wrapPage();
     // Ensure we are looking for tutors
-    expect(screen.getByTestId("tutorTuteeToggle")).toHaveTextContent("tutor");
+    expect(getToggle()).toHaveTextContent("tutor");
 
     await waitFor(() => {
       expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS);
@@ -146,4 +149,50 @@ describe("Search Bar", () => {
       expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS_MATH);
     });
   });
+
+  it("activates on 'enter' keypress", async () => {
+    await setupListings();
+    fireEvent.change(getInput(), { target: { value: "math" } });
+    fireEvent.keyDown(getInput(), { key: "Enter", code: "Enter", keyCode: 13 });
+
+    await waitFor(() => {
+      expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS_MATH);
+    });
+  });
+
+  it("clears search immediately when the X button is clicked", async () => {
+    await setupListings();
+    fireEvent.change(getInput(), { target: { value: "math" } });
+    fireEvent.keyDown(getInput(), { key: "Enter", code: "Enter", keyCode: 13 });
+
+    await waitFor(() => {
+      expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS_MATH);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /close/i }));
+    await waitFor(() => {
+      expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS);
+    });
+  });
+});
+
+describe("Sort menu", () => {
+  it("renders with no issues", () => {
+    wrapPage();
+    expect(getReactSelect("sort-menu")).toBeInTheDocument();
+  });
+
+  it("defaults to sorting from newest to oldest listings", () => {
+    wrapPage();
+    Storage.prototype.getItem = jest.fn();
+    expect(screen.getByText("Newest to Oldest")).toBeInTheDocument();
+  });
+
+  it("saves latest selected sort preference", () => {});
+  it("sorts from newest to oldest listings correctly", () => {});
+  it("sorts from oldest to newest listings correctly", () => {});
+  it("sorts from highest to lowest rating correctly", () => {});
+  it("sorts from lowest to highest rating correctly", () => {});
+  it("sorts from most to least reviews correctly", () => {});
+  it("sorts from least to most reviews correctly", () => {});
 });

@@ -6,7 +6,6 @@ import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { CloseButton } from "react-bootstrap";
 import { debounce } from "lodash";
-import { components } from "react-select";
 import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -14,7 +13,7 @@ import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
 import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import Badge from "react-bootstrap/Badge";
 import { fuzzy } from "fast-fuzzy";
@@ -189,9 +188,8 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             placeholder="Sort by..."
             options={sortOptions}
             defaultValue={
-              sortOptions.filter(
-                ({ value }) => value === localStorage.getItem("sortBy")
-              ) || sortOptions[0]
+              sortOptions.filter(({ value }) => value === sortBy) ||
+              sortOptions[0]
             }
             styles={{
               control: (props) => ({
@@ -213,6 +211,15 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             components={{
               IndicatorSeparator: () => null,
               DropdownIndicator: () => null,
+              Control: (props) => (
+                <components.Control
+                  {...props}
+                  innerProps={{
+                    ...props.innerProps,
+                    "aria-label": "sort-menu",
+                  }}
+                />
+              ),
             }}
             onChange={(option) => {
               setSortBy(option.value);
@@ -273,6 +280,15 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                 );
               },
               Option: (props) => CheckboxOption(props, true),
+              Control: (props) => (
+                <components.Control
+                  {...props}
+                  innerProps={{
+                    ...props.innerProps,
+                    "aria-label": "level-filter",
+                  }}
+                />
+              ),
             }}
             onChange={createFilterHandler("level", true)}
             isSearchable={false}
@@ -380,8 +396,8 @@ const Listings = ({
   const createComparator = (sortBy) => {
     if (!sortBy) return () => 0;
     const [field, order] = sortBy.split(" ");
-    if (order === "asc") return (a, b) => a[field] - b[field];
-    else return (a, b) => b[field] - a[field];
+    if (order === "asc") return (a, b) => (a[field] || 0) - (b[field] || 0);
+    else return (a, b) => (b[field] || 0) - (a[field] || 0);
   };
 
   // Fetch listings from Supabase and display using ListingCards
@@ -618,6 +634,15 @@ const TagFilter = ({
               0,
             removeOption
           ),
+        Control: (props) => (
+          <components.Control
+            {...props}
+            innerProps={{
+              ...props.innerProps,
+              "aria-label": `${tagType}-filter`,
+            }}
+          />
+        ),
       }}
       onChange={createFilterHandler(tagType, true, setOptions)}
       closeMenuOnSelect={false}

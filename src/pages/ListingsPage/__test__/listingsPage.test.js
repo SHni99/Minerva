@@ -229,6 +229,7 @@ describe("Filters", () => {
     });
     it("filters secondary school listings correctly", async () => {
       mockRpc();
+      Storage.prototype.getItem = jest.fn();
       wrapPage();
       expect(getToggle()).toHaveTextContent("tutor");
       await waitFor(() =>
@@ -247,6 +248,7 @@ describe("Filters", () => {
     });
     it("filters math subjects correctly", async () => {
       mockRpc();
+      Storage.prototype.getItem = jest.fn();
       wrapPage();
       expect(getToggle()).toHaveTextContent("tutor");
       await waitFor(() =>
@@ -255,6 +257,25 @@ describe("Filters", () => {
 
       changeOption("subject", "Math");
       expect(queryCards()).toHaveLength(2);
+    });
+  });
+
+  describe("Qualifications Filter", () => {
+    it("renders successfully", () => {
+      wrapPage();
+      expect(getReactSelect("qualifications-filter")).toBeInTheDocument();
+    });
+    it("filters PhD-qualified listings correctly", async () => {
+      mockRpc();
+      Storage.prototype.getItem = jest.fn(() => "tutee");
+      wrapPage();
+      expect(getToggle()).toHaveTextContent("tutee");
+      await waitFor(() =>
+        expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTEES)
+      );
+
+      changeOption("qualifications", "PhD");
+      expect(queryCards()).toHaveLength(3);
     });
   });
 });

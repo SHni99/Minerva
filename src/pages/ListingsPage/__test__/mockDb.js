@@ -1,7 +1,7 @@
 export const CONSTANTS = {
   NUM_LISTINGS: 14,
   NUM_TUTORS: 5,
-  NUM_TUTEES: 8,
+  NUM_TUTEES: 9,
   NUM_TUTORS_MATH: 2,
   NUM_TUTEES_MATH: 2,
 };

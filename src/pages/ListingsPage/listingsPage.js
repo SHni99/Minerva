@@ -399,10 +399,9 @@ const Listings = ({
 
         // Filter using the selected criteria
         const newListingData = listingDb.filter(filterListing);
-        // listingDb = listingDb.filter(filterListing);
 
         //if no blocked user, it will return all the listings
-        if (blockedArray === null) {
+        if (!blockedArray) {
           setListingData(newListingData);
         } else {
           //filter blocked user from the listing data

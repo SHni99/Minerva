@@ -5,6 +5,7 @@ import { Router } from "react-router-dom";
 import { supabaseClient } from "config/supabase-client";
 import AuthContext from "util/AuthContext";
 import ListingsPage from "../listingsPage";
+import mockListings, { CONSTANTS } from "./mockDb";
 
 // Mock the alert function as jsdom does not implement this
 global.alert = jest.fn();
@@ -29,6 +30,24 @@ const wrapPage = (authData = { logged_in: false }) => {
   );
 
   return { history, unmount };
+};
+
+const mockRpc = () => {
+  supabaseClient.rpc = jest.fn(() => ({
+    data: mockListings,
+    order: jest.fn(function (col, { ascending }) {
+      const res = { ...this };
+      res.data = this.data.sort(
+        (row1, row2) => (row1[col] - row2[col]) * (ascending ? 1 : -1)
+      );
+      return res;
+    }),
+    eq: jest.fn(function (col, val) {
+      const res = { ...this };
+      res.data = this.data.filter((row) => row[col] === val);
+      return res;
+    }),
+  }));
 };
 
 beforeEach(jest.clearAllMocks);
@@ -100,5 +119,31 @@ describe("Tutor/Tutee toggle", () => {
     );
 
     unmount();
+  });
+});
+
+describe("Search Bar", () => {
+  const getInput = () => screen.getByRole("textbox");
+  const getButton = () => screen.getByText(/search/i);
+  const queryCards = () => screen.queryAllByRole("figure");
+  const setupListings = async () => {
+    mockRpc();
+    wrapPage();
+    // Ensure we are looking for tutors
+    expect(screen.getByTestId("tutorTuteeToggle")).toHaveTextContent("tutor");
+
+    await waitFor(() => {
+      expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS);
+    });
+  };
+
+  it("filters listings correctly", async () => {
+    await setupListings();
+    fireEvent.change(getInput(), { target: { value: "math" } });
+    fireEvent.click(getButton());
+
+    await waitFor(() => {
+      expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS_MATH);
+    });
   });
 });

@@ -239,4 +239,22 @@ describe("Filters", () => {
       expect(queryCards()).toHaveLength(1);
     });
   });
+
+  describe("Subject Filter", () => {
+    it("renders successfully", () => {
+      wrapPage();
+      expect(getReactSelect("subject-filter")).toBeInTheDocument();
+    });
+    it("filters math subjects correctly", async () => {
+      mockRpc();
+      wrapPage();
+      expect(getToggle()).toHaveTextContent("tutor");
+      await waitFor(() =>
+        expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS)
+      );
+
+      changeOption("subject", "Math");
+      expect(queryCards()).toHaveLength(2);
+    });
+  });
 });

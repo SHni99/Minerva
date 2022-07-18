@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/extend-expect";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
 import { supabaseClient } from "config/supabase-client";
@@ -20,7 +20,7 @@ const wrapPage = (authData = { logged_in: false }) => {
   }));
   supabaseClient.removeSubscription = jest.fn();
 
-  render(
+  const { unmount } = render(
     <AuthContext.Provider value={{ authData }}>
       <Router location={history.location} navigator={history}>
         <ListingsPage />
@@ -28,7 +28,7 @@ const wrapPage = (authData = { logged_in: false }) => {
     </AuthContext.Provider>
   );
 
-  return history;
+  return { history, unmount };
 };
 
 beforeEach(jest.clearAllMocks);
@@ -41,11 +41,64 @@ describe("Tutor/Tutee toggle", () => {
     expect(getToggle()).toBeInTheDocument();
   });
 
-  // Planned: displays tutor/tutee based on user preferences (AuthContext)
+  it("defaults to tutor if no preference has been cached", () => {
+    wrapPage();
+    expect(getToggle()).toHaveTextContent("tutor");
+  });
 
-  // Planned: toggles correctly
+  it("displays tutor/tutee based on cached user preferences", () => {
+    Storage.prototype.getItem = jest.fn().mockReturnValue("tutee");
+    wrapPage();
+    expect(Storage.prototype.getItem).toHaveBeenCalled();
+    expect(getToggle()).toHaveTextContent("tutee");
+  });
 
-  // Planned: toggling causes update in Supabase profiles table, preferences column (mock Supabase)
+  it("toggles correctly on click", () => {
+    wrapPage();
+    expect(getToggle()).toHaveTextContent("tutor");
+    fireEvent.click(getToggle());
+    expect(getToggle()).toHaveTextContent("tutee");
+  });
 
-  // Planned: updating of Supabase profile preferences uses a debounce effect (timing around 0.25s)
+  it("updates cached preferences on toggle", async () => {
+    Storage.prototype.setItem = jest.fn();
+    const { unmount } = wrapPage();
+    expect(getToggle()).toHaveTextContent("tutor");
+    fireEvent.click(getToggle());
+
+    // Wait for debounce to fire off
+    await waitFor(() => {
+      expect(Storage.prototype.setItem).toHaveBeenCalledWith(
+        "lookingFor",
+        "tutee"
+      );
+    });
+
+    unmount();
+  });
+
+  it("uses a debounce function when updating user preferences", async () => {
+    Storage.prototype.setItem = jest.fn();
+    const { unmount } = wrapPage();
+    expect(getToggle()).toHaveTextContent("tutor");
+
+    // Spam 50 clicks on the toggle button
+    Array(50)
+      .fill(null)
+      .forEach(() => fireEvent.click(getToggle()));
+    expect(Storage.prototype.setItem).toHaveBeenCalledTimes(0);
+
+    // Wait for debounce to fire off
+    await waitFor(() => {
+      expect(Storage.prototype.setItem).toHaveBeenCalled();
+    });
+
+    expect(Storage.prototype.setItem).toHaveBeenCalledTimes(1);
+    expect(Storage.prototype.setItem).toHaveBeenCalledWith(
+      "lookingFor",
+      "tutee"
+    );
+
+    unmount();
+  });
 });

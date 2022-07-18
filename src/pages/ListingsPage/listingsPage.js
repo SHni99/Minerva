@@ -368,16 +368,6 @@ const Listings = ({
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
 
-  // Array of objects containing the data of each listing
-
-  // const filterListing = ({ level, rates, fields }) =>
-  //   `${level} ${rates} ${Object.keys(fields).reduce(
-  //     (acc, key) => `${acc} ${fields[key].value}`,
-  //     ""
-  //   )}`
-  //     .toLowerCase()
-  //     .includes(query.toLowerCase());
-
   const filterListing = ({ level, rates, fields }) =>
     fuzzy(
       query,

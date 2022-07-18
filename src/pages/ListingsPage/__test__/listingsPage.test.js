@@ -12,6 +12,7 @@ import { supabaseClient } from "config/supabase-client";
 import AuthContext from "util/AuthContext";
 import ListingsPage from "../listingsPage";
 import mockListings, { CONSTANTS } from "./mockDb";
+import { act } from "react-dom/test-utils";
 
 // Mock the alert function as jsdom does not implement this
 global.alert = jest.fn();
@@ -239,6 +240,20 @@ describe("Filters", () => {
       changeOption("level", "Secondary");
       expect(queryCards()).toHaveLength(1);
     });
+    it("stacks Secondary, Tertiary and Undergraduate filters correctly", async () => {
+      mockRpc();
+      Storage.prototype.getItem = jest.fn();
+      wrapPage();
+      expect(getToggle()).toHaveTextContent("tutor");
+      await waitFor(() =>
+        expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS)
+      );
+
+      changeOption("level", "Secondary");
+      changeOption("level", "Tertiary");
+      changeOption("level", "Undergraduate");
+      expect(queryCards()).toHaveLength(3);
+    });
   });
 
   describe("Subject Filter", () => {
@@ -258,6 +273,20 @@ describe("Filters", () => {
       changeOption("subject", "Math");
       expect(queryCards()).toHaveLength(2);
     });
+    it("stacks Math, English and Science filters correctly", async () => {
+      mockRpc();
+      Storage.prototype.getItem = jest.fn();
+      wrapPage();
+      expect(getToggle()).toHaveTextContent("tutor");
+      await waitFor(() =>
+        expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS)
+      );
+
+      changeOption("subject", "Math");
+      changeOption("subject", "English");
+      changeOption("subject", "Science");
+      expect(queryCards()).toHaveLength(2);
+    });
   });
 
   describe("Qualifications Filter", () => {
@@ -275,6 +304,20 @@ describe("Filters", () => {
       );
 
       changeOption("qualifications", "PhD");
+      expect(queryCards()).toHaveLength(3);
+    });
+    it("stacks PhD, Masters and Undergraduate filters correctly", async () => {
+      mockRpc();
+      Storage.prototype.getItem = jest.fn(() => "tutee");
+      wrapPage();
+      expect(getToggle()).toHaveTextContent("tutee");
+      await waitFor(() =>
+        expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTEES)
+      );
+
+      changeOption("qualifications", "PhD");
+      changeOption("qualifications", "Masters");
+      changeOption("qualifications", "Undergraduate");
       expect(queryCards()).toHaveLength(3);
     });
   });

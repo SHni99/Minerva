@@ -401,6 +401,13 @@ const Listings = ({
   const [filteredListings, setFilteredListings] = useState([]);
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
+  const mountedRef = useRef(false);
+
+  // Dedicated useEffect to keep track of app mount status
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => (mountedRef.current = false);
+  }, []);
 
   const filterListing = ({ level, rates, fields }) =>
     fuzzy(
@@ -423,7 +430,7 @@ const Listings = ({
     const getListings = async () => {
       const [sortField, sortOrder] = sortBy.split(" ");
       try {
-        setLoading(true);
+        if (mountedRef.current) setLoading(true);
         // Fetch data using `get_listings()` RPC call
         let { data: listingDb, error: listingError } = await supabase
           .rpc("get_listings")
@@ -435,17 +442,21 @@ const Listings = ({
         const newListingData = listingDb.filter(filterListing);
 
         //if no blocked user, it will return all the listings
-        if (!blockedArray) {
-          setListingData(newListingData);
-        } else {
-          //filter blocked user from the listing data
-          const current = newListingData.filter(({ creator_id }) =>
-            blockedArray.reduce((cur, next) => cur && creator_id !== next, true)
-          );
-          setListingData(current);
+        if (mountedRef.current) {
+          if (!blockedArray) {
+            setListingData(newListingData);
+          } else {
+            //filter blocked user from the listing data
+            const current = newListingData.filter(({ creator_id }) =>
+              blockedArray.reduce(
+                (cur, next) => cur && creator_id !== next,
+                true
+              )
+            );
+            setListingData(current);
+          }
+          setLoading(false);
         }
-
-        setLoading(false);
       } catch (error) {
         alert(error.message);
       }

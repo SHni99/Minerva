@@ -220,6 +220,15 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                   }}
                 />
               ),
+              MenuList: (props) => (
+                <components.MenuList
+                  {...props}
+                  innerProps={{
+                    ...props.innerProps,
+                    "aria-label": "sort-menulist",
+                  }}
+                />
+              ),
             }}
             onChange={(option) => {
               setSortBy(option.value);
@@ -286,6 +295,15 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                   innerProps={{
                     ...props.innerProps,
                     "aria-label": "level-filter",
+                  }}
+                />
+              ),
+              MenuList: (props) => (
+                <components.MenuList
+                  {...props}
+                  innerProps={{
+                    ...props.innerProps,
+                    "aria-label": "level-menulist",
                   }}
                 />
               ),
@@ -640,6 +658,15 @@ const TagFilter = ({
             innerProps={{
               ...props.innerProps,
               "aria-label": `${tagType}-filter`,
+            }}
+          />
+        ),
+        MenuList: (props) => (
+          <components.MenuList
+            {...props}
+            innerProps={{
+              ...props.innerProps,
+              "aria-label": `${tagType}-menulist`,
             }}
           />
         ),

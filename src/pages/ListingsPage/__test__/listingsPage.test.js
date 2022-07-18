@@ -1,5 +1,11 @@
 import "@testing-library/jest-dom/extend-expect";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
 import { supabaseClient } from "config/supabase-client";
@@ -188,11 +194,49 @@ describe("Sort menu", () => {
     expect(screen.getByText("Newest to Oldest")).toBeInTheDocument();
   });
 
-  it("saves latest selected sort preference", () => {});
-  it("sorts from newest to oldest listings correctly", () => {});
-  it("sorts from oldest to newest listings correctly", () => {});
-  it("sorts from highest to lowest rating correctly", () => {});
-  it("sorts from lowest to highest rating correctly", () => {});
-  it("sorts from most to least reviews correctly", () => {});
-  it("sorts from least to most reviews correctly", () => {});
+  it("saves latest selected sort preference", () => {
+    wrapPage();
+    Storage.prototype.getItem = jest.fn();
+    Storage.prototype.setItem = jest.fn();
+    fireEvent.keyDown(getReactSelect("sort-menu"), { key: "ArrowDown" });
+
+    expect(Storage.prototype.setItem).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText("Oldest to Newest"));
+    expect(Storage.prototype.setItem).toHaveBeenCalledTimes(1);
+    expect(Storage.prototype.setItem).toHaveBeenCalledWith(
+      "sortBy",
+      "created_at asc"
+    );
+  });
+});
+
+describe("Filters", () => {
+  const queryCards = () => screen.queryAllByRole("figure");
+  const getToggle = () => screen.getByTestId("tutorTuteeToggle");
+  const changeOption = (filterType, optionLabel) => {
+    fireEvent.keyDown(getReactSelect(`${filterType}-filter`), {
+      key: "ArrowDown",
+    });
+    fireEvent.click(
+      within(getReactSelect(`${filterType}-menulist`)).getByText(optionLabel)
+    );
+  };
+
+  describe("Level Filter", () => {
+    it("renders successfully", () => {
+      wrapPage();
+      expect(getReactSelect("level-filter")).toBeInTheDocument();
+    });
+    it("filters secondary school listings correctly", async () => {
+      mockRpc();
+      wrapPage();
+      expect(getToggle()).toHaveTextContent("tutor");
+      await waitFor(() =>
+        expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS)
+      );
+
+      changeOption("level", "Secondary");
+      expect(queryCards()).toHaveLength(1);
+    });
+  });
 });

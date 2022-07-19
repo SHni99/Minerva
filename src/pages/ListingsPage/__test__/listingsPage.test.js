@@ -12,7 +12,7 @@ import { supabaseClient } from "config/supabase-client";
 import AuthContext from "util/AuthContext";
 import ListingsPage from "../listingsPage";
 import mockListings, { CONSTANTS } from "./mockDb";
-import { act } from "react-dom/test-utils";
+import selectEvent from "react-select-event";
 
 // Mock the alert function as jsdom does not implement this
 global.alert = jest.fn();
@@ -28,7 +28,7 @@ const wrapPage = (authData = { logged_in: false }) => {
   }));
   supabaseClient.removeSubscription = jest.fn();
 
-  const { unmount } = render(
+  const { container, unmount } = render(
     <AuthContext.Provider value={{ authData }}>
       <Router location={history.location} navigator={history}>
         <ListingsPage />
@@ -36,7 +36,7 @@ const wrapPage = (authData = { logged_in: false }) => {
     </AuthContext.Provider>
   );
 
-  return { history, unmount };
+  return { history, container, unmount };
 };
 
 const mockRpc = () => {
@@ -57,7 +57,7 @@ const mockRpc = () => {
   }));
 };
 
-const getReactSelect = (ariaLabel) => screen.getByLabelText(ariaLabel);
+const getMenuBar = () => screen.getByRole("menubar");
 
 beforeEach(jest.clearAllMocks);
 
@@ -77,6 +77,7 @@ describe("Tutor/Tutee toggle", () => {
   it("displays tutor/tutee based on cached user preferences", () => {
     Storage.prototype.getItem = jest.fn().mockReturnValue("tutee");
     wrapPage();
+
     expect(Storage.prototype.getItem).toHaveBeenCalled();
     expect(getToggle()).toHaveTextContent("tutee");
   });
@@ -186,23 +187,28 @@ describe("Search Bar", () => {
 describe("Sort menu", () => {
   it("renders with no issues", () => {
     wrapPage();
-    expect(getReactSelect("sort-menu")).toBeInTheDocument();
+    expect(screen.getByLabelText("sort-menu")).toBeInTheDocument();
   });
 
   it("defaults to sorting from newest to oldest listings", () => {
     wrapPage();
     Storage.prototype.getItem = jest.fn();
-    expect(screen.getByText("Newest to Oldest")).toBeInTheDocument();
+
+    expect(
+      within(getMenuBar()).getByText("Newest to Oldest")
+    ).toBeInTheDocument();
   });
 
-  it("saves latest selected sort preference", () => {
+  it("saves latest selected sort preference", async () => {
     wrapPage();
     Storage.prototype.getItem = jest.fn();
     Storage.prototype.setItem = jest.fn();
-    fireEvent.keyDown(getReactSelect("sort-menu"), { key: "ArrowDown" });
-
     expect(Storage.prototype.setItem).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByText("Oldest to Newest"));
+
+    await selectEvent.select(
+      screen.getByLabelText("sort-menu"),
+      "Oldest to Newest"
+    );
     expect(Storage.prototype.setItem).toHaveBeenCalledTimes(1);
     expect(Storage.prototype.setItem).toHaveBeenCalledWith(
       "sortBy",
@@ -214,19 +220,11 @@ describe("Sort menu", () => {
 describe("Filters", () => {
   const queryCards = () => screen.queryAllByRole("figure");
   const getToggle = () => screen.getByTestId("tutorTuteeToggle");
-  const changeOption = (filterType, optionLabel) => {
-    fireEvent.keyDown(getReactSelect(`${filterType}-filter`), {
-      key: "ArrowDown",
-    });
-    fireEvent.click(
-      within(getReactSelect(`${filterType}-menulist`)).getByText(optionLabel)
-    );
-  };
 
   describe("Level Filter", () => {
     it("renders successfully", () => {
       wrapPage();
-      expect(getReactSelect("level-filter")).toBeInTheDocument();
+      expect(within(getMenuBar()).getByText("Level")).toBeInTheDocument();
     });
     it("filters secondary school listings correctly", async () => {
       mockRpc();
@@ -237,7 +235,10 @@ describe("Filters", () => {
         expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS)
       );
 
-      changeOption("level", "Secondary");
+      await selectEvent.select(
+        screen.getByLabelText("level-filter"),
+        "Secondary"
+      );
       expect(queryCards()).toHaveLength(1);
     });
     it("stacks Secondary, Tertiary and Undergraduate filters correctly", async () => {
@@ -249,9 +250,11 @@ describe("Filters", () => {
         expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS)
       );
 
-      changeOption("level", "Secondary");
-      changeOption("level", "Tertiary");
-      changeOption("level", "Undergraduate");
+      await selectEvent.select(screen.getByLabelText("level-filter"), [
+        "Secondary",
+        "Tertiary",
+        "Undergraduate",
+      ]);
       expect(queryCards()).toHaveLength(3);
     });
   });
@@ -259,7 +262,7 @@ describe("Filters", () => {
   describe("Subject Filter", () => {
     it("renders successfully", () => {
       wrapPage();
-      expect(getReactSelect("subject-filter")).toBeInTheDocument();
+      expect(within(getMenuBar()).getByText("Subject")).toBeInTheDocument();
     });
     it("filters math subjects correctly", async () => {
       mockRpc();
@@ -270,7 +273,7 @@ describe("Filters", () => {
         expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS)
       );
 
-      changeOption("subject", "Math");
+      await selectEvent.select(screen.getByLabelText("subject-filter"), "Math");
       expect(queryCards()).toHaveLength(2);
     });
     it("stacks Math, English and Science filters correctly", async () => {
@@ -282,9 +285,11 @@ describe("Filters", () => {
         expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTORS)
       );
 
-      changeOption("subject", "Math");
-      changeOption("subject", "English");
-      changeOption("subject", "Science");
+      await selectEvent.select(screen.getByLabelText("subject-filter"), [
+        "Math",
+        "English",
+        "Science",
+      ]);
       expect(queryCards()).toHaveLength(2);
     });
   });
@@ -292,7 +297,9 @@ describe("Filters", () => {
   describe("Qualifications Filter", () => {
     it("renders successfully", () => {
       wrapPage();
-      expect(getReactSelect("qualifications-filter")).toBeInTheDocument();
+      expect(
+        within(getMenuBar()).getByText("Qualifications")
+      ).toBeInTheDocument();
     });
     it("filters PhD-qualified listings correctly", async () => {
       mockRpc();
@@ -303,7 +310,10 @@ describe("Filters", () => {
         expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTEES)
       );
 
-      changeOption("qualifications", "PhD");
+      await selectEvent.select(
+        screen.getByLabelText("qualifications-filter"),
+        "PhD"
+      );
       expect(queryCards()).toHaveLength(3);
     });
     it("stacks PhD, Masters and Undergraduate filters correctly", async () => {
@@ -315,10 +325,30 @@ describe("Filters", () => {
         expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTEES)
       );
 
-      changeOption("qualifications", "PhD");
-      changeOption("qualifications", "Masters");
-      changeOption("qualifications", "Undergraduate");
+      await selectEvent.select(screen.getByLabelText("qualifications-filter"), [
+        "PhD",
+        "Masters",
+        "Undergraduate",
+      ]);
       expect(queryCards()).toHaveLength(3);
     });
+  });
+
+  it("stacks Secondary level and Math subject filters correctly (conjunction, not disjunction)", async () => {
+    mockRpc();
+    Storage.prototype.getItem = jest.fn(() => "tutee");
+    wrapPage();
+    expect(getToggle()).toHaveTextContent("tutee");
+    await waitFor(() =>
+      expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTEES)
+    );
+
+    await selectEvent.select(
+      screen.getByLabelText("level-filter"),
+      "Secondary"
+    );
+    await selectEvent.select(screen.getByLabelText("subject-filter"), "Math");
+
+    expect(queryCards()).toHaveLength(2);
   });
 });

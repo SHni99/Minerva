@@ -182,11 +182,12 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
         </div>
       </div>
 
-      <Row className="py-2 px-3">
-        <Col xs="auto" className="p-1">
+      <Row className="py-2 px-3" role="menubar">
+        <Col xs="auto" className="p-1" role="menuitem">
           <Select
             placeholder="Sort by..."
             options={sortOptions}
+            aria-label="sort-menu"
             defaultValue={
               sortOptions.filter(({ value }) => value === sortBy) ||
               sortOptions[0]
@@ -211,24 +212,6 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             components={{
               IndicatorSeparator: () => null,
               DropdownIndicator: () => null,
-              Control: (props) => (
-                <components.Control
-                  {...props}
-                  innerProps={{
-                    ...props.innerProps,
-                    "aria-label": "sort-menu",
-                  }}
-                />
-              ),
-              MenuList: (props) => (
-                <components.MenuList
-                  {...props}
-                  innerProps={{
-                    ...props.innerProps,
-                    "aria-label": "sort-menulist",
-                  }}
-                />
-              ),
             }}
             onChange={(option) => {
               setSortBy(option.value);
@@ -237,13 +220,14 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             isSearchable={false}
           />
         </Col>
-        <Col xs="auto d-flex p-0">
+        <Col xs="auto d-flex p-0" role="menuitem">
           <div className="vr my-auto mx-2" style={{ height: "24px" }} />
         </Col>
         <Col xs="auto" className="p-1">
           <Select
             placeholder="Level"
             options={levelOptions}
+            aria-label="level-filter"
             styles={{
               control: (props) => ({
                 ...props,
@@ -289,24 +273,6 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
                 );
               },
               Option: (props) => CheckboxOption(props, true),
-              Control: (props) => (
-                <components.Control
-                  {...props}
-                  innerProps={{
-                    ...props.innerProps,
-                    "aria-label": "level-filter",
-                  }}
-                />
-              ),
-              MenuList: (props) => (
-                <components.MenuList
-                  {...props}
-                  innerProps={{
-                    ...props.innerProps,
-                    "aria-label": "level-menulist",
-                  }}
-                />
-              ),
             }}
             onChange={createFilterHandler("level", true)}
             isSearchable={false}
@@ -316,7 +282,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             isMulti
           />
         </Col>
-        <Col xs="auto" className="p-1">
+        <Col xs="auto" className="p-1" role="menuitem">
           <TagFilter
             tagType="subject"
             tagLabel="Subject"
@@ -325,7 +291,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             createFilterHandler={createFilterHandler}
           />
         </Col>
-        <Col xs="auto" className="p-1">
+        <Col xs="auto" className="p-1" role="menuitem">
           <TagFilter
             tagType="qualifications"
             tagLabel="Qualifications"
@@ -612,6 +578,7 @@ const TagFilter = ({
     <CreatableSelect
       options={options}
       placeholder={tagLabel}
+      aria-label={`${tagType}-filter`}
       styles={{
         control: (props) => ({
           ...props,
@@ -663,24 +630,6 @@ const TagFilter = ({
               0,
             removeOption
           ),
-        Control: (props) => (
-          <components.Control
-            {...props}
-            innerProps={{
-              ...props.innerProps,
-              "aria-label": `${tagType}-filter`,
-            }}
-          />
-        ),
-        MenuList: (props) => (
-          <components.MenuList
-            {...props}
-            innerProps={{
-              ...props.innerProps,
-              "aria-label": `${tagType}-menulist`,
-            }}
-          />
-        ),
       }}
       onChange={createFilterHandler(tagType, true, setOptions)}
       closeMenuOnSelect={false}

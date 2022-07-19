@@ -831,7 +831,10 @@ const FiltersOffcanvas = ({
               value={useFullRates}
               onChange={(event) => {
                 setUseFullRates(event.target.checked);
-                setRates((old) => [old[0], Math.min(100, old[1])]);
+                setRates((old) => [
+                  Math.min(100, old[0]),
+                  Math.min(100, old[1]),
+                ]);
               }}
               disabled={!checkFilterExists("rates")}
             />

@@ -753,9 +753,22 @@ const FiltersOffcanvas = ({
   filters,
   setFilters,
 }) => {
-  const [rates, setRates] = useState([0, 999]);
-  const checkFilterExists = (filterName) =>
-    filters.filter(({ name }) => name === filterName).length > 0;
+  const [rates, setRates] = useState([0, 100]);
+  const [useFullRates, setUseFullRates] = useState(false);
+  const debouncedUpdateFilters = useRef(
+    debounce(
+      (filterName, value) =>
+        setFilters((old) => [
+          ...old.filter(({ name }) => name !== filterName),
+          { name: filterName, value },
+        ]),
+      250
+    )
+  );
+
+  const getFilter = (filterName) =>
+    filters.filter(({ name }) => name === filterName);
+  const checkFilterExists = (filterName) => getFilter(filterName).length > 0;
   const handleRatesChange = (value, index) => {
     // Check if value is within [0, 999]
     if (value < 0 || value > 999) return;
@@ -777,6 +790,12 @@ const FiltersOffcanvas = ({
     }
   };
 
+  // Update main `filters` state when rates changes (debounced)
+  useEffect(() => {
+    if (checkFilterExists("rates"))
+      debouncedUpdateFilters.current("rates", rates);
+  }, [rates]);
+
   return (
     <Offcanvas
       show={showOffcanvas}
@@ -795,15 +814,25 @@ const FiltersOffcanvas = ({
               style={{ fontSize: "18px" }}
             />
           </Row>
-          <Row>
+          <Row className="my-4">
             <Slider
               range
-              max={999}
+              max={useFullRates ? 999 : 100}
               allowCross={false}
               onChange={throttle((value) => setRates(value), 10)}
               value={rates}
               defaultValue={[0, 999]}
-              className="my-4"
+              className="my-1"
+              disabled={!checkFilterExists("rates")}
+            />
+            <FormCheck
+              type="checkbox"
+              label="Show full range"
+              value={useFullRates}
+              onChange={(event) => {
+                setUseFullRates(event.target.checked);
+                setRates((old) => [old[0], Math.min(100, old[1])]);
+              }}
               disabled={!checkFilterExists("rates")}
             />
           </Row>

@@ -113,6 +113,10 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
     localStorage.getItem("sortBy") || "created_at desc"
   );
 
+  const getFilter = (filterName) =>
+    filters.filter(({ name }) => name === filterName)[0];
+  const checkFilterExists = (filterName) => Boolean(getFilter(filterName));
+
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
   };
@@ -310,6 +314,16 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
               createFilterHandler={createFilterHandler}
             />
           </Col>
+          {checkFilterExists("rates") && (
+            <FilterPlaceholder
+              onClose={() =>
+                setFilters((old) => old.filter(({ name }) => name !== "rates"))
+              }
+            >{`$${getFilter("rates").value[0]} - $${
+              getFilter("rates").value[1]
+            }`}</FilterPlaceholder>
+          )}
+
           <Col xs="auto" className="p-1 d-flex" role="menuitem">
             <div
               className={`${listingsPageStyles["more-filters"]} d-flex flex-row align-items-center px-2`}
@@ -358,6 +372,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
       <FiltersOffcanvas
         showOffcanvas={showOffcanvas}
         handleClose={() => setShowOffcanvas(false)}
+        filters={filters}
         setFilters={setFilters}
       />
     </>
@@ -696,7 +711,7 @@ const CheckboxOption = (props, isDefault, removeOption) => (
 );
 
 const FilterPlaceholder = (props) => {
-  const { children } = props;
+  const { onClose, children } = props;
   return (
     <Col xs="auto" className="p-1 d-flex" role="menuitem">
       <div
@@ -715,6 +730,7 @@ const FilterPlaceholder = (props) => {
         </div>
         <div className="d-flex ps-2 pe-1">
           <CloseButton
+            onClick={onClose}
             className="p-0 my-auto"
             style={{
               height: "12px",
@@ -727,8 +743,15 @@ const FilterPlaceholder = (props) => {
   );
 };
 
-const FiltersOffcanvas = ({ showOffcanvas, handleClose, setFilters }) => {
+const FiltersOffcanvas = ({
+  showOffcanvas,
+  handleClose,
+  filters,
+  setFilters,
+}) => {
   const [rates, setRates] = useState([0, 999]);
+  const checkFilterExists = (filterName) =>
+    filters.filter(({ name }) => name === filterName).length > 0;
   const handleRatesChange = (value, index) => {
     // Check if value is within [0, 999]
     if (value < 0 || value > 999) return;
@@ -740,6 +763,14 @@ const FiltersOffcanvas = ({ showOffcanvas, handleClose, setFilters }) => {
     if (Number(newRates[0]) > Number(newRates[1])) return;
 
     setRates(newRates);
+  };
+
+  const handleCheck = (filterName, isChecked) => {
+    if (isChecked) {
+      setFilters((old) => [...old, { name: filterName, value: rates }]);
+    } else {
+      setFilters((old) => old.filter(({ name }) => name !== filterName));
+    }
   };
 
   return (
@@ -756,6 +787,7 @@ const FiltersOffcanvas = ({ showOffcanvas, handleClose, setFilters }) => {
             <FormCheck
               type="checkbox"
               label="Hourly Rates"
+              onChange={(event) => handleCheck("rates", event.target.checked)}
               style={{ fontSize: "18px" }}
             />
           </Row>
@@ -764,10 +796,11 @@ const FiltersOffcanvas = ({ showOffcanvas, handleClose, setFilters }) => {
               range
               max={999}
               allowCross={false}
-              onChange={throttle((value) => setRates(value), 50)}
+              onChange={throttle((value) => setRates(value), 10)}
               value={rates}
               defaultValue={[0, 999]}
               className="my-4"
+              disabled={!checkFilterExists("rates")}
             />
           </Row>
           <Row className="d-flex align-items-center justify-content-between px-0">
@@ -777,6 +810,7 @@ const FiltersOffcanvas = ({ showOffcanvas, handleClose, setFilters }) => {
                 type="number"
                 value={rates[0]}
                 onChange={(e) => handleRatesChange(e.target.value, 0)}
+                disabled={!checkFilterExists("rates")}
               />
             </Col>
             -
@@ -786,6 +820,7 @@ const FiltersOffcanvas = ({ showOffcanvas, handleClose, setFilters }) => {
                 type="number"
                 value={rates[1]}
                 onChange={(e) => handleRatesChange(e.target.value, 1)}
+                disabled={!checkFilterExists("rates")}
               />
             </Col>
           </Row>

@@ -17,6 +17,8 @@ import Select, { components } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import Badge from "react-bootstrap/Badge";
 import { fuzzy } from "fast-fuzzy";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
@@ -299,6 +301,27 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             filterState={[filters, setFilters]}
             createFilterHandler={createFilterHandler}
           />
+        </Col>
+        <Col xs="auto" className="p-1 d-flex" role="menuitem">
+          <div
+            className="d-flex flex-row align-items-center px-2"
+            style={{
+              borderWidth: "1px",
+              borderColor: "hsl(0, 0%, 80%)",
+              borderRadius: "20px",
+              backgroundColor: "white",
+            }}
+          >
+            <div className="ps-1" style={{ color: "hsl(0, 0%, 50%)" }}>
+              <p className="m-0">More Filters</p>
+            </div>
+            <div className="d-flex ps-2 pe-1">
+              <FontAwesomeIcon
+                icon={faAngleRight}
+                style={{ color: "hsl(0, 0%, 80%)" }}
+              />
+            </div>
+          </div>
         </Col>
       </Row>
 
@@ -659,3 +682,35 @@ const CheckboxOption = (props, isDefault, removeOption) => (
     </components.Option>
   </div>
 );
+
+const FilterPlaceholder = (props) => {
+  const { children } = props;
+  return (
+    <Col xs="auto" className="p-1 d-flex" role="menuitem">
+      <div
+        className="d-flex flex-row align-items-center px-2"
+        style={{
+          borderWidth: "1px",
+          borderColor: "hsl(0, 0%, 80%)",
+          borderRadius: "20px",
+          backgroundColor: "#d4e9e4",
+        }}
+      >
+        <div className="ps-1">
+          <p className="m-0" style={{ color: "rgb(2, 105, 88)" }}>
+            {children}
+          </p>
+        </div>
+        <div className="d-flex ps-2 pe-1">
+          <CloseButton
+            className="p-0 my-auto"
+            style={{
+              height: "12px",
+              width: "12px",
+            }}
+          />
+        </div>
+      </div>
+    </Col>
+  );
+};

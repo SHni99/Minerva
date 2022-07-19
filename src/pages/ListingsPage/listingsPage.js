@@ -4,8 +4,10 @@ import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
-import { CloseButton } from "react-bootstrap";
-import { debounce } from "lodash";
+import { debounce, throttle } from "lodash";
+import CloseButton from "react-bootstrap/CloseButton";
+import Offcanvas from "react-bootstrap/Offcanvas";
+import FormCheck from "react-bootstrap/FormCheck";
 import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -19,6 +21,8 @@ import Badge from "react-bootstrap/Badge";
 import { fuzzy } from "fast-fuzzy";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import Slider from "rc-slider";
+import { FormControl, FormText } from "react-bootstrap";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
@@ -101,6 +105,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   const [tutorTutee, setTutorTutee] = useState(
     localStorage.getItem("lookingFor") || "tutor"
   );
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
   // Stores the text entered into the search bar
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState([]);
@@ -141,214 +146,221 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   };
 
   return (
-    <Container className={`${listingsPageStyles["body"]}`}>
-      {/* Header containing "I'm looking for a ..." with the Tutor/Tutee toggle */}
-      <Row className={`${listingsPageStyles["filter-tutor-tutee"]}`}>
-        <Col>
-          <h1 className={`${listingsPageStyles["lookingForText"]}`}>
-            I'm looking for a
-          </h1>
-        </Col>
+    <>
+      <Container className={`${listingsPageStyles["body"]}`}>
+        {/* Header containing "I'm looking for a ..." with the Tutor/Tutee toggle */}
+        <Row className={`${listingsPageStyles["filter-tutor-tutee"]}`}>
+          <Col>
+            <h1 className={`${listingsPageStyles["lookingForText"]}`}>
+              I'm looking for a
+            </h1>
+          </Col>
 
-        <Col>
-          <TutorTuteeToggle
-            tutorTutee={tutorTutee}
-            setTutorTutee={setTutorTutee}
-          />
-        </Col>
-      </Row>
+          <Col>
+            <TutorTuteeToggle
+              tutorTutee={tutorTutee}
+              setTutorTutee={setTutorTutee}
+            />
+          </Col>
+        </Row>
 
-      {/* Search Bar + Search Button */}
-      <div className={listingsPageStyles["search-bar"]}>
-        <div className={`${listingsPageStyles["search-box"]}`}>
-          <input
-            className={listingsPageStyles["input-text-1"]}
-            id="search-input"
-            onKeyDown={(event) => {
-              if (event.key === "Enter") searchHandler();
-            }}
-          />
-          <CloseButton
-            onClick={() => {
-              setQuery("");
-              document.getElementById("search-input").value = "";
-            }}
-          />
-        </div>
-
-        <div
-          className={listingsPageStyles["button-master-1"]}
-          onClick={searchHandler}
-        >
-          <div className={`${listingsPageStyles["text-1"]}`}>Search</div>
-        </div>
-      </div>
-
-      <Row className="py-2 px-3" role="menubar">
-        <Col xs="auto" className="p-1" role="menuitem">
-          <Select
-            placeholder="Sort by..."
-            options={sortOptions}
-            aria-label="sort-menu"
-            defaultValue={
-              sortOptions.filter(({ value }) => value === sortBy) ||
-              sortOptions[0]
-            }
-            styles={{
-              control: (props) => ({
-                ...props,
-                borderRadius: "20px",
-              }),
-              singleValue: (props) => ({
-                ...props,
-                display: "flex",
-                justifyContent: "center",
-                "::before": {
-                  content: '"Sort: "',
-                  display: "block",
-                  marginRight: "4px",
-                  color: "gray",
-                },
-              }),
-            }}
-            components={{
-              IndicatorSeparator: () => null,
-              DropdownIndicator: () => null,
-            }}
-            onChange={(option) => {
-              setSortBy(option.value);
-              localStorage.setItem("sortBy", option.value);
-            }}
-            isSearchable={false}
-          />
-        </Col>
-        <Col xs="auto d-flex p-0" role="menuitem">
-          <div className="vr my-auto mx-2" style={{ height: "24px" }} />
-        </Col>
-        <Col xs="auto" className="p-1">
-          <Select
-            placeholder="Level"
-            options={levelOptions}
-            aria-label="level-filter"
-            styles={{
-              control: (props) => ({
-                ...props,
-                borderRadius: "20px",
-                backgroundColor:
-                  filters.filter(({ name }) => name === "level").length === 0
-                    ? "white"
-                    : "#d4e9e4",
-              }),
-              menu: (props) => ({ ...props, width: "12em" }),
-              clearIndicator: (props) => ({
-                ...props,
-                paddingLeft: 0,
-              }),
-              valueContainer: (props) => ({ ...props, paddingRight: "0px" }),
-              dropdownIndicator: (props, state) => ({
-                ...props,
-                paddingLeft: "0px",
-                display: state.getValue().length > 0 ? "none" : "flex",
-              }),
-              option: (props, state) => ({
-                ...props,
-                backgroundColor: state.isSelected ? "#F0F0F0" : "white",
-                color: "black",
-              }),
-            }}
-            components={{
-              IndicatorSeparator: () => null,
-              MultiValueRemove: () => null,
-              MultiValue: (state) => {
-                const numSelected = state.getValue().length;
-                if (numSelected > 1 && state.index > 0) return <></>;
-                return (
-                  <p
-                    className="m-0 ps-1 d-flex align-center"
-                    style={{
-                      color: "#026958",
-                    }}
-                  >
-                    {numSelected > 1 ? "Level" : state.data.label}
-                    {numSelected > 1 && <MultiBadge>{numSelected}</MultiBadge>}
-                  </p>
-                );
-              },
-              Option: (props) => CheckboxOption(props, true),
-            }}
-            onChange={createFilterHandler("level", true)}
-            isSearchable={false}
-            closeMenuOnSelect={false}
-            hideSelectedOptions={false}
-            isClearable
-            isMulti
-          />
-        </Col>
-        <Col xs="auto" className="p-1" role="menuitem">
-          <TagFilter
-            tagType="subject"
-            tagLabel="Subject"
-            defaultOptions={subjectOptions}
-            filterState={[filters, setFilters]}
-            createFilterHandler={createFilterHandler}
-          />
-        </Col>
-        <Col xs="auto" className="p-1" role="menuitem">
-          <TagFilter
-            tagType="qualifications"
-            tagLabel="Qualifications"
-            defaultOptions={qualificationsOptions}
-            filterState={[filters, setFilters]}
-            createFilterHandler={createFilterHandler}
-          />
-        </Col>
-        <Col xs="auto" className="p-1 d-flex" role="menuitem">
-          <div
-            className="d-flex flex-row align-items-center px-2"
-            style={{
-              borderWidth: "1px",
-              borderColor: "hsl(0, 0%, 80%)",
-              borderRadius: "20px",
-              backgroundColor: "white",
-            }}
-          >
-            <div className="ps-1" style={{ color: "hsl(0, 0%, 50%)" }}>
-              <p className="m-0">More Filters</p>
-            </div>
-            <div className="d-flex ps-2 pe-1">
-              <FontAwesomeIcon
-                icon={faAngleRight}
-                style={{ color: "hsl(0, 0%, 80%)" }}
-              />
-            </div>
+        {/* Search Bar + Search Button */}
+        <div className={listingsPageStyles["search-bar"]}>
+          <div className={`${listingsPageStyles["search-box"]}`}>
+            <input
+              className={listingsPageStyles["input-text-1"]}
+              id="search-input"
+              onKeyDown={(event) => {
+                if (event.key === "Enter") searchHandler();
+              }}
+            />
+            <CloseButton
+              onClick={() => {
+                setQuery("");
+                document.getElementById("search-input").value = "";
+              }}
+            />
           </div>
-        </Col>
-      </Row>
 
-      {/* Legend for the listing field badge colors */}
-      <div
-        className="pb-2 px-sm-2 d-flex flex-row justify-center"
-        style={{ fontFamily: "Nunito" }}
-      >
-        <h5 className="text-center">
-          Tags: <span></span>
-          <FieldTag category="subject" value="Subject" />
-          <FieldTag category="qualifications" value="Qualifications" />
-          <FieldTag category="timing" value="Preferred Times" />
-          <FieldTag category="commitment" value="Commitment Period" />
-          <FieldTag category="others" value="Others" />
-        </h5>
-      </div>
-      {/* Listings */}
-      <Listings
-        tutorTutee={tutorTutee}
-        query={query}
-        setModalState={setModalState}
-        blockedArray={blockedArray}
-        filters={filters}
-        sortBy={sortBy}
+          <div
+            className={listingsPageStyles["button-master-1"]}
+            onClick={searchHandler}
+          >
+            <div className={`${listingsPageStyles["text-1"]}`}>Search</div>
+          </div>
+        </div>
+
+        <Row className="py-2 px-3" role="menubar">
+          <Col xs="auto" className="p-1" role="menuitem">
+            <Select
+              placeholder="Sort by..."
+              options={sortOptions}
+              aria-label="sort-menu"
+              defaultValue={
+                sortOptions.filter(({ value }) => value === sortBy) ||
+                sortOptions[0]
+              }
+              styles={{
+                control: (props) => ({
+                  ...props,
+                  borderRadius: "20px",
+                }),
+                singleValue: (props) => ({
+                  ...props,
+                  display: "flex",
+                  justifyContent: "center",
+                  "::before": {
+                    content: '"Sort: "',
+                    display: "block",
+                    marginRight: "4px",
+                    color: "gray",
+                  },
+                }),
+              }}
+              components={{
+                IndicatorSeparator: () => null,
+                DropdownIndicator: () => null,
+              }}
+              onChange={(option) => {
+                setSortBy(option.value);
+                localStorage.setItem("sortBy", option.value);
+              }}
+              isSearchable={false}
+            />
+          </Col>
+          <Col xs="auto d-flex p-0" role="menuitem">
+            <div className="vr my-auto mx-2" style={{ height: "24px" }} />
+          </Col>
+          <Col xs="auto" className="p-1">
+            <Select
+              placeholder="Level"
+              options={levelOptions}
+              aria-label="level-filter"
+              styles={{
+                control: (props) => ({
+                  ...props,
+                  borderRadius: "20px",
+                  backgroundColor:
+                    filters.filter(({ name }) => name === "level").length === 0
+                      ? "white"
+                      : "#d4e9e4",
+                }),
+                menu: (props) => ({ ...props, width: "12em" }),
+                clearIndicator: (props) => ({
+                  ...props,
+                  paddingLeft: 0,
+                }),
+                valueContainer: (props) => ({ ...props, paddingRight: "0px" }),
+                dropdownIndicator: (props, state) => ({
+                  ...props,
+                  paddingLeft: "0px",
+                  display: state.getValue().length > 0 ? "none" : "flex",
+                }),
+                option: (props, state) => ({
+                  ...props,
+                  backgroundColor: state.isSelected ? "#F0F0F0" : "white",
+                  color: "black",
+                }),
+              }}
+              components={{
+                IndicatorSeparator: () => null,
+                MultiValueRemove: () => null,
+                MultiValue: (state) => {
+                  const numSelected = state.getValue().length;
+                  if (numSelected > 1 && state.index > 0) return <></>;
+                  return (
+                    <p
+                      className="m-0 ps-1 d-flex align-center"
+                      style={{
+                        color: "#026958",
+                      }}
+                    >
+                      {numSelected > 1 ? "Level" : state.data.label}
+                      {numSelected > 1 && (
+                        <MultiBadge>{numSelected}</MultiBadge>
+                      )}
+                    </p>
+                  );
+                },
+                Option: (props) => CheckboxOption(props, true),
+              }}
+              onChange={createFilterHandler("level", true)}
+              isSearchable={false}
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              isClearable
+              isMulti
+            />
+          </Col>
+          <Col xs="auto" className="p-1" role="menuitem">
+            <TagFilter
+              tagType="subject"
+              tagLabel="Subject"
+              defaultOptions={subjectOptions}
+              filterState={[filters, setFilters]}
+              createFilterHandler={createFilterHandler}
+            />
+          </Col>
+          <Col xs="auto" className="p-1" role="menuitem">
+            <TagFilter
+              tagType="qualifications"
+              tagLabel="Qualifications"
+              defaultOptions={qualificationsOptions}
+              filterState={[filters, setFilters]}
+              createFilterHandler={createFilterHandler}
+            />
+          </Col>
+          <Col xs="auto" className="p-1 d-flex" role="menuitem">
+            <div
+              className={`${listingsPageStyles["more-filters"]} d-flex flex-row align-items-center px-2`}
+              onClick={() => setShowOffcanvas(true)}
+            >
+              <div
+                className="ps-1"
+                style={{ color: "hsl(0, 0%, 50%)", cursor: "pointer" }}
+              >
+                <p className="m-0">More Filters</p>
+              </div>
+              <div className="d-flex ps-2 pe-1">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  style={{ color: "hsl(0, 0%, 80%)" }}
+                />
+              </div>
+            </div>
+          </Col>
+        </Row>
+
+        {/* Legend for the listing field badge colors */}
+        <div
+          className="pb-2 px-sm-2 d-flex flex-row justify-center"
+          style={{ fontFamily: "Nunito" }}
+        >
+          <h5 className="text-center">
+            Tags: <span></span>
+            <FieldTag category="subject" value="Subject" />
+            <FieldTag category="qualifications" value="Qualifications" />
+            <FieldTag category="timing" value="Preferred Times" />
+            <FieldTag category="commitment" value="Commitment Period" />
+            <FieldTag category="others" value="Others" />
+          </h5>
+        </div>
+        {/* Listings */}
+        <Listings
+          tutorTutee={tutorTutee}
+          query={query}
+          setModalState={setModalState}
+          blockedArray={blockedArray}
+          filters={filters}
+          sortBy={sortBy}
+        />
+      </Container>
+      <FiltersOffcanvas
+        showOffcanvas={showOffcanvas}
+        handleClose={() => setShowOffcanvas(false)}
+        setFilters={setFilters}
       />
-    </Container>
+    </>
   );
 };
 
@@ -712,5 +724,80 @@ const FilterPlaceholder = (props) => {
         </div>
       </div>
     </Col>
+  );
+};
+
+const FiltersOffcanvas = ({ showOffcanvas, handleClose, setFilters }) => {
+  const [rates, setRates] = useState([0, 999]);
+  const handleRatesChange = (value, index) => {
+    // Check if value is within [0, 999]
+    if (value < 0 || value > 999) return;
+
+    // Create new state
+    const newRates = index === 0 ? [value, rates[1]] : [rates[0], value];
+
+    // Check if values overlap
+    if (Number(newRates[0]) > Number(newRates[1])) return;
+
+    setRates(newRates);
+  };
+
+  return (
+    <Offcanvas
+      show={showOffcanvas}
+      onHide={handleClose}
+      placement="end"
+      scroll
+      backdrop
+    >
+      <Container className="p-4 mx-2">
+        <Row className="px-3 py-2">
+          <Row>
+            <FormCheck
+              type="checkbox"
+              label="Hourly Rates"
+              style={{ fontSize: "18px" }}
+            />
+          </Row>
+          <Row>
+            <Slider
+              range
+              max={999}
+              allowCross={false}
+              onChange={throttle((value) => setRates(value), 50)}
+              value={rates}
+              defaultValue={[0, 999]}
+              className="my-4"
+            />
+          </Row>
+          <Row className="d-flex align-items-center justify-content-between px-0">
+            <Col className="d-flex flex-row align-items-center">
+              <label className="px-1">$</label>
+              <FormControl
+                type="number"
+                value={rates[0]}
+                onChange={(e) => handleRatesChange(e.target.value, 0)}
+              />
+            </Col>
+            -
+            <Col className="d-flex flex-row align-items-center">
+              <label className="px-1">$</label>
+              <FormControl
+                type="number"
+                value={rates[1]}
+                onChange={(e) => handleRatesChange(e.target.value, 1)}
+              />
+            </Col>
+          </Row>
+        </Row>
+
+        <hr style={{ border: "1px 0px" }} className="my-4" />
+        <FormCheck
+          type="checkbox"
+          label="Average Rating"
+          style={{ fontSize: "18px" }}
+        />
+      </Container>
+    </Offcanvas>
   );
 };

@@ -794,6 +794,9 @@ const FiltersOffcanvas = ({
   useEffect(() => {
     if (checkFilterExists("rates"))
       debouncedUpdateFilters.current("rates", rates);
+
+    // Disabling warning as checkFilterExists will never be modified
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rates]);
 
   return (
@@ -810,6 +813,7 @@ const FiltersOffcanvas = ({
             <FormCheck
               type="checkbox"
               label="Hourly Rates"
+              defaultChecked={checkFilterExists("rates")}
               onChange={(event) => handleCheck("rates", event.target.checked)}
               style={{ fontSize: "18px" }}
             />
@@ -828,7 +832,7 @@ const FiltersOffcanvas = ({
             <FormCheck
               type="checkbox"
               label="Show full range"
-              value={useFullRates}
+              defaultChecked={useFullRates}
               onChange={(event) => {
                 setUseFullRates(event.target.checked);
                 setRates((old) => [

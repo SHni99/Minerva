@@ -528,6 +528,10 @@ const Listings = ({
         const valueArray = value.map(({ value }) => value);
         if (name === "level") {
           if (valueArray.includes(listing.level)) return true;
+        } else if (name === "rates") {
+          const [lowerBound, upperBound] = value;
+          const rates = listing.rates;
+          if (rates >= lowerBound && rates <= upperBound) return true;
         } else {
           const relevantFields = listing.fields.filter(
             ({ category }) => category === name

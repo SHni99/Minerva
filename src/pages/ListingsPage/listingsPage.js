@@ -533,6 +533,10 @@ const Listings = ({
           const [lowerBound, upperBound] = value;
           const rates = listing.rates;
           if (rates >= lowerBound && rates <= upperBound) return true;
+        } else if (name === "avg_rating") {
+          const [lowerBound, upperBound] = value;
+          const avg_rating = listing.avg_rating;
+          if (avg_rating >= lowerBound && avg_rating <= upperBound) return true;
         } else {
           const relevantFields = listing.fields.filter(
             ({ category }) => category === name

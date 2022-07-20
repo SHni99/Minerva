@@ -23,6 +23,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import Slider from "rc-slider";
 import { FormControl, FormText } from "react-bootstrap";
+import { FaStar } from "react-icons/fa";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
@@ -754,6 +755,7 @@ const FiltersOffcanvas = ({
   setFilters,
 }) => {
   const [rates, setRates] = useState([0, 100]);
+  const [rating, setRating] = useState([0, 5]);
   const [useFullRates, setUseFullRates] = useState(false);
   const debouncedUpdateFilters = useRef(
     debounce(
@@ -765,6 +767,10 @@ const FiltersOffcanvas = ({
       250
     )
   );
+  const throttledHandlers = useRef({
+    setRates: throttle((value) => setRates(value), 10),
+    setRating: throttle((value) => setRating(value), 10),
+  });
 
   const getFilter = (filterName) =>
     filters.filter(({ name }) => name === filterName);
@@ -780,6 +786,18 @@ const FiltersOffcanvas = ({
     if (Number(newRates[0]) > Number(newRates[1])) return;
 
     setRates(newRates);
+  };
+  const handleRatingChange = (value, index) => {
+    // Check if value is within [0, 5]
+    if (value < 0 || value > 5) return;
+
+    // Create new state
+    const newRating = index === 0 ? [value, rating[1]] : [rating[0], value];
+
+    // Check if values overlap
+    if (Number(newRating[0]) > Number(newRating[1])) return;
+
+    setRating(newRating);
   };
 
   const handleCheck = (filterName, isChecked) => {
@@ -799,6 +817,15 @@ const FiltersOffcanvas = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rates]);
 
+  // Update main `filters` state when rating changes (debounced)
+  useEffect(() => {
+    if (checkFilterExists("avg_rating"))
+      debouncedUpdateFilters.current("avg_rating", rating);
+
+    // Disabling warning as checkFilterExists will never be modified
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rating]);
+
   return (
     <Offcanvas
       show={showOffcanvas}
@@ -813,7 +840,7 @@ const FiltersOffcanvas = ({
             <FormCheck
               type="checkbox"
               label="Hourly Rates"
-              defaultChecked={checkFilterExists("rates")}
+              defaultChecked={checkFilterExists("rating")}
               onChange={(event) => handleCheck("rates", event.target.checked)}
               style={{ fontSize: "18px" }}
             />
@@ -823,7 +850,7 @@ const FiltersOffcanvas = ({
               range
               max={useFullRates ? 999 : 100}
               allowCross={false}
-              onChange={throttle((value) => setRates(value), 10)}
+              onChange={throttledHandlers.current.setRates}
               value={rates}
               defaultValue={[0, 999]}
               className="my-1"
@@ -867,11 +894,55 @@ const FiltersOffcanvas = ({
         </Row>
 
         <hr style={{ border: "1px 0px" }} className="my-4" />
-        <FormCheck
-          type="checkbox"
-          label="Average Rating"
-          style={{ fontSize: "18px" }}
-        />
+
+        <Row className="px-3 py-2">
+          <FormCheck
+            type="checkbox"
+            label="Average Rating"
+            defaultChecked={checkFilterExists("avg_rating")}
+            onChange={(event) =>
+              handleCheck("avg_rating", event.target.checked)
+            }
+            style={{ fontSize: "18px" }}
+          />
+          <Row className="my-4">
+            <Slider
+              range
+              max={5}
+              allowCross={false}
+              value={rating}
+              onChange={throttledHandlers.current.setRating}
+              className="my-1"
+              disabled={!checkFilterExists("avg_rating")}
+              defaultValue={[0, 5]}
+            />
+          </Row>
+          <Row className="d-flex align-items-center justify-content-between px-0">
+            <Col className="d-flex flex-row align-items-center">
+              <FormControl
+                type="number"
+                value={rating[0]}
+                onChange={(e) => handleRatingChange(e.target.value, 0)}
+                disabled={!checkFilterExists("avg_rating")}
+              />
+              <FaStar
+                color={checkFilterExists("avg_rating") ? "#FFBA5A" : "#a9a9a9"}
+              />
+            </Col>
+            -
+            <Col className="d-flex flex-row align-items-center">
+              <FormControl
+                type="number"
+                value={rating[1]}
+                onChange={(e) => handleRatingChange(e.target.value, 1)}
+                disabled={!checkFilterExists("avg_rating")}
+              />
+              <FaStar
+                color={checkFilterExists("avg_rating") ? "#FFBA5A" : "#a9a9a9"}
+              />
+            </Col>
+          </Row>
+        </Row>
       </Container>
     </Offcanvas>
   );

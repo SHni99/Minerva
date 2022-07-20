@@ -220,6 +220,35 @@ describe("Sort menu", () => {
 describe("Filters", () => {
   const queryCards = () => screen.queryAllByRole("figure");
   const getToggle = () => screen.getByTestId("tutorTuteeToggle");
+  const getMoreFilters = () => screen.getByLabelText("more-filters");
+
+  it("stacks Secondary level and Math subject filters correctly (conjunction, not disjunction)", async () => {
+    mockRpc();
+    Storage.prototype.getItem = jest.fn(() => "tutee");
+    wrapPage();
+    expect(getToggle()).toHaveTextContent("tutee");
+    await waitFor(() =>
+      expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTEES)
+    );
+
+    await selectEvent.select(
+      screen.getByLabelText("level-filter"),
+      "Secondary"
+    );
+    await selectEvent.select(screen.getByLabelText("subject-filter"), "Math");
+
+    expect(queryCards()).toHaveLength(2);
+  });
+
+  it("displays an Offcanvas when More Filters is clicked", () => {
+    wrapPage();
+
+    // Offcanvas should not be shown initially
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("more-filters"));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
 
   describe("Level Filter", () => {
     it("renders successfully", () => {
@@ -332,23 +361,5 @@ describe("Filters", () => {
       ]);
       expect(queryCards()).toHaveLength(3);
     });
-  });
-
-  it("stacks Secondary level and Math subject filters correctly (conjunction, not disjunction)", async () => {
-    mockRpc();
-    Storage.prototype.getItem = jest.fn(() => "tutee");
-    wrapPage();
-    expect(getToggle()).toHaveTextContent("tutee");
-    await waitFor(() =>
-      expect(queryCards()).toHaveLength(CONSTANTS.NUM_TUTEES)
-    );
-
-    await selectEvent.select(
-      screen.getByLabelText("level-filter"),
-      "Secondary"
-    );
-    await selectEvent.select(screen.getByLabelText("subject-filter"), "Math");
-
-    expect(queryCards()).toHaveLength(2);
   });
 });

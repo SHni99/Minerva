@@ -347,6 +347,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
           <Col xs="auto" className="p-1 d-flex" role="menuitem">
             <div
               className={`${listingsPageStyles["more-filters"]} d-flex flex-row align-items-center px-2`}
+              aria-label="more-filters"
               onClick={() => setShowOffcanvas(true)}
             >
               <div

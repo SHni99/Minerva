@@ -315,6 +315,7 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
               createFilterHandler={createFilterHandler}
             />
           </Col>
+
           {checkFilterExists("rates") && (
             <FilterPlaceholder
               onClose={() =>
@@ -323,6 +324,24 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
             >{`$${getFilter("rates").value[0]} - $${
               getFilter("rates").value[1]
             }`}</FilterPlaceholder>
+          )}
+
+          {checkFilterExists("avg_rating") && (
+            <FilterPlaceholder
+              onClose={() =>
+                setFilters((old) =>
+                  old.filter(({ name }) => name !== "avg_rating")
+                )
+              }
+            >
+              <span className="d-flex flex-row align-items-center">
+                {getFilter("avg_rating").value[0]}{" "}
+                <FaStar color="#FFBA5A" style={{ marginLeft: "2px" }} />
+                <label className="mx-1">-</label>
+                {getFilter("avg_rating").value[1]}{" "}
+                <FaStar color="#FFBA5A" style={{ marginLeft: "1px" }} />
+              </span>
+            </FilterPlaceholder>
           )}
 
           <Col xs="auto" className="p-1 d-flex" role="menuitem">

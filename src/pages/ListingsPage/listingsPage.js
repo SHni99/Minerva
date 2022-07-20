@@ -825,7 +825,10 @@ const FiltersOffcanvas = ({
 
   const handleCheck = (filterName, isChecked) => {
     if (isChecked) {
-      setFilters((old) => [...old, { name: filterName, value: rates }]);
+      setFilters((old) => [
+        ...old,
+        { name: filterName, value: filterName === "rates" ? rates : rating },
+      ]);
     } else {
       setFilters((old) => old.filter(({ name }) => name !== filterName));
     }

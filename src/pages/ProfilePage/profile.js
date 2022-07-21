@@ -229,7 +229,6 @@ const ProfilePageBody = ({
           .eq("id", id)
           .single();
 
-      
         if (error) throw error;
         setShow({
           email: operation.preferences.email,

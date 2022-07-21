@@ -18,11 +18,11 @@ import listingsPageStyles from "./listingsPage.module.css";
 import Select, { components } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import Badge from "react-bootstrap/Badge";
+import FormControl from "react-bootstrap/FormControl";
 import { fuzzy } from "fast-fuzzy";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import Slider from "rc-slider";
-import { FormControl, FormText } from "react-bootstrap";
 import { FaStar } from "react-icons/fa";
 
 const ListingsPage = () => {

@@ -19,7 +19,7 @@ export default function FormComponent() {
       const data = {
         index,
         textbox,
-        user_id: user
+        user_id: user,
       };
       setLoading(true);
       let { error } = await supabaseClient
@@ -59,8 +59,8 @@ export default function FormComponent() {
 
               <div>
                 <Rating //user can review the quality of his dealer by awarding the number of stars (out of 5)
-                setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
-                ratingHover={ratinghover}
+                  setReviews={[currentValue, setCurrentValue]} //pass the params down to child class (Rating) under component
+                  ratingHover={ratinghover}
                 />
               </div>
               <div className="form-group">

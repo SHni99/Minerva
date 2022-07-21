@@ -20,8 +20,8 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
-        if(blockedArray === null) return setIsEmpty(true);
-        if (blockedArray.length === 0){
+        if (blockedArray === null) return setIsEmpty(true);
+        if (blockedArray.length === 0) {
           setIsEmpty(true);
         }
         const newBlockedData = await Promise.all(
@@ -85,6 +85,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
                     <img
                       className="rounded-pill"
                       src={avatarURL}
+                      style={{ width: "100%", height: "100%" }}
                       alt="img"
                     ></img>
                   </div>
@@ -168,15 +169,20 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
           onClick={() => {
             showModal(
               "List of blocked users",
-              isEmpty ? <div className="text-center poppins-semi-bold-black-24px">Nothing here!</div> : blockedList(),
-              
+              isEmpty ? (
+                <div className="text-center poppins-semi-bold-black-24px">
+                  Nothing here!
+                </div>
+              ) : (
+                blockedList()
+              )
             );
           }}
         >
           View blocked users
         </Dropdown.Item>
         <Dropdown.Item
-          style={{display: "none"}}
+          style={{ display: "none" }}
           eventKey="preference"
           onClick={() => {
             showModal(

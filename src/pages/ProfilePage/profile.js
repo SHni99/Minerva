@@ -137,7 +137,7 @@ const ProfilePageBody = ({
         setProfileLoading(true);
         let { data, error, status } = await supabaseClient
           .from("profiles")
-          .select(`username, avatar_url, bio, gender, email `)
+          .select(`username, avatar_url, bio, gender, email, preferences`)
           .eq("id", id)
           .single();
 
@@ -146,11 +146,17 @@ const ProfilePageBody = ({
         }
 
         if (data) {
+          const { username, bio, gender, email, preferences } = data;
           setProfileData({
-            username: data.username,
-            bio: data.bio,
-            gender: data.gender,
-            email: data.email,
+            username,
+            bio,
+            gender,
+            email,
+          });
+          setShow({
+            email: preferences.email,
+            bio: preferences.bio,
+            gender: preferences.gender,
           });
         }
 
@@ -169,29 +175,9 @@ const ProfilePageBody = ({
       }
     };
 
-    const getOptions = async (id) => {
-      try {
-        const { data: operation, error } = await supabaseClient
-          .from("profiles")
-          .select("preferences")
-          .eq("id", id)
-          .single();
-
-        if (error) throw error;
-        setShow({
-          email: operation.preferences.email,
-          bio: operation.preferences.bio,
-          gender: operation.preferences.gender,
-        });
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-
     setcheckUser(checkId !== null ? true : false);
     getProfile(checkId === creator_id ? checkId : creator_id);
     getReview(checkId === creator_id ? checkId : creator_id);
-    getOptions(checkId === creator_id ? checkId : creator_id);
   }, [checkId, creator_id]);
 
   const popover = (

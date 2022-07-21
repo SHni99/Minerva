@@ -96,7 +96,6 @@ const ProfilePageBody = ({
           .eq("reviewee_id", id);
 
         if (error && status !== 406) throw error;
-        console.log(data);
 
         if (data.length === 0) {
           setIsEmpty(true);
@@ -121,6 +120,10 @@ const ProfilePageBody = ({
               creator_id,
             };
           })
+        );
+
+        setIndexAll(
+          (data.reduce((x, y) => x + y.index, 0) / data.length).toPrecision(3)
         );
       } catch (error) {
         alert(error.message);
@@ -151,42 +154,18 @@ const ProfilePageBody = ({
           });
         }
 
-        if (data.avatar_url === "") return;
+        const avatarUrl =
+          data.avatar_url === ""
+            ? "images/img_avatarDefault.jpg"
+            : supabaseClient.storage
+                .from("avatars")
+                .getPublicUrl(data.avatar_url).publicURL;
 
-        const { publicURL, error: publicUrlError } = supabaseClient.storage
-          .from("avatars")
-          .getPublicUrl(data.avatar_url);
-
-        if (publicUrlError) throw publicUrlError;
-        setAvatarurl(publicURL);
+        setAvatarurl(avatarUrl);
       } catch (error) {
         alert(error.message);
       } finally {
         setProfileLoading(false);
-      }
-    };
-
-    const getAllIndex = async (id) => {
-      try {
-        const {
-          data: indexData,
-          error,
-          status,
-        } = await supabaseClient
-          .from("reviews")
-          .select("index")
-          .eq("reviewee_id", id);
-
-        if (indexData)
-          setIndexAll(
-            (
-              indexData.reduce((x, y) => x + y.index, 0) / indexData.length
-            ).toPrecision(3)
-          );
-
-        if (error && status !== 406) throw error;
-      } catch (error) {
-        alert(error.message);
       }
     };
 
@@ -212,7 +191,6 @@ const ProfilePageBody = ({
     setcheckUser(checkId !== null ? true : false);
     getProfile(checkId === creator_id ? checkId : creator_id);
     getReview(checkId === creator_id ? checkId : creator_id);
-    getAllIndex(checkId === creator_id ? checkId : creator_id);
     getOptions(checkId === creator_id ? checkId : creator_id);
   }, [checkId, creator_id]);
 

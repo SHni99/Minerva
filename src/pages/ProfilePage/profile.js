@@ -180,6 +180,10 @@ const ProfilePageBody = ({
     getReview(checkId === creator_id ? checkId : creator_id);
   }, [checkId, creator_id]);
 
+  useEffect(() => {
+    setIsBlocked(blockedArray.includes(creator_id));
+  }, [blockedArray, creator_id]);
+
   const popover = (
     <Popover>
       <Popover.Body>

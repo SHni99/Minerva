@@ -15,15 +15,10 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
   const user = supabaseClient.auth.user();
   const animatedComponents = makeAnimated();
   const [fullBlockedData, setFullBlockeddata] = useState("");
-  const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
-        if (blockedArray === null) return setIsEmpty(true);
-        if (blockedArray.length === 0) {
-          setIsEmpty(true);
-        }
         const newBlockedData = await Promise.all(
           blockedArray.map(async (id) => {
             let {
@@ -38,12 +33,12 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
 
             if (error && status !== 406) throw error;
 
-            if (avatar === "") return;
+            const avatarURL =
+              avatar === ""
+                ? "/images/img_avatarDefault.jpg"
+                : supabaseClient.storage.from("avatars").getPublicUrl(avatar)
+                    .publicURL;
 
-            const { publicURL: avatarURL, error: publicUrlError } =
-              supabaseClient.storage.from("avatars").getPublicUrl(avatar);
-
-            if (publicUrlError) throw publicUrlError;
             return {
               avatarURL,
               username,
@@ -57,8 +52,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
       }
     };
     checkBlockedUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, blockedArray]);
 
   //log user out and redirect to landing page
   const handleLogout = async (navigate, e) => {
@@ -169,7 +163,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
           onClick={() => {
             showModal(
               "List of blocked users",
-              isEmpty ? (
+              blockedArray.length === 0 ? (
                 <div className="text-center poppins-semi-bold-black-24px">
                   Nothing here!
                 </div>

@@ -72,7 +72,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
       <React.Fragment>
         {fullBlockedData.map(({ avatarURL, username, id: creator_id }) => {
           return (
-            <Card className="my-3">
+            <Card className="my-3" key={creator_id}>
               <Card.Body>
                 <div className="row">
                   <div className="col-auto">

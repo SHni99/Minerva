@@ -90,44 +90,29 @@ const ProfilePageBody = ({
     const getReview = async (id) => {
       try {
         setLoading(true);
-        const {
-          data: reviewAll,
-          error,
-          status,
-        } = await supabaseClient
+        const { data, error, status } = await supabaseClient
           .from("reviews")
-          .select("index, textbox, reviewer_id")
+          .select("index, textbox, reviewer(username, avatar_url)")
           .eq("reviewee_id", id);
 
         if (error && status !== 406) throw error;
+        console.log(data);
 
-        if (reviewAll.length === 0) {
+        if (data.length === 0) {
           setIsEmpty(true);
           return;
         }
         setIsEmpty(false);
 
-        const newReviewData = await Promise.all(
-          reviewAll.map(async ({ index, textbox, reviewer_id }) => {
-            let {
-              data: { avatar_url: avatarCode, username },
-              error: avatarError,
-              status: avatarStatus,
-            } = await supabaseClient
-              .from("profiles")
-              .select("username, avatar_url")
-              .eq("id", reviewer_id)
-              .single();
-            if (avatarError && avatarStatus !== 406) throw avatarError;
-
-            const { publicURL: avatarUrl, error: urlError } =
-              avatarCode === ""
-                ? {}
+        setReviewData(
+          data.map(({ index, textbox, reviewer }) => {
+            const { username, avatar_url } = reviewer;
+            const avatarUrl =
+              avatar_url === ""
+                ? "images/img_avatarDefault.jpg"
                 : supabaseClient.storage
                     .from("avatars")
-                    .getPublicUrl(avatarCode);
-            if (urlError) throw urlError;
-
+                    .getPublicUrl(avatar_url).publicURL;
             return {
               avatarUrl,
               username,
@@ -137,7 +122,6 @@ const ProfilePageBody = ({
             };
           })
         );
-        setReviewData(newReviewData);
       } catch (error) {
         alert(error.message);
       } finally {
@@ -206,21 +190,6 @@ const ProfilePageBody = ({
       }
     };
 
-    const getBlockedStatus = async (id) => {
-      try {
-        if (blockedArray) {
-          const checkBlocked = blockedArray.reduce(
-            (res, next) => res || next === id,
-            false
-          );
-
-          setIsBlocked(checkBlocked);
-        }
-      } catch (error) {
-        alert("error.message");
-      }
-    };
-
     const getOptions = async (id) => {
       try {
         const { data: operation, error } = await supabaseClient
@@ -241,12 +210,11 @@ const ProfilePageBody = ({
     };
 
     setcheckUser(checkId !== null ? true : false);
-    getBlockedStatus(checkId === creator_id ? checkId : creator_id);
     getProfile(checkId === creator_id ? checkId : creator_id);
     getReview(checkId === creator_id ? checkId : creator_id);
     getAllIndex(checkId === creator_id ? checkId : creator_id);
     getOptions(checkId === creator_id ? checkId : creator_id);
-  }, [checkId, creator_id, blockedArray]);
+  }, [checkId, creator_id]);
 
   const popover = (
     <Popover>

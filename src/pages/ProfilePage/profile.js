@@ -346,7 +346,7 @@ const ProfilePageBody = ({
             </div>
 
             <div className="col-lg-8 col-sm-12">
-              <div className="row">
+              <div className="row my-2 px-2">
                 {checkUser ? (
                   checkId === creator_id ? (
                     <Setting

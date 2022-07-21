@@ -72,23 +72,23 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
       <React.Fragment>
         {fullBlockedData.map(({ avatarURL, username, id: creator_id }) => {
           return (
-            <Card>
+            <Card className="my-3">
               <Card.Body>
                 <div className="row">
-                  <div className="col-3">
+                  <div className="col-auto">
                     <img
                       className="rounded-pill"
                       src={avatarURL}
-                      style={{ width: "100%", height: "100%" }}
+                      style={{ width: "60px", height: "60px" }}
                       alt="img"
                     ></img>
                   </div>
-                  <div className="col-4 d-flex justify-center nunitosans-bold-black-32px">
-                    {username}
+                  <div className="col-auto d-flex align-items-center">
+                    <label className="fs-4">{username}</label>
                   </div>
-                  <div className="col-5 d-flex justify-end">
+                  <div className="col-auto d-flex ms-auto">
                     <Button
-                      className={settingStyles["tooltip"]}
+                      className={`${settingStyles["tooltip"]} px-1`}
                       onClick={(e) => {
                         e.preventDefault();
                         navigate("/profile", { state: { creator_id } });

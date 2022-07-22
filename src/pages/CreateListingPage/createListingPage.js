@@ -158,7 +158,7 @@ const CreateListingBody = ({
     }
     const fields = [
       ...sFieldInputs
-        .filter((sFieldInput) => sFieldInput.value)
+        .filter((sFieldInput) => sFieldInput.input().value !== "")
         .map((sFieldInput) => ({
           category: sFieldInput.requirement,
           value: sFieldInput.input().value,

@@ -158,12 +158,14 @@ const CreateListingBody = ({
     }
     const fields = [
       ...sFieldInputs
-        .filter((sFieldInput) => sFieldInput.value)
+        .filter((sFieldInput) => sFieldInput.input().value !== "")
         .map((sFieldInput) => ({
           category: sFieldInput.requirement,
           value: sFieldInput.input().value,
         })),
     ];
+    console.log(sFieldInputs);
+    console.log(fields);
     const image_urls = imageURLs.map((img) => img.publicURL);
 
     // Pack the data to be uploaded to Supabase

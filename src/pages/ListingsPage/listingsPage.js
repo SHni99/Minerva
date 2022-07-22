@@ -4,9 +4,10 @@ import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import ListingCard from "components/ListingCard/listingCard";
 import { supabaseClient as supabase } from "config/supabase-client";
-import { CloseButton } from "react-bootstrap";
-import { debounce } from "lodash";
-import { components } from "react-select";
+import { debounce, throttle } from "lodash";
+import CloseButton from "react-bootstrap/CloseButton";
+import Offcanvas from "react-bootstrap/Offcanvas";
+import FormCheck from "react-bootstrap/FormCheck";
 import FieldTag from "components/FieldTag/fieldTag";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -14,10 +15,15 @@ import Col from "react-bootstrap/Col";
 import Spinner from "react-bootstrap/Spinner";
 import ListingModal from "components/ListingModal/listingModal";
 import listingsPageStyles from "./listingsPage.module.css";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import Badge from "react-bootstrap/Badge";
+import FormControl from "react-bootstrap/FormControl";
 import { fuzzy } from "fast-fuzzy";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import Slider from "rc-slider";
+import { FaStar } from "react-icons/fa";
 
 const ListingsPage = () => {
   const { authData } = useContext(AuthContext);
@@ -100,12 +106,17 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   const [tutorTutee, setTutorTutee] = useState(
     localStorage.getItem("lookingFor") || "tutor"
   );
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
   // Stores the text entered into the search bar
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState([]);
   const [sortBy, setSortBy] = useState(
     localStorage.getItem("sortBy") || "created_at desc"
   );
+
+  const getFilter = (filterName) =>
+    filters.filter(({ name }) => name === filterName)[0];
+  const checkFilterExists = (filterName) => Boolean(getFilter(filterName));
 
   const searchHandler = () => {
     setQuery(document.getElementById("search-input").value);
@@ -140,192 +151,252 @@ const ListingPageBody = ({ setModalState, blockedArray }) => {
   };
 
   return (
-    <Container className={`${listingsPageStyles["body"]}`}>
-      {/* Header containing "I'm looking for a ..." with the Tutor/Tutee toggle */}
-      <Row className={`${listingsPageStyles["filter-tutor-tutee"]}`}>
-        <Col>
-          <h1 className={`${listingsPageStyles["lookingForText"]}`}>
-            I'm looking for a
-          </h1>
-        </Col>
+    <>
+      <Container className={`${listingsPageStyles["body"]}`}>
+        {/* Header containing "I'm looking for a ..." with the Tutor/Tutee toggle */}
+        <Row className={`${listingsPageStyles["filter-tutor-tutee"]}`}>
+          <Col>
+            <h1 className={`${listingsPageStyles["lookingForText"]}`}>
+              I'm looking for a
+            </h1>
+          </Col>
 
-        <Col>
-          <TutorTuteeToggle
-            tutorTutee={tutorTutee}
-            setTutorTutee={setTutorTutee}
-          />
-        </Col>
-      </Row>
+          <Col>
+            <TutorTuteeToggle
+              tutorTutee={tutorTutee}
+              setTutorTutee={setTutorTutee}
+            />
+          </Col>
+        </Row>
 
-      {/* Search Bar + Search Button */}
-      <div className={listingsPageStyles["search-bar"]}>
-        <div className={`${listingsPageStyles["search-box"]}`}>
-          <input
-            className={listingsPageStyles["input-text-1"]}
-            id="search-input"
-            onKeyDown={(event) => {
-              if (event.key === "Enter") searchHandler();
-            }}
-          />
-          <CloseButton
-            onClick={() => {
-              setQuery("");
-              document.getElementById("search-input").value = "";
-            }}
-          />
+        {/* Search Bar + Search Button */}
+        <div className={listingsPageStyles["search-bar"]}>
+          <div className={`${listingsPageStyles["search-box"]}`}>
+            <input
+              className={listingsPageStyles["input-text-1"]}
+              id="search-input"
+              onKeyDown={(event) => {
+                if (event.key === "Enter") searchHandler();
+              }}
+            />
+            <CloseButton
+              onClick={() => {
+                setQuery("");
+                document.getElementById("search-input").value = "";
+              }}
+            />
+          </div>
+
+          <div
+            className={listingsPageStyles["button-master-1"]}
+            onClick={searchHandler}
+          >
+            <div className={`${listingsPageStyles["text-1"]}`}>Search</div>
+          </div>
         </div>
 
-        <div
-          className={listingsPageStyles["button-master-1"]}
-          onClick={searchHandler}
-        >
-          <div className={`${listingsPageStyles["text-1"]}`}>Search</div>
-        </div>
-      </div>
-
-      <Row className="py-2 px-3">
-        <Col xs="auto" className="p-1">
-          <Select
-            placeholder="Sort by..."
-            options={sortOptions}
-            defaultValue={
-              sortOptions.filter(
-                ({ value }) => value === localStorage.getItem("sortBy")
-              ) || sortOptions[0]
-            }
-            styles={{
-              control: (props) => ({
-                ...props,
-                borderRadius: "20px",
-              }),
-              singleValue: (props) => ({
-                ...props,
-                display: "flex",
-                justifyContent: "center",
-                "::before": {
-                  content: '"Sort: "',
-                  display: "block",
-                  marginRight: "4px",
-                  color: "gray",
+        <Row className="py-2 px-3" role="menubar">
+          <Col xs="auto" className="p-1" role="menuitem">
+            <Select
+              placeholder="Sort by..."
+              options={sortOptions}
+              aria-label="sort-menu"
+              defaultValue={
+                sortOptions.filter(({ value }) => value === sortBy) ||
+                sortOptions[0]
+              }
+              styles={{
+                control: (props) => ({
+                  ...props,
+                  borderRadius: "20px",
+                }),
+                singleValue: (props) => ({
+                  ...props,
+                  display: "flex",
+                  justifyContent: "center",
+                  "::before": {
+                    content: '"Sort: "',
+                    display: "block",
+                    marginRight: "4px",
+                    color: "gray",
+                  },
+                }),
+              }}
+              components={{
+                IndicatorSeparator: () => null,
+                DropdownIndicator: () => null,
+              }}
+              onChange={(option) => {
+                setSortBy(option.value);
+                localStorage.setItem("sortBy", option.value);
+              }}
+              isSearchable={false}
+            />
+          </Col>
+          <Col xs="auto d-flex p-0" role="menuitem">
+            <div className="vr my-auto mx-2" style={{ height: "24px" }} />
+          </Col>
+          <Col xs="auto" className="p-1">
+            <Select
+              placeholder="Level"
+              options={levelOptions}
+              aria-label="level-filter"
+              styles={{
+                control: (props) => ({
+                  ...props,
+                  borderRadius: "20px",
+                  backgroundColor:
+                    filters.filter(({ name }) => name === "level").length === 0
+                      ? "white"
+                      : "#d4e9e4",
+                }),
+                menu: (props) => ({ ...props, width: "12em" }),
+                clearIndicator: (props) => ({
+                  ...props,
+                  paddingLeft: 0,
+                }),
+                valueContainer: (props) => ({ ...props, paddingRight: "0px" }),
+                dropdownIndicator: (props, state) => ({
+                  ...props,
+                  paddingLeft: "0px",
+                  display: state.getValue().length > 0 ? "none" : "flex",
+                }),
+                option: (props, state) => ({
+                  ...props,
+                  backgroundColor: state.isSelected ? "#F0F0F0" : "white",
+                  color: "black",
+                }),
+              }}
+              components={{
+                IndicatorSeparator: () => null,
+                MultiValueRemove: () => null,
+                MultiValue: (state) => {
+                  const numSelected = state.getValue().length;
+                  if (numSelected > 1 && state.index > 0) return <></>;
+                  return (
+                    <p
+                      className="m-0 ps-1 d-flex align-center"
+                      style={{
+                        color: "#026958",
+                      }}
+                    >
+                      {numSelected > 1 ? "Level" : state.data.label}
+                      {numSelected > 1 && (
+                        <MultiBadge>{numSelected}</MultiBadge>
+                      )}
+                    </p>
+                  );
                 },
-              }),
-            }}
-            components={{
-              IndicatorSeparator: () => null,
-              DropdownIndicator: () => null,
-            }}
-            onChange={(option) => {
-              setSortBy(option.value);
-              localStorage.setItem("sortBy", option.value);
-            }}
-            isSearchable={false}
-          />
-        </Col>
-        <Col xs="auto d-flex p-0">
-          <div className="vr my-auto mx-2" style={{ height: "24px" }} />
-        </Col>
-        <Col xs="auto" className="p-1">
-          <Select
-            placeholder="Level"
-            options={levelOptions}
-            styles={{
-              control: (props) => ({
-                ...props,
-                borderRadius: "20px",
-                backgroundColor:
-                  filters.filter(({ name }) => name === "level").length === 0
-                    ? "white"
-                    : "#d4e9e4",
-              }),
-              menu: (props) => ({ ...props, width: "12em" }),
-              clearIndicator: (props) => ({
-                ...props,
-                paddingLeft: 0,
-              }),
-              valueContainer: (props) => ({ ...props, paddingRight: "0px" }),
-              dropdownIndicator: (props, state) => ({
-                ...props,
-                paddingLeft: "0px",
-                display: state.getValue().length > 0 ? "none" : "flex",
-              }),
-              option: (props, state) => ({
-                ...props,
-                backgroundColor: state.isSelected ? "#F0F0F0" : "white",
-                color: "black",
-              }),
-            }}
-            components={{
-              IndicatorSeparator: () => null,
-              MultiValueRemove: () => null,
-              MultiValue: (state) => {
-                const numSelected = state.getValue().length;
-                if (numSelected > 1 && state.index > 0) return <></>;
-                return (
-                  <p
-                    className="m-0 ps-1 d-flex align-center"
-                    style={{
-                      color: "#026958",
-                    }}
-                  >
-                    {numSelected > 1 ? "Level" : state.data.label}
-                    {numSelected > 1 && <MultiBadge>{numSelected}</MultiBadge>}
-                  </p>
-                );
-              },
-              Option: (props) => CheckboxOption(props, true),
-            }}
-            onChange={createFilterHandler("level", true)}
-            isSearchable={false}
-            closeMenuOnSelect={false}
-            hideSelectedOptions={false}
-            isClearable
-            isMulti
-          />
-        </Col>
-        <Col xs="auto" className="p-1">
-          <TagFilter
-            tagType="subject"
-            tagLabel="Subject"
-            defaultOptions={subjectOptions}
-            filterState={[filters, setFilters]}
-            createFilterHandler={createFilterHandler}
-          />
-        </Col>
-        <Col xs="auto" className="p-1">
-          <TagFilter
-            tagType="qualifications"
-            tagLabel="Qualifications"
-            defaultOptions={qualificationsOptions}
-            filterState={[filters, setFilters]}
-            createFilterHandler={createFilterHandler}
-          />
-        </Col>
-      </Row>
+                Option: (props) => CheckboxOption(props, true),
+              }}
+              onChange={createFilterHandler("level", true)}
+              isSearchable={false}
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              isClearable
+              isMulti
+            />
+          </Col>
+          <Col xs="auto" className="p-1" role="menuitem">
+            <TagFilter
+              tagType="subject"
+              tagLabel="Subject"
+              defaultOptions={subjectOptions}
+              filterState={[filters, setFilters]}
+              createFilterHandler={createFilterHandler}
+            />
+          </Col>
+          <Col xs="auto" className="p-1" role="menuitem">
+            <TagFilter
+              tagType="qualifications"
+              tagLabel="Qualifications"
+              defaultOptions={qualificationsOptions}
+              filterState={[filters, setFilters]}
+              createFilterHandler={createFilterHandler}
+            />
+          </Col>
 
-      {/* Legend for the listing field badge colors */}
-      <div
-        className="pb-2 px-sm-2 d-flex flex-row justify-center"
-        style={{ fontFamily: "Nunito" }}
-      >
-        <h5 className="text-center">
-          Tags: <span></span>
-          <FieldTag category="subject" value="Subject" />
-          <FieldTag category="qualifications" value="Qualifications" />
-          <FieldTag category="timing" value="Preferred Times" />
-          <FieldTag category="commitment" value="Commitment Period" />
-          <FieldTag category="others" value="Others" />
-        </h5>
-      </div>
-      {/* Listings */}
-      <Listings
-        tutorTutee={tutorTutee}
-        query={query}
-        setModalState={setModalState}
-        blockedArray={blockedArray}
+          {checkFilterExists("rates") && (
+            <FilterPlaceholder
+              onClose={() =>
+                setFilters((old) => old.filter(({ name }) => name !== "rates"))
+              }
+            >{`$${getFilter("rates").value[0]} - $${
+              getFilter("rates").value[1]
+            }`}</FilterPlaceholder>
+          )}
+
+          {checkFilterExists("avg_rating") && (
+            <FilterPlaceholder
+              onClose={() =>
+                setFilters((old) =>
+                  old.filter(({ name }) => name !== "avg_rating")
+                )
+              }
+            >
+              <span className="d-flex flex-row align-items-center">
+                {getFilter("avg_rating").value[0]}{" "}
+                <FaStar color="#FFBA5A" style={{ marginLeft: "2px" }} />
+                <label className="mx-1">-</label>
+                {getFilter("avg_rating").value[1]}{" "}
+                <FaStar color="#FFBA5A" style={{ marginLeft: "1px" }} />
+              </span>
+            </FilterPlaceholder>
+          )}
+
+          <Col xs="auto" className="p-1 d-flex" role="menuitem">
+            <div
+              className={`${listingsPageStyles["more-filters"]} d-flex flex-row align-items-center px-2`}
+              aria-label="more-filters"
+              onClick={() => setShowOffcanvas(true)}
+            >
+              <div
+                className="ps-1"
+                style={{ color: "hsl(0, 0%, 50%)", cursor: "pointer" }}
+              >
+                <p className="m-0">More Filters</p>
+              </div>
+              <div className="d-flex ps-2 pe-1">
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  style={{ color: "hsl(0, 0%, 80%)" }}
+                />
+              </div>
+            </div>
+          </Col>
+        </Row>
+
+        {/* Legend for the listing field badge colors */}
+        <div
+          className="pb-2 px-sm-2 d-flex flex-row justify-center"
+          style={{ fontFamily: "Nunito" }}
+        >
+          <h5 className="text-center">
+            Tags: <span></span>
+            <FieldTag category="subject" value="Subject" />
+            <FieldTag category="qualifications" value="Qualifications" />
+            <FieldTag category="timing" value="Preferred Times" />
+            <FieldTag category="commitment" value="Commitment Period" />
+            <FieldTag category="others" value="Others" />
+          </h5>
+        </div>
+        {/* Listings */}
+        <Listings
+          tutorTutee={tutorTutee}
+          query={query}
+          setModalState={setModalState}
+          blockedArray={blockedArray}
+          filters={filters}
+          sortBy={sortBy}
+        />
+      </Container>
+      <FiltersOffcanvas
+        showOffcanvas={showOffcanvas}
+        handleClose={() => setShowOffcanvas(false)}
         filters={filters}
-        sortBy={sortBy}
+        setFilters={setFilters}
       />
-    </Container>
+    </>
   );
 };
 
@@ -367,16 +438,13 @@ const Listings = ({
   const [filteredListings, setFilteredListings] = useState([]);
   // Set to true when data is being fetched from Supabase
   const [loading, setLoading] = useState(false);
+  const mountedRef = useRef(false);
 
-  // Array of objects containing the data of each listing
-
-  // const filterListing = ({ level, rates, fields }) =>
-  //   `${level} ${rates} ${Object.keys(fields).reduce(
-  //     (acc, key) => `${acc} ${fields[key].value}`,
-  //     ""
-  //   )}`
-  //     .toLowerCase()
-  //     .includes(query.toLowerCase());
+  // Dedicated useEffect to keep track of app mount status
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => (mountedRef.current = false);
+  }, []);
 
   const filterListing = ({ level, rates, fields }) =>
     fuzzy(
@@ -390,8 +458,8 @@ const Listings = ({
   const createComparator = (sortBy) => {
     if (!sortBy) return () => 0;
     const [field, order] = sortBy.split(" ");
-    if (order === "asc") return (a, b) => a[field] - b[field];
-    else return (a, b) => b[field] - a[field];
+    if (order === "asc") return (a, b) => (a[field] || 0) - (b[field] || 0);
+    else return (a, b) => (b[field] || 0) - (a[field] || 0);
   };
 
   // Fetch listings from Supabase and display using ListingCards
@@ -399,7 +467,7 @@ const Listings = ({
     const getListings = async () => {
       const [sortField, sortOrder] = sortBy.split(" ");
       try {
-        setLoading(true);
+        if (mountedRef.current) setLoading(true);
         // Fetch data using `get_listings()` RPC call
         let { data: listingDb, error: listingError } = await supabase
           .rpc("get_listings")
@@ -409,20 +477,23 @@ const Listings = ({
 
         // Filter using the selected criteria
         const newListingData = listingDb.filter(filterListing);
-        // listingDb = listingDb.filter(filterListing);
 
         //if no blocked user, it will return all the listings
-        if (blockedArray === null) {
-          setListingData(newListingData);
-        } else {
-          //filter blocked user from the listing data
-          const current = newListingData.filter(({ creator_id }) =>
-            blockedArray.reduce((cur, next) => cur && creator_id !== next, true)
-          );
-          setListingData(current);
+        if (mountedRef.current) {
+          if (!blockedArray) {
+            setListingData(newListingData);
+          } else {
+            //filter blocked user from the listing data
+            const current = newListingData.filter(({ creator_id }) =>
+              blockedArray.reduce(
+                (cur, next) => cur && creator_id !== next,
+                true
+              )
+            );
+            setListingData(current);
+          }
+          setLoading(false);
         }
-
-        setLoading(false);
       } catch (error) {
         alert(error.message);
       }
@@ -478,6 +549,14 @@ const Listings = ({
         const valueArray = value.map(({ value }) => value);
         if (name === "level") {
           if (valueArray.includes(listing.level)) return true;
+        } else if (name === "rates") {
+          const [lowerBound, upperBound] = value;
+          const rates = listing.rates;
+          if (rates >= lowerBound && rates <= upperBound) return true;
+        } else if (name === "avg_rating") {
+          const [lowerBound, upperBound] = value;
+          const avg_rating = listing.avg_rating;
+          if (avg_rating >= lowerBound && avg_rating <= upperBound) return true;
         } else {
           const relevantFields = listing.fields.filter(
             ({ category }) => category === name
@@ -578,6 +657,7 @@ const TagFilter = ({
     <CreatableSelect
       options={options}
       placeholder={tagLabel}
+      aria-label={`${tagType}-filter`}
       styles={{
         control: (props) => ({
           ...props,
@@ -658,3 +738,239 @@ const CheckboxOption = (props, isDefault, removeOption) => (
     </components.Option>
   </div>
 );
+
+const FilterPlaceholder = (props) => {
+  const { onClose, children } = props;
+  return (
+    <Col xs="auto" className="p-1 d-flex" role="menuitem">
+      <div
+        className="d-flex flex-row align-items-center px-2"
+        style={{
+          borderWidth: "1px",
+          borderColor: "hsl(0, 0%, 80%)",
+          borderRadius: "20px",
+          backgroundColor: "#d4e9e4",
+        }}
+      >
+        <div className="ps-1">
+          <p className="m-0" style={{ color: "rgb(2, 105, 88)" }}>
+            {children}
+          </p>
+        </div>
+        <div className="d-flex ps-2 pe-1">
+          <CloseButton
+            onClick={onClose}
+            className="p-0 my-auto"
+            style={{
+              height: "12px",
+              width: "12px",
+            }}
+          />
+        </div>
+      </div>
+    </Col>
+  );
+};
+
+const FiltersOffcanvas = ({
+  showOffcanvas,
+  handleClose,
+  filters,
+  setFilters,
+}) => {
+  const [rates, setRates] = useState([0, 100]);
+  const [rating, setRating] = useState([0, 5]);
+  const [useFullRates, setUseFullRates] = useState(false);
+  const debouncedUpdateFilters = useRef(
+    debounce(
+      (filterName, value) =>
+        setFilters((old) => [
+          ...old.filter(({ name }) => name !== filterName),
+          { name: filterName, value },
+        ]),
+      250
+    )
+  );
+  const throttledHandlers = useRef({
+    setRates: throttle((value) => setRates(value), 10),
+    setRating: throttle((value) => setRating(value), 10),
+  });
+
+  const getFilter = (filterName) =>
+    filters.filter(({ name }) => name === filterName);
+  const checkFilterExists = (filterName) => getFilter(filterName).length > 0;
+  const handleRatesChange = (value, index) => {
+    // Check if value is within [0, 999]
+    if (value < 0 || value > 999) return;
+
+    // Create new state
+    const newRates = index === 0 ? [value, rates[1]] : [rates[0], value];
+
+    // Check if values overlap
+    if (Number(newRates[0]) > Number(newRates[1])) return;
+
+    setRates(newRates);
+  };
+  const handleRatingChange = (value, index) => {
+    // Check if value is within [0, 5]
+    if (value < 0 || value > 5) return;
+
+    // Create new state
+    const newRating = index === 0 ? [value, rating[1]] : [rating[0], value];
+
+    // Check if values overlap
+    if (Number(newRating[0]) > Number(newRating[1])) return;
+
+    setRating(newRating);
+  };
+
+  const handleCheck = (filterName, isChecked) => {
+    if (isChecked) {
+      setFilters((old) => [
+        ...old,
+        { name: filterName, value: filterName === "rates" ? rates : rating },
+      ]);
+    } else {
+      setFilters((old) => old.filter(({ name }) => name !== filterName));
+    }
+  };
+
+  // Update main `filters` state when rates changes (debounced)
+  useEffect(() => {
+    if (checkFilterExists("rates"))
+      debouncedUpdateFilters.current("rates", rates);
+
+    // Disabling warning as checkFilterExists will never be modified
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rates]);
+
+  // Update main `filters` state when rating changes (debounced)
+  useEffect(() => {
+    if (checkFilterExists("avg_rating"))
+      debouncedUpdateFilters.current("avg_rating", rating);
+
+    // Disabling warning as checkFilterExists will never be modified
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rating]);
+
+  return (
+    <Offcanvas
+      show={showOffcanvas}
+      onHide={handleClose}
+      placement="end"
+      scroll
+      backdrop
+    >
+      <Container className="p-4 mx-2">
+        <Row className="px-3 py-2">
+          <Row>
+            <FormCheck
+              type="checkbox"
+              label="Hourly Rates"
+              defaultChecked={checkFilterExists("rating")}
+              onChange={(event) => handleCheck("rates", event.target.checked)}
+              style={{ fontSize: "18px" }}
+            />
+          </Row>
+          <Row className="my-4">
+            <Slider
+              range
+              max={useFullRates ? 999 : 100}
+              allowCross={false}
+              onChange={throttledHandlers.current.setRates}
+              value={rates}
+              defaultValue={[0, 999]}
+              className="my-1"
+              disabled={!checkFilterExists("rates")}
+            />
+            <FormCheck
+              type="checkbox"
+              label="Show full range"
+              defaultChecked={useFullRates}
+              onChange={(event) => {
+                setUseFullRates(event.target.checked);
+                setRates((old) => [
+                  Math.min(100, old[0]),
+                  Math.min(100, old[1]),
+                ]);
+              }}
+              disabled={!checkFilterExists("rates")}
+            />
+          </Row>
+          <Row className="d-flex align-items-center justify-content-between px-0">
+            <Col className="d-flex flex-row align-items-center">
+              <label className="px-1">$</label>
+              <FormControl
+                type="number"
+                value={rates[0]}
+                onChange={(e) => handleRatesChange(e.target.value, 0)}
+                disabled={!checkFilterExists("rates")}
+              />
+            </Col>
+            -
+            <Col className="d-flex flex-row align-items-center">
+              <label className="px-1">$</label>
+              <FormControl
+                type="number"
+                value={rates[1]}
+                onChange={(e) => handleRatesChange(e.target.value, 1)}
+                disabled={!checkFilterExists("rates")}
+              />
+            </Col>
+          </Row>
+        </Row>
+
+        <hr style={{ border: "1px 0px" }} className="my-4" />
+
+        <Row className="px-3 py-2">
+          <FormCheck
+            type="checkbox"
+            label="Average Rating"
+            defaultChecked={checkFilterExists("avg_rating")}
+            onChange={(event) =>
+              handleCheck("avg_rating", event.target.checked)
+            }
+            style={{ fontSize: "18px" }}
+          />
+          <Row className="my-4">
+            <Slider
+              range
+              max={5}
+              allowCross={false}
+              value={rating}
+              onChange={throttledHandlers.current.setRating}
+              className="my-1"
+              disabled={!checkFilterExists("avg_rating")}
+              defaultValue={[0, 5]}
+            />
+          </Row>
+          <Row className="d-flex align-items-center justify-content-between px-0">
+            <Col className="d-flex flex-row align-items-center">
+              <FormControl
+                type="number"
+                value={rating[0]}
+                onChange={(e) => handleRatingChange(e.target.value, 0)}
+                disabled={!checkFilterExists("avg_rating")}
+              />
+              <FaStar
+                color={checkFilterExists("avg_rating") ? "#FFBA5A" : "#a9a9a9"}
+              />
+            </Col>
+            -
+            <Col className="d-flex flex-row align-items-center">
+              <FormControl
+                type="number"
+                value={rating[1]}
+                onChange={(e) => handleRatingChange(e.target.value, 1)}
+                disabled={!checkFilterExists("avg_rating")}
+              />
+              <FaStar
+                color={checkFilterExists("avg_rating") ? "#FFBA5A" : "#a9a9a9"}
+              />
+            </Col>
+          </Row>
+        </Row>
+      </Container>
+    </Offcanvas>
+  );
+};

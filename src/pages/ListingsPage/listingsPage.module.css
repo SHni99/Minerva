@@ -142,6 +142,18 @@
   width: 90%;
 }
 
+.more-filters {
+  border-width: 1px;
+  border-color: hsl(0, 0%, 80%);
+  border-radius: 20px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.more-filters:hover {
+  border-color: hsl(0, 0%, 70%);
+}
+
 :global(.carousel-control-next), :global(.carousel-control-prev) {
   z-index: 0 !important
 }

@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import Routes from "./Routes";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
@@ -34,6 +34,7 @@ function App() {
   // ========================== End of global Toast ==========================
   // =================== Start of AuthContext initialisation =================
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
+  const profileSub = useRef(null);
 
   const parseProfile = (profileData) => {
     const {
@@ -45,7 +46,7 @@ function App() {
       blocked,
       gender,
       bio,
-      email
+      email,
     } = profileData;
     return {
       logged_in: true,
@@ -58,9 +59,9 @@ function App() {
         ? supabaseClient.storage.from("avatars").getPublicUrl(avatar_url)
             .publicURL
         : "/images/img_avatarDefault.jpg",
-      id, 
-      blocked, 
-      email
+      id,
+      blocked,
+      email,
     };
   };
   // Initialise authData and setup listeners, only done once at the start.
@@ -100,7 +101,7 @@ function App() {
           id: null,
           bio: null,
           gender: null,
-          email: null
+          email: null,
         };
 
       const { user } = session;
@@ -118,8 +119,9 @@ function App() {
   // Also set up listener for profile changes
   useEffect(() => {
     const uid = authData.id;
-    if (!uid) return;
-    const profileSub = supabaseClient
+    if (!uid || profileSub.current) return;
+
+    profileSub.current = supabaseClient
       .from(`profiles:id=eq.${uid}`)
       .on("UPDATE", (payload) => {
         setAuthLoading(true);
@@ -127,8 +129,7 @@ function App() {
         setAuthLoading(false);
       })
       .subscribe();
-    return () => supabaseClient.removeSubscription(profileSub);
-  }, [authData, setAuthData, setAuthLoading]);
+  }, [authData, setAuthLoading, setAuthData]);
 
   return (
     <>

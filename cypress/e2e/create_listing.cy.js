@@ -54,3 +54,71 @@ describe("Create Listing Page", () => {
     cy.url().should("contain", "listingspage");
   });
 });
+
+describe("Listings Page", () => {
+  it("should display the newly created listing", () => {
+    login();
+    cy.visit("/listingspage");
+
+    const getListing = () =>
+      cy.get("[role='figure']").contains("cypress-user here").parent().parent();
+
+    // Ensure listing card displays the correct details
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .should("be.visible");
+    getListing().contains("20").should("be.visible");
+    getListing().contains("Secondary").should("be.visible");
+    getListing().contains("Math").should("be.visible");
+
+    // Click on created card with "cypress-user here"
+    getListing().click();
+    cy.get(".modal-header").contains("cypress_user").should("be.visible");
+    cy.get(".modal-body").contains("Math").should("be.visible");
+    cy.get(".modal-body").contains("cypress-user here").should("be.visible");
+  });
+
+  it("should allow users to edit thier listings", () => {
+    login();
+    cy.visit("/listingspage");
+    const getTagField = (index) => cy.get("[name='selection-field']").eq(index);
+
+    // Click on created card with "cypress-user here"
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .parent()
+      .parent()
+      .click();
+
+    // Click on the Edit button
+    cy.get(".btn").contains("Edit").should("be.visible");
+    cy.get(".btn").contains("Edit").click();
+
+    // Users should be notified that they are editing a listing
+    cy.contains("You are editing a listing").should("be.visible");
+
+    // Ensure old fields are loaded correctly
+    cy.contains("tutee").should("be.visible");
+    cy.get("option").contains("Secondary").should("be.selected");
+    cy.get("#rates").should("have.value", "20");
+    getTagField(0).find("option").contains("Subject").should("be.selected");
+    getTagField(0).find("input").should("have.value", "Math");
+    getTagField(1).find("option").contains("Others").should("be.selected");
+    getTagField(1).find("input").should("have.value", "cypress-user here");
+
+    // Edit fields
+    cy.contains("tutee").click();
+    cy.get("#level").select("Tertiary");
+    cy.get("#rates").clear().type("70");
+    getTagField(0).find("select").select("Qualifications");
+    getTagField(0).find("input").clear().type("Undergraduate");
+    cy.get("#selection-fields > svg").click();
+    getTagField(2).find("select").select("Subject");
+    getTagField(2).find("input").type("Chemistry");
+
+    // Submit changes
+    cy.get("button[type='submit']").click();
+    cy.contains("Updating your listing...").should("be.visible");
+    cy.url().should("contain", "listingspage");
+  });
+});

@@ -164,6 +164,8 @@ const CreateListingBody = ({
           value: sFieldInput.input().value,
         })),
     ];
+    console.log(sFieldInputs);
+    console.log(fields);
     const image_urls = imageURLs.map((img) => img.publicURL);
 
     // Pack the data to be uploaded to Supabase

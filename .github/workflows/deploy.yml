@@ -36,9 +36,6 @@ jobs:
           node-version: 17.x
           cache: "npm"
 
-      - run: npm run dev
-      - run: npm run dev
-
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
@@ -48,7 +45,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: buildAndTest
+    needs: [build-and-test, cypress-e2e]
 
     steps:
       - name: Checkout Code

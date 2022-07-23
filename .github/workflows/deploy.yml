@@ -35,11 +35,13 @@ jobs:
         with:
           node-version: 17.x
           cache: "npm"
+
+      - run: npm run dev
+
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
           build: npm run build
-          start: npm run dev
 
   deploy:
     runs-on: ubuntu-latest

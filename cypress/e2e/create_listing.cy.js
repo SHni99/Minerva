@@ -121,4 +121,53 @@ describe("Listings Page", () => {
     cy.contains("Updating your listing...").should("be.visible");
     cy.url().should("contain", "listingspage");
   });
+
+  it("should display newly updated listing", () => {
+    login();
+    cy.visit("/listingspage");
+    cy.contains("tutor").click();
+
+    const getListing = () =>
+      cy.get("[role='figure']").contains("cypress-user here").parent().parent();
+
+    // Ensure listing card displays the correct details
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .should("be.visible");
+    getListing().contains("70").should("be.visible");
+    getListing().contains("Tertiary").should("be.visible");
+    getListing().contains("Undergraduate").should("be.visible");
+    getListing().contains("Chemistry").should("be.visible");
+
+    // Click on created card with "cypress-user here"
+    getListing().click();
+    cy.get(".modal-header").contains("cypress_user").should("be.visible");
+    cy.get(".modal-body").contains("cypress-user here").should("be.visible");
+    cy.get(".modal-body").contains("Undergraduate").should("be.visible");
+    cy.get(".modal-body").contains("Chemistry").should("be.visible");
+  });
+
+  it("should allow users to delete thier own listings", () => {
+    login();
+    cy.visit("/listingspage");
+    cy.contains("tutor").click();
+
+    const getListing = () =>
+      cy.get("[role='figure']").contains("cypress-user here").parent().parent();
+
+    // Click on created card with "cypress-user here"
+    getListing().should("be.visible");
+    getListing().click();
+
+    // Click on the Delete button
+    cy.get(".btn").contains("Delete").should("be.visible");
+    cy.get(".btn").contains("Delete").click();
+
+    // Assert presence of confirmation message
+    cy.contains("Are you sure?").should("be.visible");
+    cy.get("button").contains("Yes").click();
+
+    // Ensure listing is really deleted
+    getListing().should("not.exist");
+  });
 });

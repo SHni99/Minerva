@@ -130,6 +130,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
               );
             })
             .subscribe();
+          window.subObj = { ...window.subObj, reportsSub };
 
           return () => supabaseClient.removeSubscription(reportsSub);
         } else {
@@ -548,9 +549,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   };
 
   return (
-    <Container
-      className={loading && "d-flex justify-center align-center my-auto"}
-    >
+    <Container className={loading && "d-flex justify-center align-center mb-3"}>
       {loading ? (
         <Spinner size="xl" animation="grow" />
       ) : (

@@ -145,7 +145,7 @@ const ChatPageBody = ({
           <Message
             key={"text-" + time}
             model={{
-              message: content.replace("&nbsp; ", "\n"),
+              message: content.replace("&nbsp;", "\n").replace("<br>", "\n"),
               direction: isOwnMessage ? "outgoing" : "incoming",
               position,
             }}
@@ -789,6 +789,8 @@ const ChatPageBody = ({
         )
       )
       .subscribe();
+
+    window.subObj = { ...window.subObj, msgSub };
 
     return () => supabase.removeSubscription(msgSub);
 

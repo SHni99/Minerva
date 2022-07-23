@@ -125,10 +125,12 @@ function App() {
       .from(`profiles:id=eq.${uid}`)
       .on("UPDATE", (payload) => {
         setAuthLoading(true);
+        console.log(payload);
         setAuthData(parseProfile(payload.new));
         setAuthLoading(false);
       })
       .subscribe();
+    window.subObj = { ...window.subObj, profileSub: profileSub.current };
   }, [authData, setAuthLoading, setAuthData]);
 
   return (

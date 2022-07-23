@@ -31,9 +31,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Use Node.js v17.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 17.x
+          cache: "npm"
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:

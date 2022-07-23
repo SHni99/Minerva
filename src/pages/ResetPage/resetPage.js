@@ -110,6 +110,7 @@ const ResetPage = () => {
                       type="password"
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter password"
+                      data-testid="findpassword"
                     ></input>
 
                     <h3
@@ -123,6 +124,7 @@ const ResetPage = () => {
                       type="password"
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Enter confirm password"
+                      data-testid="findconfirmpassword"
                     ></input>
                   </div>
                   {error1 && (

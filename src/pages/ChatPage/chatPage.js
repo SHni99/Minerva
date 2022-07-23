@@ -30,6 +30,7 @@ import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import { decode } from "html-entities";
 
 const ChatPage = () => {
   const { state } = useLocation();
@@ -145,7 +146,7 @@ const ChatPageBody = ({
           <Message
             key={"text-" + time}
             model={{
-              message: content.replace("&nbsp; ", "\n"),
+              message: decode(content).replace("<br>", "\n"),
               direction: isOwnMessage ? "outgoing" : "incoming",
               position,
             }}
@@ -1081,7 +1082,10 @@ const ChatPageBody = ({
                   />
                   <Conversation.Content
                     name={conversations[id].name}
-                    info={conversations[id].message.replace("&nbsp; ", "; ")}
+                    info={decode(conversations[id].message).replace(
+                      "<br>",
+                      ";"
+                    )}
                   />
                 </Conversation>
               ))}

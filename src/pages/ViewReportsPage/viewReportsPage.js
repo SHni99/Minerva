@@ -100,7 +100,15 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
               .eq("id", reportId)
               .single();
             if (error) throw error;
-            return data;
+
+            let { data: hasConvo, error: hasConvoError } =
+              await supabaseClient.rpc("has_convo", {
+                id1: data.reporter.id,
+                id2: data.reported.id,
+              });
+            if (hasConvoError) throw hasConvoError;
+
+            return { ...data, hasConvo };
           };
           const reportsSub = supabaseClient
             .from("reports")
@@ -130,7 +138,6 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
               );
             })
             .subscribe();
-          window.subObj = { ...window.subObj, reportsSub };
 
           return () => supabaseClient.removeSubscription(reportsSub);
         } else {
@@ -173,7 +180,6 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   };
 
   const handleAssignClick = (status, id) => {
-    console.log(id);
     const index = status === "unassigned" ? 0 : 1;
     const cancelButton = (
       <Button
@@ -549,7 +555,9 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   };
 
   return (
-    <Container className={loading && "d-flex justify-center align-center mb-3"}>
+    <Container
+      className={loading && "d-flex justify-center align-center my-auto"}
+    >
       {loading ? (
         <Spinner size="xl" animation="grow" />
       ) : (
@@ -568,7 +576,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
               Resolved
             </Pagination.Item>
           </Pagination>
-          <Row>
+          <Row className="pb-5">
             <Table
               bordered
               hover

@@ -790,8 +790,6 @@ const ChatPageBody = ({
       )
       .subscribe();
 
-    window.subObj = { ...window.subObj, msgSub };
-
     return () => supabase.removeSubscription(msgSub);
 
     // We are disabling warnings regarding missing dependency
@@ -1083,7 +1081,7 @@ const ChatPageBody = ({
                   />
                   <Conversation.Content
                     name={conversations[id].name}
-                    info={conversations[id].message.replace("&nbsp; ", "; ")}
+                    info={conversations[id].message.replace("&nbsp;", " ")}
                   />
                 </Conversation>
               ))}

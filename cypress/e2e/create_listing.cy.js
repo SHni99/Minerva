@@ -23,7 +23,6 @@ describe("Create Listing Page", () => {
     cy.get("#level").select("Secondary");
 
     // User wants to teach for $20 per hour
-    // cy.get("#rates").click();
     cy.get("#rates").type("20");
 
     // User wants to teach Math

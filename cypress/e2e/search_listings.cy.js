@@ -127,9 +127,196 @@ describe("Create Listings Page", () => {
   });
 });
 
-// describe("Listings Page", () => {
-//     it("should display the two test listings correctly", () => {
+describe("Listings Page", () => {
+  const getListing = () =>
+    cy.get("[role='figure']").contains("cypress-user here").parent().parent();
+  const getFilter = (filterName) =>
+    cy.get(`[aria-label="${filterName}-filter"]`).parent().parent();
 
-//     });
+  it("should display the two test listings correctly", () => {
+    login();
+    cy.visit("/listingspage");
 
-// });
+    // Ensure listing card displays the correct details
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .should("be.visible");
+    getListing().contains("20").should("be.visible");
+    getListing().contains("Secondary").should("be.visible");
+    getListing().contains("Math").should("be.visible");
+    getListing().contains("Chemistry").should("be.visible");
+    getListing().contains("Undergraduate").should("be.visible");
+    getListing().contains("Weekdays 2pm-5pm").should("be.visible");
+
+    // Toggle to find the second test listing
+    cy.contains("tutor").click();
+
+    // Ensure listing card displays the correct details
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .should("be.visible");
+    getListing().contains("50").should("be.visible");
+    getListing().contains("Tertiary").should("be.visible");
+    getListing().contains("Physics").should("be.visible");
+    getListing().contains("Biology").should("be.visible");
+    getListing().contains("MOE Teacher").should("be.visible");
+    getListing().contains("Weekends 10am-2pm").should("be.visible");
+  });
+
+  it("should have a properly functioning search bar", () => {
+    login();
+    cy.visit("/listingspage");
+
+    // Check that the search only returns 1 listing
+    cy.get("#search-input").type("cypress-user here{enter}");
+    cy.get("[role='figure']").should("have.length", 1);
+
+    // Toggle to tutees
+    cy.contains("tutor").click();
+
+    // Check that the search only returns 1 listing
+    cy.get("[role='figure']").should("have.length", 1);
+
+    // Clear search
+    cy.get("button[aria-label='Close']").click();
+
+    // Check that the listings are no longer filtered
+    cy.get("[role='figure']").should("have.length.greaterThan", 1);
+    cy.contains("tutee").click();
+    cy.get("[role='figure']").should("have.length.greaterThan", 1);
+  });
+
+  it("should be able to find test listing 1 with the provided filters", () => {
+    login();
+    cy.visit("/listingspage");
+
+    // Filter by Level
+    getFilter("level").click();
+    getFilter("level").parent().contains("Secondary").click();
+    getFilter("level").click();
+
+    // Open More Filters
+    cy.get("[aria-label='more-filters']").click();
+    cy.get(".offcanvas").should("be.visible");
+
+    // Filter by Rates
+    cy.contains("Hourly Rates").siblings().eq(0).click();
+    cy.get("input.form-control").eq(1).clear().type("30");
+
+    // Close More Filters
+    cy.get(".fade").click();
+
+    // Check if test listing 1 is still present
+    cy.get(".spinner").should("not.exist");
+    getListing().should("exist");
+  });
+
+  it("should filter out test listing 1 with the filters given", () => {
+    login();
+    cy.visit("/listingspage");
+
+    // Filter by Level
+    getFilter("level").click();
+    getFilter("level").parent().contains("Tertiary").click();
+    getFilter("level").click();
+
+    // Check that test listing 1 is filtered out
+    cy.get(".spinner").should("not.exist");
+    cy.get("[role='figure']").contains("cypress-user here").should("not.exist");
+  });
+
+  it("should be able to find test listing 2 with the provided filters", () => {
+    login();
+    cy.visit("/listingspage");
+    cy.contains("tutor").click();
+    cy.get(".spinner").should("not.exist");
+
+    // Filter by Level
+    getFilter("level").click();
+    getFilter("level").parent().contains("Tertiary").click();
+    getFilter("level").click();
+
+    // Open More Filters
+    cy.get("[aria-label='more-filters']").click();
+    cy.get(".offcanvas").should("be.visible");
+
+    // Filter by Rates
+    cy.contains("Hourly Rates").siblings().eq(0).click();
+    cy.get("input.form-control").eq(1).clear().type("70");
+
+    // Close More Filters
+    cy.get(".fade").click();
+
+    // Check if test listing 2 is still present
+    cy.get(".spinner").should("not.exist");
+    getListing().should("exist");
+  });
+
+  it("should filter out test listing 2 with the filters given", () => {
+    login();
+    cy.visit("/listingspage");
+    cy.contains("tutor").click();
+    cy.get(".spinner").should("not.exist");
+
+    // Filter by Level
+    getFilter("level").click();
+    getFilter("level").parent().contains("Secondary").click();
+    getFilter("level").click();
+
+    // Check that test listing 1 is filtered out
+    cy.get(".spinner").should("not.exist");
+    cy.get("[role='figure']").contains("cypress-user here").should("not.exist");
+  });
+});
+
+describe("After searching", () => {
+  it("test listings should be able to be deleted", () => {
+    login();
+    cy.visit("/listingspage");
+
+    // Click on created card with "cypress-admin here"
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .parent()
+      .parent()
+      .click();
+
+    // Click on the Delete button
+    cy.get(".btn").contains("Delete").click();
+
+    // Assert presence of confirmation message
+    cy.contains("Are you sure?").should("be.visible");
+    cy.get("button").contains("Yes").click();
+
+    // Ensure listing is really deleted
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .parent()
+      .parent()
+      .should("not.exist");
+
+    // Toggle to find test listing 2
+    cy.contains("tutor").click();
+
+    // Click on created card with "cypress-admin here"
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .parent()
+      .parent()
+      .click();
+
+    // Click on the Delete button
+    cy.get(".btn").contains("Delete").click();
+
+    // Assert presence of confirmation message
+    cy.contains("Are you sure?").should("be.visible");
+    cy.get("button").contains("Yes").click();
+
+    // Ensure listing is really deleted
+    cy.get("[role='figure']")
+      .contains("cypress-user here")
+      .parent()
+      .parent()
+      .should("not.exist");
+  });
+});

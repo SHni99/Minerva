@@ -15,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabaseClient as supabase } from "config/supabase-client";
 import ChatLogStyles from "./chatLogsPage.module.css";
+import { decode } from "html-entities";
 
 const ChatLogsPage = ({ setToastOptions }) => {
   // Minimum permission level required to be considered an admin.
@@ -79,7 +80,7 @@ const ChatLogs = ({ ADMIN_THRESHOLD, setToastOptions }) => {
           <Message
             key={message_id}
             model={{
-              message: content.replace("&nbsp; ", "\n"),
+              message: decode(content).replace("<br>", "\n"),
               direction,
               position,
             }}

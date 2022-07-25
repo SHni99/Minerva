@@ -317,10 +317,9 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
         // Update local state
         setReports((old) => {
           const newReports = [...old];
-          const updateIndex = newReports.findIndex(
-            (report) => report.reported.id === userId
-          );
-          newReports[updateIndex].reported.permissions = banUser ? -1 : 0;
+          for (let i in newReports)
+            if (newReports[i].reported.id === userId)
+              newReports[i].reported.permissions = banUser ? -1 : 0;
           return newReports;
         });
 

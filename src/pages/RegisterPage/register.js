@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 import { supabaseClient } from "../../config/supabase-client";
 import registerPageStyles from "./register.module.css";
-import PasswordChecklist from "react-password-checklist";
+//import PasswordChecklist from "react-password-checklist";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Button from "react-bootstrap/Button";
 
-const RegisterPagePage = () => {
+const RegisterPage = () => {
   const navigate = useNavigate();
   const home = () => navigate("/");
   const loginpage = () => navigate("/loginpage");
@@ -35,7 +34,7 @@ const RegisterPagePage = () => {
   const popover = (
     <Popover id="popover-basic">
       <Popover.Body>
-        <PasswordChecklist //list of password requirement to be met. User-friendly tool.
+        {/*<PasswordChecklist //list of password requirement to be met. User-friendly tool.
           rules={[
             "minLength",
             "specialChar",
@@ -47,7 +46,7 @@ const RegisterPagePage = () => {
           minLength={8}
           value={password}
           valueAgain={confirmPassword}
-        />
+        />*/}
       </Popover.Body>
     </Popover>
   );
@@ -147,6 +146,7 @@ const RegisterPagePage = () => {
                         e //username changes everytime an input change is made
                       ) => setUsername(e.target.value)}
                       placeholder="Enter username"
+                      data-testid="findusername"
                     ></input>
                   </div>
 
@@ -165,6 +165,7 @@ const RegisterPagePage = () => {
                         e //email changes everytime an input change is made
                       ) => setEmail(e.target.value)}
                       placeholder="Enter email"
+                      data-testid="findemail"
                     ></input>
                   </div>
 
@@ -183,6 +184,7 @@ const RegisterPagePage = () => {
                         e //password changes everytime an input change is made
                       ) => setPassword(e.target.value)}
                       placeholder="Enter password"
+                      data-testid="findpassword"
                     ></input>
                   </div>
 
@@ -201,6 +203,7 @@ const RegisterPagePage = () => {
                         e //confirmPassword changes everytime an input change is made
                       ) => setConfirmPassword(e.target.value)}
                       placeholder="Enter password"
+                      data-testid="findconfirmpassword"
                     ></input>
                   </div>
                 </div>
@@ -289,4 +292,4 @@ const RegisterPagePage = () => {
   );
 };
 
-export default RegisterPagePage;
+export default RegisterPage;

@@ -113,4 +113,49 @@ describe("Form components", () => {
     );
     expect(passwordErrorElementAgain).toBeInTheDocument();
   });
+
+  test("should show password error message on password that does not contain lower case", () => {
+    const submitBtnElement = screen.getByRole("button", { name: /Log in/i });
+    const passwordInputElement = screen.getByTestId("findpassword");
+    const passwordErrorElement = screen.queryByText(
+      /Please enter a password containing at least one LOWERCASE character/i
+    );
+    expect(passwordErrorElement).not.toBeInTheDocument();
+    userEvent.type(passwordInputElement, "1EXAM@23456");
+    userEvent.click(submitBtnElement);
+    const passwordErrorElementAgain = screen.queryByText(
+      /Please enter a password containing at least one LOWERCASE character/i
+    );
+    expect(passwordErrorElementAgain).toBeInTheDocument();
+  });
+
+  test("should show password error message on password that does not contain upper case", () => {
+    const submitBtnElement = screen.getByRole("button", { name: /Log in/i });
+    const passwordInputElement = screen.getByTestId("findpassword");
+    const passwordErrorElement = screen.queryByText(
+      /Please enter a password containing at least one UPPERCASE character/i
+    );
+    expect(passwordErrorElement).not.toBeInTheDocument();
+    userEvent.type(passwordInputElement, "1exaam@23456");
+    userEvent.click(submitBtnElement);
+    const passwordErrorElementAgain = screen.queryByText(
+      /Please enter a password containing at least one UPPERCASE character/i
+    );
+    expect(passwordErrorElementAgain).toBeInTheDocument();
+  });
+
+  test("should show password error message on password that does not contain number", () => {
+    const submitBtnElement = screen.getByRole("button", { name: /Log in/i });
+    const passwordInputElement = screen.getByTestId("findpassword");
+    const passwordErrorElement = screen.queryByText(
+      /Please enter a password containing at least one NUMBER/i
+    );
+    expect(passwordErrorElement).not.toBeInTheDocument();
+    userEvent.type(passwordInputElement, "Exaam@mmm");
+    userEvent.click(submitBtnElement);
+    const passwordErrorElementAgain = screen.queryByText(
+      /Please enter a password containing at least one NUMBER/i
+    );
+    expect(passwordErrorElementAgain).toBeInTheDocument();
+  });
 });

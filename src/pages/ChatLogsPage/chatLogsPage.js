@@ -250,6 +250,7 @@ const ChatLogs = ({ ADMIN_THRESHOLD, setToastOptions }) => {
             id1: recepient.id,
             id2: sender.id,
           });
+          console.log(data);
           if (error) throw error;
 
           setMessages(data.map(parseMessage));

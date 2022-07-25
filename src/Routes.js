@@ -12,7 +12,6 @@ import PasswordPage from "pages/ForgotPasswordPage/password";
 import ResetPage from "pages/ResetPage/resetPage";
 import LoginMainPage from "pages/loginMainPage/loginMain";
 import CreateListingPage from "pages/CreateListingPage/createListingPage";
-import ReviewForm from "pages/ReviewForm/ReviewForm";
 import ProfilePage from "pages/ProfilePage/profile";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFound from "pages/NotFound";
@@ -90,7 +89,7 @@ const AnimatedRoutes = ({ isBanned, showSimpleToast, setToastOptions }) => {
         path="/loginmainpage"
         element={<LoginMainPage showSimpleToast={showSimpleToast} />}
       />
-      <Route path="/formpage" element={<ReviewForm />} />
+      
       <Route path="/profile" element={<ProfilePage />} />
 
       <Route path="/chats" element={<ChatPage />} />

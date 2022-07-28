@@ -158,7 +158,7 @@ const CreateListingBody = ({
     }
     const fields = [
       ...sFieldInputs
-        .filter((sFieldInput) => sFieldInput.value)
+        .filter((sFieldInput) => sFieldInput.input().value !== "")
         .map((sFieldInput) => ({
           category: sFieldInput.requirement,
           value: sFieldInput.input().value,
@@ -442,6 +442,7 @@ const CreateListingBody = ({
           <Accordion.Body className={createListingPageStyles["accordion-item"]}>
             <Row
               className={`${createListingPageStyles["selection-fields"]} my-4 p-3`}
+              id="selection-fields"
             >
               {/* Creates a SelectionField for each object present in the sFields state.
         SelectionField implementation can be found below. */}
@@ -534,7 +535,10 @@ const SelectionField = ({
   };
 
   return (
-    <Row className={`${createListingPageStyles["selection-field-1"]} my-2`}>
+    <Row
+      className={`${createListingPageStyles["selection-field-1"]} my-2`}
+      name="selection-field"
+    >
       {/*
          The dropdown box. 
          Calls handleDropdownChange when changed.

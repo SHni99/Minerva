@@ -15,15 +15,10 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
   const user = supabaseClient.auth.user();
   const animatedComponents = makeAnimated();
   const [fullBlockedData, setFullBlockeddata] = useState("");
-  const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
-        if(blockedArray === null) return setIsEmpty(true);
-        if (blockedArray.length === 0){
-          setIsEmpty(true);
-        }
         const newBlockedData = await Promise.all(
           blockedArray.map(async (id) => {
             let {
@@ -38,12 +33,12 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
 
             if (error && status !== 406) throw error;
 
-            if (avatar === "") return;
+            const avatarURL =
+              avatar === ""
+                ? "/images/img_avatarDefault.jpg"
+                : supabaseClient.storage.from("avatars").getPublicUrl(avatar)
+                    .publicURL;
 
-            const { publicURL: avatarURL, error: publicUrlError } =
-              supabaseClient.storage.from("avatars").getPublicUrl(avatar);
-
-            if (publicUrlError) throw publicUrlError;
             return {
               avatarURL,
               username,
@@ -57,8 +52,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
       }
     };
     checkBlockedUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, blockedArray]);
 
   //log user out and redirect to landing page
   const handleLogout = async (navigate, e) => {
@@ -78,22 +72,23 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
       <React.Fragment>
         {fullBlockedData.map(({ avatarURL, username, id: creator_id }) => {
           return (
-            <Card>
+            <Card className="my-3" key={creator_id}>
               <Card.Body>
                 <div className="row">
-                  <div className="col-3">
+                  <div className="col-auto">
                     <img
                       className="rounded-pill"
                       src={avatarURL}
+                      style={{ width: "60px", height: "60px" }}
                       alt="img"
                     ></img>
                   </div>
-                  <div className="col-4 d-flex justify-center nunitosans-bold-black-32px">
-                    {username}
+                  <div className="col-auto d-flex align-items-center">
+                    <label className="fs-4">{username}</label>
                   </div>
-                  <div className="col-5 d-flex justify-end">
+                  <div className="col-auto d-flex ms-auto">
                     <Button
-                      className={settingStyles["tooltip"]}
+                      className={`${settingStyles["tooltip"]} px-1`}
                       onClick={(e) => {
                         e.preventDefault();
                         navigate("/profile", { state: { creator_id } });
@@ -168,15 +163,20 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
           onClick={() => {
             showModal(
               "List of blocked users",
-              isEmpty ? <div className="text-center poppins-semi-bold-black-24px">Nothing here!</div> : blockedList(),
-              
+              blockedArray.length === 0 ? (
+                <div className="text-center poppins-semi-bold-black-24px">
+                  Nothing here!
+                </div>
+              ) : (
+                blockedList()
+              )
             );
           }}
         >
           View blocked users
         </Dropdown.Item>
         <Dropdown.Item
-          style={{display: "none"}}
+          style={{ display: "none" }}
           eventKey="preference"
           onClick={() => {
             showModal(

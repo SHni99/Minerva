@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { ThreeDotsVertical } from "react-bootstrap-icons";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import { supabaseClient } from "../../config/supabase-client";
 import { useEffect } from "react";
+import AuthContext from "util/AuthContext";
 
 // Requires 3 props
 //
@@ -15,16 +16,11 @@ import { useEffect } from "react";
 //
 // target_id: ID of the user who is being reported/blocked
 
-const BlockReportMenu = ({
-  showModal,
-  hideModal,
-  target_id,
-  blockedArray,
-}) => {
-  const [loading, setLoading] = useState(false);
-
+const BlockReportMenu = ({ showModal, hideModal, target_id, blockedArray }) => {
   const user = supabaseClient.auth.user();
   const [isReported, setIsReported] = useState(false);
+  const { authData } = useContext(AuthContext);
+  const getIsBlocked = () => authData.blocked.includes(target_id);
   const modalTitle = ["Report User", "Block User", "Unblock User"];
   const modalBody = [
     "Are you sure you want to report this user?",
@@ -47,45 +43,23 @@ const BlockReportMenu = ({
   ];
 
   useEffect(() => {
-    checkBlockedStatus();
-    checkReportedStatus();
-  });
+    const checkReportedStatus = async () => {
+      try {
+        const { data, error } = await supabaseClient
+          .from("reports")
+          .select("*")
+          .eq("reporter_id", user.id)
+          .eq("reported_id", target_id);
+        if (error) throw error;
 
-  const checkBlockedStatus = async () => {
-    try {
-      if (!user) return;
-      const { data: currentData, error } = await supabaseClient
-        .from("profiles")
-        .select("blocked")
-        .eq("id", user.id)
-        .single();
-
-      if (error) throw error;
-      if (currentData.blocked === null) {
-        currentData.blocked = [];
+        setIsReported(data.length > 0);
+      } catch (error) {
+        alert(error.message);
       }
-      const current = currentData.blocked;
-      const checkUsername = (element) => element === target_id;
-      setLoading(current.some(checkUsername) || null);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  const checkReportedStatus = async () => {
-    try {
-      const { data, error } = await supabaseClient
-        .from("reports")
-        .select("*")
-        .eq("reporter_id", user.id)
-        .eq("reported_id", target_id);
-      if (error) throw error;
-
-      setIsReported(data.length > 0);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+    };
+    // checkBlockedStatus();
+    checkReportedStatus();
+  }, [target_id, user]);
 
   const unblockAction = async () => {
     try {
@@ -206,14 +180,14 @@ const BlockReportMenu = ({
           eventKey="block"
           onClick={() =>
             showModal(
-              modalTitle[loading ? 2 : 1],
-              modalBody[loading ? 2 : 1],
+              modalTitle[getIsBlocked() ? 2 : 1],
+              modalBody[getIsBlocked() ? 2 : 1],
 
               <>
                 <Button
                   variant="danger"
                   className="mx-2"
-                  onClick={loading ? unblockAction : blockAction}
+                  onClick={getIsBlocked() ? unblockAction : blockAction}
                 >
                   Confirm
                 </Button>
@@ -223,7 +197,7 @@ const BlockReportMenu = ({
           }
           className="text-danger"
         >
-          {loading ? "Unblock" : "Block"}
+          {getIsBlocked() ? "Unblock" : "Block"}
         </Dropdown.Item>
       </Dropdown.Menu>
     </Dropdown>

@@ -100,7 +100,15 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
               .eq("id", reportId)
               .single();
             if (error) throw error;
-            return data;
+
+            let { data: hasConvo, error: hasConvoError } =
+              await supabaseClient.rpc("has_convo", {
+                id1: data.reporter.id,
+                id2: data.reported.id,
+              });
+            if (hasConvoError) throw hasConvoError;
+
+            return { ...data, hasConvo };
           };
           const reportsSub = supabaseClient
             .from("reports")
@@ -172,7 +180,6 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
   };
 
   const handleAssignClick = (status, id) => {
-    console.log(id);
     const index = status === "unassigned" ? 0 : 1;
     const cancelButton = (
       <Button
@@ -310,10 +317,9 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
         // Update local state
         setReports((old) => {
           const newReports = [...old];
-          const updateIndex = newReports.findIndex(
-            (report) => report.reported.id === userId
-          );
-          newReports[updateIndex].reported.permissions = banUser ? -1 : 0;
+          for (let i in newReports)
+            if (newReports[i].reported.id === userId)
+              newReports[i].reported.permissions = banUser ? -1 : 0;
           return newReports;
         });
 
@@ -569,7 +575,7 @@ const ReportsBody = ({ ADMIN_THRESHOLD, setToastOptions, setModalState }) => {
               Resolved
             </Pagination.Item>
           </Pagination>
-          <Row>
+          <Row className="pb-5">
             <Table
               bordered
               hover

@@ -30,6 +30,7 @@ import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import { decode } from "html-entities";
 
 const ChatPage = () => {
   const { state } = useLocation();
@@ -145,7 +146,7 @@ const ChatPageBody = ({
           <Message
             key={"text-" + time}
             model={{
-              message: content.replace("&nbsp; ", "\n"),
+              message: decode(content).replace("<br>", "\n"),
               direction: isOwnMessage ? "outgoing" : "incoming",
               position,
             }}
@@ -395,6 +396,7 @@ const ChatPageBody = ({
     const otherAck = acknowledgement[1 - self_pos];
     const hasReviewed = reviewed[self_pos];
     const otherHasReviewed = reviewed[1 - self_pos];
+    const isBlocked = blockedArray.includes(partnerId);
 
     const type = messages ? Object.keys(messages.payload)[0] : "text";
     const message = messages
@@ -426,6 +428,7 @@ const ChatPageBody = ({
       self_pos,
       hasReviewed,
       otherHasReviewed,
+      isBlocked,
     };
   };
 
@@ -817,16 +820,8 @@ const ChatPageBody = ({
           .order("created_at", { ascending: false, foreignTable: "messages" });
         if (convoError) throw convoError;
 
-        const unblockedConvo = convoData.filter(({ participants }) =>
-          blockedArray.reduce(
-            (cur, next) => cur && !participants.includes(next),
-            true
-          )
-        );
         // Convert each row of convoData into the appropriate format for `conversations`
-        let newConversations = await Promise.all(
-          unblockedConvo.map(parseConvo)
-        );
+        let newConversations = await Promise.all(convoData.map(parseConvo));
         newConversations = newConversations.reduce((res, convo) => {
           const {
             chat_id,
@@ -838,6 +833,7 @@ const ChatPageBody = ({
             self_pos,
             hasReviewed,
             otherHasReviewed,
+            isBlocked,
           } = convo;
           res[chat_id] = {
             name,
@@ -848,13 +844,14 @@ const ChatPageBody = ({
             self_pos,
             hasReviewed,
             otherHasReviewed,
+            isBlocked,
           };
           return res;
         }, {});
 
         if (startChatData) {
           const { user_id, name, src } = startChatData;
-          const existingConvo = unblockedConvo.filter(({ participants }) =>
+          const existingConvo = convoData.filter(({ participants }) =>
             participants.includes(user_id)
           );
           const hasExistingConvo = existingConvo.length > 0;
@@ -868,6 +865,7 @@ const ChatPageBody = ({
               actionState: 2,
               self_pos: 0,
               hasReviewed: false,
+              isBlocked: false,
             };
           }
 
@@ -913,6 +911,9 @@ const ChatPageBody = ({
               acknowledgement[self_pos] * 2 + acknowledgement[1 - self_pos];
             newConversations[id].hasReviewed = reviewed[self_pos];
             newConversations[id].otherHasReviewed = reviewed[1 - self_pos];
+            newConversations[id].isBlocked = blockedArray.includes(
+              participants[1 - self_pos]
+            );
 
             return newConversations;
           });
@@ -922,8 +923,16 @@ const ChatPageBody = ({
       })
       .on("INSERT", async (payload) => {
         const newConvo = await parseConvo(payload.new);
-        const { chat_id, name, user_id, message, src, actionState, self_pos } =
-          newConvo;
+        const {
+          chat_id,
+          name,
+          user_id,
+          message,
+          src,
+          actionState,
+          self_pos,
+          isBlocked,
+        } = newConvo;
         const tempChatId = `temp-${user_id}`;
 
         setConversations((oldConvos) => {
@@ -935,6 +944,7 @@ const ChatPageBody = ({
             src,
             actionState,
             self_pos,
+            isBlocked,
           };
           return newConvos;
         });
@@ -959,6 +969,26 @@ const ChatPageBody = ({
     // regardless of any other state changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Update conversations when there is a change to blocked users
+  useEffect(() => {
+    setConversations((old) => {
+      const newConvos = { ...old };
+      Object.keys(newConvos).forEach(
+        (convoId) =>
+          (newConvos[convoId].isBlocked = blockedArray.includes(
+            newConvos[convoId].user_id
+          ))
+      );
+      return newConvos;
+    });
+    if (blockedArray.includes(conversations[activeChatId]?.user_id))
+      setActiveChatId(null);
+
+    // Should only run on blockedArray change and nothing else.
+    // Warning disabled to prevent infinite loop when re-rendering
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockedArray]);
 
   // Add event listener to show correct layout on window resize
   useEffect(() => {
@@ -1032,11 +1062,14 @@ const ChatPageBody = ({
           />
           <ConversationList>
             {Object.keys(conversations)
+              // Filters conversations by searchbar
               .filter((id) =>
                 `${conversations[id].name.toLowerCase()} ${conversations[
                   id
                 ].message.toLowerCase()}`.includes(searchQuery.toLowerCase())
               )
+              // Filters away blocked users
+              .filter((id) => !conversations[id].isBlocked)
               .map((id) => (
                 <Conversation
                   onClick={() => handleConvoClick(id)}
@@ -1049,7 +1082,10 @@ const ChatPageBody = ({
                   />
                   <Conversation.Content
                     name={conversations[id].name}
-                    info={conversations[id].message.replace("&nbsp; ", "; ")}
+                    info={decode(conversations[id].message).replace(
+                      "<br>",
+                      ";"
+                    )}
                   />
                 </Conversation>
               ))}

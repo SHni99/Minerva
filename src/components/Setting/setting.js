@@ -7,29 +7,20 @@ import { ChevronRight } from "react-bootstrap-icons";
 import { Card } from "react-bootstrap";
 import { Button } from "react-bootstrap";
 import settingStyles from "./setting.module.css";
+import makeAnimated from "react-select/animated";
+import Select from "react-select";
 
-const Setting = ({ showModal, onHide }) => {
+const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
   const navigate = useNavigate();
   const user = supabaseClient.auth.user();
+  const animatedComponents = makeAnimated();
   const [fullBlockedData, setFullBlockeddata] = useState("");
 
   useEffect(() => {
     const checkBlockedUsers = async () => {
       try {
-        if (!user) return;
-        const { data: currentData, error } = await supabaseClient
-          .from("profiles")
-          .select("blocked")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-        if (currentData.blocked === null) {
-          currentData.blocked = [];
-        }
-
         const newBlockedData = await Promise.all(
-          currentData.blocked.map(async (id) => {
+          blockedArray.map(async (id) => {
             let {
               data: { avatar_url: avatar, username },
               error,
@@ -42,12 +33,12 @@ const Setting = ({ showModal, onHide }) => {
 
             if (error && status !== 406) throw error;
 
-            if (avatar === "") return;
+            const avatarURL =
+              avatar === ""
+                ? "/images/img_avatarDefault.jpg"
+                : supabaseClient.storage.from("avatars").getPublicUrl(avatar)
+                    .publicURL;
 
-            const { publicURL: avatarURL, error: publicUrlError } =
-              supabaseClient.storage.from("avatars").getPublicUrl(avatar);
-
-            if (publicUrlError) throw publicUrlError;
             return {
               avatarURL,
               username,
@@ -56,14 +47,12 @@ const Setting = ({ showModal, onHide }) => {
           })
         );
         setFullBlockeddata(newBlockedData);
-        //console.log(newBlockedData);
       } catch (error) {
         alert(error.message);
       }
     };
-
     checkBlockedUsers();
-  }, [user]);
+  }, [user, blockedArray]);
 
   //log user out and redirect to landing page
   const handleLogout = async (navigate, e) => {
@@ -83,22 +72,23 @@ const Setting = ({ showModal, onHide }) => {
       <React.Fragment>
         {fullBlockedData.map(({ avatarURL, username, id: creator_id }) => {
           return (
-            <Card>
+            <Card className="my-3" key={creator_id}>
               <Card.Body>
                 <div className="row">
-                  <div className="col-3">
+                  <div className="col-auto">
                     <img
                       className="rounded-pill"
                       src={avatarURL}
+                      style={{ width: "60px", height: "60px" }}
                       alt="img"
                     ></img>
                   </div>
-                  <div className="col-4 d-flex justify-center nunitosans-bold-black-32px">
-                    {username}
+                  <div className="col-auto d-flex align-items-center">
+                    <label className="fs-4">{username}</label>
                   </div>
-                  <div className="col-5 d-flex justify-end">
+                  <div className="col-auto d-flex ms-auto">
                     <Button
-                      className={settingStyles["tooltip"]}
+                      className={`${settingStyles["tooltip"]} px-1`}
                       onClick={(e) => {
                         e.preventDefault();
                         navigate("/profile", { state: { creator_id } });
@@ -120,6 +110,39 @@ const Setting = ({ showModal, onHide }) => {
     );
   };
 
+  const preferenceList = () => {
+    const preferences = [
+      {
+        value: 1,
+        label: "Show email",
+      },
+      {
+        value: 2,
+        label: "Show bio",
+      },
+      {
+        value: 3,
+        label: "Show gender",
+      },
+    ];
+
+    const handler = (e) => {
+      setOption(e.map((x) => x.label));
+    };
+
+    return (
+      <Select
+        name="form-field-name"
+        closeMenuOnSelect={false}
+        onChange={handler}
+        defaultValue={option}
+        isMulti
+        components={animatedComponents}
+        options={preferences}
+      />
+    );
+  };
+
   return (
     <Dropdown className="d-flex justify-end">
       <Dropdown.Toggle variant="secondary">
@@ -138,12 +161,35 @@ const Setting = ({ showModal, onHide }) => {
         <Dropdown.Item
           eventKey="blockeduser"
           onClick={() => {
-            showModal("List of blocked users", blockedList());
+            showModal(
+              "List of blocked users",
+              blockedArray.length === 0 ? (
+                <div className="text-center poppins-semi-bold-black-24px">
+                  Nothing here!
+                </div>
+              ) : (
+                blockedList()
+              )
+            );
           }}
         >
           View blocked users
         </Dropdown.Item>
+        <Dropdown.Item
+          style={{ display: "none" }}
+          eventKey="preference"
+          onClick={() => {
+            showModal(
+              "",
+              preferenceList(),
+              "please clear input box before selecting"
+            );
+          }}
+        >
+          Customize display preference
+        </Dropdown.Item>
         <Dropdown.Divider />
+
         <Dropdown.Item
           eventKey="logout"
           onClick={(e) => {

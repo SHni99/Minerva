@@ -14,6 +14,7 @@ const ListingCard = ({
   setModalState,
   creator_id,
   listing_id,
+  avg_rating,
 }) => {
   const levelParams = {
     primary: "Primary",
@@ -34,12 +35,14 @@ const ListingCard = ({
       fields,
       creator_id,
       listing_id,
+      avg_rating,
     });
   };
   return (
     <Card
       className={listingCardStyles.card + " mx-sm-3 my-3 py-4 rounded-5"}
       onClick={showModal}
+      role="figure"
     >
       {/* Carousel to display avatar image + listing images */}
       {/* Note: Consider adding a modal image on click to show full image */}

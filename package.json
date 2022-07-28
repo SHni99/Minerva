@@ -5,14 +5,22 @@
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^1.9.3",
     "@chatscope/chat-ui-kit-styles": "^1.2.3",
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@supabase/supabase-js": "^1.35.3",
     "@tailwindcss/forms": "^0.5.2",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "bootstrap": "^5.2.0-beta1",
     "bootstrap-icons": "^1.8.3",
+    "bootstrap-switch-button-react": "^1.2.0",
+    "fast-fuzzy": "^1.11.2",
+    "html-entities": "^2.3.3",
+    "lodash": "^4.17.21",
     "moment": "^2.29.3",
     "msw": "^0.43.1",
+    "rc-slider": "^10.0.1",
     "react": "^17.0.2",
     "react-bootstrap": "^2.4.0",
     "react-bootstrap-icons": "^1.8.2",
@@ -30,7 +38,7 @@
     "react-router-dom": "^6.0.2",
     "react-router-hash-link": "^2.4.3",
     "react-scripts": "5.0.0",
-    "react-select": "^5.2.1",
+    "react-select": "^5.4.0",
     "react-spinners": "^0.13.3",
     "react-table": "^7.7.0",
     "react-transition-group": "^4.4.2",
@@ -43,7 +51,7 @@
     "dev": "react-scripts start",
     "start": "serve -s build",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --detectOpenHandles",
     "eject": "react-scripts eject",
     "heroku-postbuild": "npm run build"
   },
@@ -68,7 +76,10 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "autoprefixer": "10.4.5",
+    "cypress": "^10.3.1",
+    "eslint-plugin-cypress": "^2.12.1",
     "postcss": "8.4.6",
+    "react-select-event": "^5.5.0",
     "tailwindcss": "3.0.24"
   }
 }

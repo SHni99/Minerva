@@ -10,6 +10,7 @@ import FieldTag from "components/FieldTag/fieldTag";
 import { supabaseClient as supabase } from "config/supabase-client";
 import { useNavigate } from "react-router-dom";
 import Spinner from "react-bootstrap/Spinner";
+import Rating from "components/Rating/Rating";
 
 const ListingModal = (props) => {
   const [deleteState, setDeleteState] = useState(0);
@@ -23,6 +24,7 @@ const ListingModal = (props) => {
     fields,
     creator_id,
     listing_id,
+    avg_rating,
   } = data;
   const isOwnListing = supabase.auth.user()
     ? creator_id === supabase.auth.user().id
@@ -58,7 +60,7 @@ const ListingModal = (props) => {
     }
   };
 
-  const generateDeleteFooter = () => {
+  const generateFooter = () => {
     switch (deleteState) {
       case 1:
         return (
@@ -87,10 +89,17 @@ const ListingModal = (props) => {
       default:
         return (
           <>
-            {/* Edit button hidden due to incomplete development */}
-            {/* <Button variant="primary" className="px-5">
+            <Button
+              variant="outline-secondary"
+              className="px-5"
+              onClick={() =>
+                navigate("/edit-listing", {
+                  state: { listingId: listing_id },
+                })
+              }
+            >
               Edit
-            </Button> */}
+            </Button>
             <Button
               variant="danger"
               className="px-5"
@@ -107,7 +116,7 @@ const ListingModal = (props) => {
     return (
       <Modal.Footer className="px-4 d-flex justify-content-evenly">
         {isOwnListing ? (
-          generateDeleteFooter()
+          generateFooter()
         ) : (
           <>
             <Button
@@ -119,22 +128,24 @@ const ListingModal = (props) => {
             >
               View Profile
             </Button>
-            <Button
-              className="px-5"
-              onClick={() =>
-                navigate("/chats", {
-                  state: {
-                    startChatData: {
-                      user_id: creator_id,
-                      name: username,
-                      src: avatarUrl,
+            {supabase.auth.user() && (
+              <Button
+                className="px-5"
+                onClick={() =>
+                  navigate("/chats", {
+                    state: {
+                      startChatData: {
+                        user_id: creator_id,
+                        name: username,
+                        src: avatarUrl,
+                      },
                     },
-                  },
-                })
-              }
-            >
-              Chat
-            </Button>
+                  })
+                }
+              >
+                Chat
+              </Button>
+            )}
           </>
         )}
       </Modal.Footer>
@@ -149,10 +160,19 @@ const ListingModal = (props) => {
           alt="Avatar"
           className={listingModalStyles.avatar}
         />
-        <Link to="/profile" state={{ creator_id }} className="nunito-sans">
-          {username}
-        </Link>
-        {/* Add rating here! (stars) */}
+        <div>
+          <Link to="/profile" state={{ creator_id }} className="nunito-sans">
+            {username}
+          </Link>
+          <div className="d-flex flex-row align-items-center">
+            <Rating index={avg_rating} size={12} />
+            <p className="p-0 m-0 px-1" style={{ fontSize: 10 }}>
+              {avg_rating
+                ? `${avg_rating?.toFixed(1)} / 5.0`
+                : "No ratings yet!"}
+            </p>
+          </div>
+        </div>
       </Modal.Header>
       <Modal.Body>
         <Row className={`${listingModalStyles["image-section"]} pb-4`}>

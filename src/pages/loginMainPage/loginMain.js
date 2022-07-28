@@ -3,7 +3,7 @@ import { supabaseClient } from "../../config/supabase-client";
 import Login from "pages/LoginPage/login";
 import Profile from "pages/UpdateProfilePage/updateProfile";
 
-export default function LoginMainPage() {
+export default function LoginMainPage({ showSimpleToast }) {
   //value pass into setSession will update session
   const [session, setSession] = useState(null);
 
@@ -22,7 +22,7 @@ export default function LoginMainPage() {
       {!session ? (
         <Login />
       ) : (
-        <Profile key={session.user.id} session={session} />
+        <Profile key={session.user.id} session={session} showSimpleToast={showSimpleToast}/>
       )}
     </div>
   );

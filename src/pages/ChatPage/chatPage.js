@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useContext } from "react";
+import AuthContext from "util/AuthContext";
 import moment from "moment";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -29,9 +30,12 @@ import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import { decode } from "html-entities";
 
 const ChatPage = () => {
   const { state } = useLocation();
+  const { authData } = useContext(AuthContext);
+  const { blocked: blockedArray } = authData;
   const startChatData = state ? state.startChatData : null;
 
   const unusedModalState = {
@@ -55,6 +59,7 @@ const ChatPage = () => {
         data={modalState}
       />
       <ChatPageBody
+        blockedArray={blockedArray}
         startChatData={startChatData}
         setModalState={setModalState}
         unusedModalState={unusedModalState}
@@ -66,7 +71,12 @@ const ChatPage = () => {
 
 export default ChatPage;
 
-const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
+const ChatPageBody = ({
+  startChatData,
+  setModalState,
+  unusedModalState,
+  blockedArray,
+}) => {
   // Whether to show the Sidebar or not. Applicable when window width is under 768px.
   const [showSidebar, setShowSidebar] = useState(window.innerWidth < 768);
 
@@ -110,7 +120,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
-  const uid = supabase.auth.user().id;
+  const uid = supabase.auth.user()?.id;
 
   // Helper functions to add/remove classes from elements
   const removeClass = (elem, name) => {
@@ -136,7 +146,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
           <Message
             key={"text-" + time}
             model={{
-              message: content.replace("&nbsp; ", "\n"),
+              message: decode(content).replace("<br>", "\n"),
               direction: isOwnMessage ? "outgoing" : "incoming",
               position,
             }}
@@ -386,6 +396,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     const otherAck = acknowledgement[1 - self_pos];
     const hasReviewed = reviewed[self_pos];
     const otherHasReviewed = reviewed[1 - self_pos];
+    const isBlocked = blockedArray.includes(partnerId);
 
     const type = messages ? Object.keys(messages.payload)[0] : "text";
     const message = messages
@@ -417,6 +428,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       self_pos,
       hasReviewed,
       otherHasReviewed,
+      isBlocked,
     };
   };
 
@@ -791,6 +803,9 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
   // Run only once, at the start.
   // Currently only supports direct messages. Group chats might be added (TBC)
   useEffect(() => {
+    // First check if user is signed in! Guests should not be able to see this page.
+    if (!uid) navigate("/loginpage");
+
     const fetchConvos = async () => {
       try {
         setLoadingConvos(true);
@@ -818,6 +833,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             self_pos,
             hasReviewed,
             otherHasReviewed,
+            isBlocked,
           } = convo;
           res[chat_id] = {
             name,
@@ -828,6 +844,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             self_pos,
             hasReviewed,
             otherHasReviewed,
+            isBlocked,
           };
           return res;
         }, {});
@@ -848,8 +865,10 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
               actionState: 2,
               self_pos: 0,
               hasReviewed: false,
+              isBlocked: false,
             };
           }
+
           setConversations(newConversations);
           setActiveChatId(hasExistingConvo ? existingConvo[0].id : tempChatId);
         } else {
@@ -892,6 +911,9 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
               acknowledgement[self_pos] * 2 + acknowledgement[1 - self_pos];
             newConversations[id].hasReviewed = reviewed[self_pos];
             newConversations[id].otherHasReviewed = reviewed[1 - self_pos];
+            newConversations[id].isBlocked = blockedArray.includes(
+              participants[1 - self_pos]
+            );
 
             return newConversations;
           });
@@ -901,8 +923,16 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
       })
       .on("INSERT", async (payload) => {
         const newConvo = await parseConvo(payload.new);
-        const { chat_id, name, user_id, message, src, actionState, self_pos } =
-          newConvo;
+        const {
+          chat_id,
+          name,
+          user_id,
+          message,
+          src,
+          actionState,
+          self_pos,
+          isBlocked,
+        } = newConvo;
         const tempChatId = `temp-${user_id}`;
 
         setConversations((oldConvos) => {
@@ -914,6 +944,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
             src,
             actionState,
             self_pos,
+            isBlocked,
           };
           return newConvos;
         });
@@ -938,6 +969,26 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
     // regardless of any other state changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Update conversations when there is a change to blocked users
+  useEffect(() => {
+    setConversations((old) => {
+      const newConvos = { ...old };
+      Object.keys(newConvos).forEach(
+        (convoId) =>
+          (newConvos[convoId].isBlocked = blockedArray.includes(
+            newConvos[convoId].user_id
+          ))
+      );
+      return newConvos;
+    });
+    if (blockedArray.includes(conversations[activeChatId]?.user_id))
+      setActiveChatId(null);
+
+    // Should only run on blockedArray change and nothing else.
+    // Warning disabled to prevent infinite loop when re-rendering
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockedArray]);
 
   // Add event listener to show correct layout on window resize
   useEffect(() => {
@@ -1011,11 +1062,14 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
           />
           <ConversationList>
             {Object.keys(conversations)
+              // Filters conversations by searchbar
               .filter((id) =>
                 `${conversations[id].name.toLowerCase()} ${conversations[
                   id
                 ].message.toLowerCase()}`.includes(searchQuery.toLowerCase())
               )
+              // Filters away blocked users
+              .filter((id) => !conversations[id].isBlocked)
               .map((id) => (
                 <Conversation
                   onClick={() => handleConvoClick(id)}
@@ -1028,7 +1082,10 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                   />
                   <Conversation.Content
                     name={conversations[id].name}
-                    info={conversations[id].message.replace("&nbsp; ", "; ")}
+                    info={decode(conversations[id].message).replace(
+                      "<br>",
+                      ";"
+                    )}
                   />
                 </Conversation>
               ))}
@@ -1115,6 +1172,7 @@ const ChatPageBody = ({ startChatData, setModalState, unusedModalState }) => {
                     }
                     hideModal={() => setModalState(unusedModalState)}
                     target_id={conversations[activeChatId].user_id}
+                    blockedArray={blockedArray}
                   />
                 </ConversationHeader.Actions>
               </ConversationHeader>

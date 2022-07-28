@@ -23,9 +23,13 @@ const ResetPage = () => {
       setConfirmPassword("");
     };
 
-    if (newPassword.length < 8) {
+    if (confirmPassword === "") {
+      setError("Input field is empty, please confirm your password");
+    } else if (newPassword !== confirmPassword) {
+      setError("Please enter the SAME passwords!");
+      
+    } else if (newPassword.length < 8) {
       setError("Please enter a password more than 8 characters");
-      reset();
     } else if (!/^(?=.*[0-9])/.test(newPassword)) {
       setError("PLease enter a password containing at least one NUMBER");
       reset();
@@ -41,9 +45,6 @@ const ResetPage = () => {
       reset();
     } else if (!/^(?=.*[!@#$%^&*])/.test(newPassword)) {
       setError("Please enter a password containing at least one SPECIAL CASE");
-      reset();
-    } else if (newPassword !== confirmPassword) {
-      setError("Please enter the SAME passwords!");
       reset();
     } else {
       try {
@@ -107,9 +108,11 @@ const ResetPage = () => {
                       style={{
                         backgroundColor: "#E7E4DE",
                       }}
+                      value={newPassword}
                       type="password"
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter password"
+                      data-testid="findpassword"
                     ></input>
 
                     <h3
@@ -120,9 +123,11 @@ const ResetPage = () => {
                       style={{
                         backgroundColor: "#E7E4DE",
                       }}
+                      value={confirmPassword}
                       type="password"
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Enter confirm password"
+                      data-testid="findconfirmpassword"
                     ></input>
                   </div>
                   {error1 && (

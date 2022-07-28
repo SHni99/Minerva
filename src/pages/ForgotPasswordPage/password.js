@@ -84,24 +84,17 @@ const PasswordPage = () => {
                   ></input>
                 </div>
               </div>
-              <div
-                className={"btn btn-lg btn-outline-primary"}
+
+              <button
+                type="submit"
+                className={` btn btn-lg `}
                 style={{
                   backgroundColor: "#4169e1",
                   width: "100%",
                 }}
               >
-                {loading ? (
-                  <text className={` nunitosans-bold-white-26px`}>
-                    Sending...
-                  </text>
-                ) : (
-                  <button
-                    type="submit"
-                    className={`nunitosans-bold-white-26px`}
-                  >{`Reset password`}</button>
-                )}
-              </div>
+                <label className="nunitosans-bold-white-26px"> {loading ? "Sending" : "Reset password"}</label>
+              </button>
             </div>
           </div>
         </div>

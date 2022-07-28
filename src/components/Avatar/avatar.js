@@ -25,7 +25,7 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   );
 }
 
-const PersonalAvatar = ({ url, onUpload, loading }) => {
+const PersonalAvatar = ({ url, loading }) => {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [tempAvatar, setTempAvatar] = useState(null);
@@ -143,7 +143,7 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
           if (getURLError) throw getURLError;
 
           setAvatarUrl(publicURL);
-          onUpload(fileName);
+          
         } catch (error) {
           alert(error.message);
         } finally {
@@ -211,7 +211,12 @@ const PersonalAvatar = ({ url, onUpload, loading }) => {
         />
       </div>
 
-      <Modal size="lg" show={modalShow} onHide={() => setModalShow(false)}>
+      <Modal
+        size="lg"
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        backdrop="static"
+      >
         <Modal.Title>
           <Modal.Header className="nunito-semi-bold-black-24px" closeButton>
             Crop Profile Picture

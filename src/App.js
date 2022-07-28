@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import Routes from "./Routes";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
@@ -32,21 +32,36 @@ function App() {
     closeButton,
   } = toastOptions;
   // ========================== End of global Toast ==========================
-
   // =================== Start of AuthContext initialisation =================
   const { authData, setAuthData, setAuthLoading } = useContext(AuthContext);
+  const profileSub = useRef(null);
 
   const parseProfile = (profileData) => {
-    const { id, username, avatar_url, permissions } = profileData;
+    const {
+      id,
+      username,
+      avatar_url,
+      permissions,
+      preferences,
+      blocked,
+      gender,
+      bio,
+      email,
+    } = profileData;
     return {
       logged_in: true,
       username,
+      gender,
+      bio,
       permissions,
+      preferences,
       avatar_url: avatar_url
         ? supabaseClient.storage.from("avatars").getPublicUrl(avatar_url)
             .publicURL
         : "/images/img_avatarDefault.jpg",
       id,
+      blocked,
+      email,
     };
   };
   // Initialise authData and setup listeners, only done once at the start.
@@ -82,7 +97,11 @@ function App() {
           permissions: 0,
           username: null,
           avatar_url: null,
+          preferences: {},
           id: null,
+          bio: null,
+          gender: null,
+          email: null,
         };
 
       const { user } = session;
@@ -100,8 +119,9 @@ function App() {
   // Also set up listener for profile changes
   useEffect(() => {
     const uid = authData.id;
-    if (!uid) return;
-    const profileSub = supabaseClient
+    if (!uid || profileSub.current) return;
+
+    profileSub.current = supabaseClient
       .from(`profiles:id=eq.${uid}`)
       .on("UPDATE", (payload) => {
         setAuthLoading(true);
@@ -109,8 +129,7 @@ function App() {
         setAuthLoading(false);
       })
       .subscribe();
-    return () => supabaseClient.removeSubscription(profileSub);
-  }, [authData, setAuthData, setAuthLoading]);
+  }, [authData, setAuthLoading, setAuthData]);
 
   return (
     <>

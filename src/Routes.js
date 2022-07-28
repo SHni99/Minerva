@@ -12,12 +12,10 @@ import PasswordPage from "pages/ForgotPasswordPage/password";
 import ResetPage from "pages/ResetPage/resetPage";
 import LoginMainPage from "pages/loginMainPage/loginMain";
 import CreateListingPage from "pages/CreateListingPage/createListingPage";
-import ReviewForm from "pages/ReviewForm/ReviewForm";
 import ProfilePage from "pages/ProfilePage/profile";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFound from "pages/NotFound";
 import ChatPage from "pages/ChatPage/chatPage";
-import ReviewPage from "pages/ReviewPage/reviewPage";
 import ViewReportsPage from "pages/ViewReportsPage/viewReportsPage";
 import ChatLogsPage from "pages/ChatLogsPage/chatLogsPage";
 import HashLoader from "react-spinners/HashLoader";
@@ -39,23 +37,30 @@ const ProjectRoutes = ({ setToastOptions }) => {
   // Determine if user is banned :(((((
   const { authData, authLoading, BANNED_THRESHOLD } = useContext(AuthContext);
   const isBanned = authData.permissions <= BANNED_THRESHOLD;
-
   return (
     <LoadingOverlay
       active={authLoading}
       spinner={<HashLoader color="silver" size="30vw" />}
+      styles={{
+        overlay: (base) => ({
+          ...base,
+          background: "gray",
+        }),
+        content: (base) => ({
+          ...base,
+          position: "fixed",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+        }),
+      }}
     >
       <Router>
-        {authLoading ? (
-          <div style={{ width: "100vw", height: "100vh" }}></div>
-        ) : (
-          <AnimatedRoutes
-            isBanned={isBanned}
-            showSimpleToast={showSimpleToast}
-            setToastOptions={setToastOptions}
-            authLoading={authLoading}
-          />
-        )}
+        <AnimatedRoutes
+          isBanned={isBanned}
+          showSimpleToast={showSimpleToast}
+          setToastOptions={setToastOptions}
+        />
       </Router>
     </LoadingOverlay>
   );
@@ -63,16 +68,9 @@ const ProjectRoutes = ({ setToastOptions }) => {
 
 export default ProjectRoutes;
 
-const AnimatedRoutes = ({
-  isBanned,
-  showSimpleToast,
-  setToastOptions,
-  authLoading,
-}) => {
+const AnimatedRoutes = ({ isBanned, showSimpleToast, setToastOptions }) => {
   // Add TransitionGroup and CSSTransition for animations
-  return authLoading ? (
-    <div style={{ width: "100vw", height: "100vh" }}></div>
-  ) : !isBanned ? (
+  return !isBanned ? (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="*" element={<NotFound />} />
@@ -87,10 +85,13 @@ const AnimatedRoutes = ({
       <Route path="/create-listing" element={<CreateListingPage />} />
       <Route path="/passwordpage" element={<PasswordPage />} />
       <Route path="/resetpage" element={<ResetPage />} />
-      <Route path="/loginmainpage" element={<LoginMainPage />} />
-      <Route path="/formpage" element={<ReviewForm />} />
+      <Route
+        path="/loginmainpage"
+        element={<LoginMainPage showSimpleToast={showSimpleToast} />}
+      />
+      
       <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/review" element={<ReviewPage />} />
+
       <Route path="/chats" element={<ChatPage />} />
       <Route
         path="/reports"
@@ -100,6 +101,7 @@ const AnimatedRoutes = ({
         path="/chatlogs"
         element={<ChatLogsPage setToastOptions={setToastOptions} />}
       />
+      <Route path="/edit-listing" element={<CreateListingPage isEditing />} />
     </Routes>
   ) : (
     <Routes>

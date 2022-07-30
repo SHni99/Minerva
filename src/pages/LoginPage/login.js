@@ -82,6 +82,7 @@ const LoginPage = ({ showSimpleToast }) => {
             <div className="row">
               <div className="card-body py-5 px-4 px-sm-5">
                 <img
+                  id="Home"
                   className={"row-lg-6 row-sm-12 h-20"}
                   style={{ cursor: "pointer", objectFit: "contain" }}
                   src={"/images/img_minervaLogo.png"}
@@ -125,15 +126,19 @@ const LoginPage = ({ showSimpleToast }) => {
                       data-testid="findpassword"
                     ></input>
                   </div>
-                  <h4
-                    className={`nunitosans-bold-endeavour-24px mt-3 text-left`}
-                    onClick={passwordPage} //redirects to password reset page
-                    style={{
-                      cursor: "pointer",
-                    }}
-                  >
-                    {`Forgot password?`}
-                  </h4>
+
+                  <div className="col-2 d-flex justify-right">
+                    <h4
+                      id="forgot"
+                      className={`nunitosans-bold-endeavour-24px mt-3 text-left`}
+                      onClick={passwordPage} //redirects to password reset page
+                      style={{
+                        cursor: "pointer",
+                      }}
+                    >
+                      {`Forgot password?`}
+                    </h4>
+                  </div>
                   {error1 && (
                     <h5 className="nunitosans-bold-endeavour-24px text-danger">
                       {error1}
@@ -165,6 +170,7 @@ const LoginPage = ({ showSimpleToast }) => {
                   <p className="nunitosans-normal-black-28px">
                     Don’t have an account? Sign up
                     <button
+                      id="here"
                       className={"text-decoration-underline fw-bold px-2"}
                       onClick={registerPage} //redirects to register page
                     >

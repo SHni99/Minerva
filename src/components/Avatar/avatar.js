@@ -37,7 +37,8 @@ const PersonalAvatar = ({ url, loading }) => {
   const aspect = 1;
 
   useEffect(() => {
-    if (!url) return;
+    console.log(url);
+    if (url === "" ) return;
 
     let { publicURL, error } = supabaseClient.storage
       .from("avatars")
@@ -52,7 +53,7 @@ const PersonalAvatar = ({ url, loading }) => {
     setModalShow(true);
   };
 
-  async function canvasPreview(image, canvas, crop, scale = 1, rotate = 0) {
+  async function canvasPreview(image, canvas, crop) {
     const ctx = canvas.getContext("2d");
 
     if (!ctx) {
@@ -186,8 +187,8 @@ const PersonalAvatar = ({ url, loading }) => {
       ) : (
         <img
           className={`${avatarStyle["avatarmaster"]} border border-dark`}
-          src={avatarUrl || "images/img_avatarDefault.jpg"}
-          alt={"avatar" || "default_avatar"}
+          src={url!=="img_avatarDefault.jpg"? avatarUrl : "/images/img_avatarDefault.jpg"}
+          alt={"avatar"}
         />
       )}
 

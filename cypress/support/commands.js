@@ -33,3 +33,12 @@ Cypress.Commands.add("login", (username, password) => {
     cy.contains("You have successfully logged in").should("be.visible");
   });
 });
+
+Cypress.Commands.add("loginfailed", (username, password) => {
+  cy.session([username, password], () => {
+    cy.visit("/loginpage");
+    cy.get('input[type="email"]').type(username);
+    cy.get('input[type="password"]').type(password);
+    cy.get('button[type="submit"]').click();
+  });
+});

@@ -153,11 +153,11 @@ const ProfilePageBody = (props) => {
               <div className="col-7">
                 <PersonalAvatar //user can upload from his side, will update avatar_url under the profile table
                   className="align-self"
-                  url={avatar_url || "https://uzxaovzbbwexnjnhecue.supabase.co/storage/v1/object/public/avatars/0.966298010075676.jpg"}
+                  url={avatar_url}
                   loading={loading}
                   id="avatar"
                 />
-
+                
                 <div className="mt-4">
                   <h4>Email: {session.user.email} </h4>
                   <div className="mt-8">

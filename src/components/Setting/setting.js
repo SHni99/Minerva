@@ -145,7 +145,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
 
   return (
     <Dropdown className="d-flex justify-end">
-      <Dropdown.Toggle variant="secondary">
+      <Dropdown.Toggle variant="secondary" id="setting">
         <Gear size={20} />
       </Dropdown.Toggle>
       <Dropdown.Menu>

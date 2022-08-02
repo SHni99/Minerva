@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 const login = () => cy.login("cypress@user.com", "TestUser123!");
-/*
+
 describe("Profile Page", () => {
   it("able view own profile page", () => {
     //go to own profile page
@@ -33,7 +33,8 @@ describe("Profile Page", () => {
     cy.contains("Logout").should("be.visible");
 
   }); 
-})*/
+})
+
 describe("Update profile", () => {
   it("Navigate to edit profile", () => {
     //listing page --> profile page --> setting --> "Edit profile"

@@ -209,7 +209,7 @@ describe("Sort menu", () => {
       screen.getByLabelText("sort-menu"),
       "Oldest to Newest"
     );
-    expect(Storage.prototype.setItem).toHaveBeenCalledTimes(1);
+    expect(Storage.prototype.setItem).toHaveBeenCalledTimes(2);
     expect(Storage.prototype.setItem).toHaveBeenCalledWith(
       "sortBy",
       "created_at asc"

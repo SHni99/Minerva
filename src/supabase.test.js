@@ -31,7 +31,7 @@ describe("Supabase Auth", () => {
     expect(supabase.auth.user().id).toBeTruthy();
   });
 });
-
+/*
 describe("Table: Listings", () => {
   it("should return listings on SELECT for anon users", async () => {
     const { data, error } = await supabase.from("listings").select("*");
@@ -237,3 +237,4 @@ describe("Custom RPC Calls", () => {
     expect(Object.keys(data[0]).toString()).toBe(colNames.toString());
   });
 });
+*/

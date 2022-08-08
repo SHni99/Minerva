@@ -13,13 +13,13 @@ describe("Profile Page", () => {
     //verify own username
     cy.contains("cypress_user").should("be.visible");
 
-    //verify own listing modal (edit/delete)
+    /*//verify own listing modal (edit/delete)
     cy.get('.listingCard_card__WTbkH').click();
     cy.contains("cypress_user").should("be.visible");
     cy.get('.btn-outline-secondary').contains("Edit").should("be.visible");
     cy.get('.btn-danger').contains("Delete").should("be.visible");
     cy.get('.btn-close').click();
-
+*/
     //go to reviews
     cy.get('#noanim-tab-example-tab-reviews').click();
     

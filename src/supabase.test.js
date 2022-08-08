@@ -13,7 +13,8 @@ describe("Supabase Auth", () => {
     expect(error).not.toBeTruthy();
     expect(data).toBeTruthy();
   });
-
+})
+/*
   it(".signOut() works correctly", async () => {
     let { error } = await supabase.auth.signOut();
     expect(error).not.toBeTruthy();
@@ -31,7 +32,7 @@ describe("Supabase Auth", () => {
     expect(supabase.auth.user().id).toBeTruthy();
   });
 });
-/*
+
 describe("Table: Listings", () => {
   it("should return listings on SELECT for anon users", async () => {
     const { data, error } = await supabase.from("listings").select("*");

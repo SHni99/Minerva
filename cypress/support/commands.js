@@ -86,7 +86,7 @@ Cypress.Commands.add("deleteTestListing", (userRole) => {
 
   // Ensure listing is really deleted
   cy.get("[role='figure']")
-    .contains("cypress-admin here")
+    .contains(`cypress-${userRole} here`)
     .parent()
     .parent()
     .should("not.exist");

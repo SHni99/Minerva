@@ -169,7 +169,7 @@ describe("Listings Page", () => {
 
     // Check that the search only returns 1 listing
     cy.get("#search-input").type("cypress-user here{enter}");
-    cy.get("[role='figure']").should("have.length", 2);
+    cy.get("[role='figure']").should("have.length", 1);
 
     // Toggle to tutees
     cy.contains("tutor").click();

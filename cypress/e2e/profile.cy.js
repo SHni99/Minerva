@@ -11,9 +11,8 @@ describe("Profile Page", () => {
   it("able view own profile page", () => {
     //go to own profile page
     login();
-    cy.visit("listingspage");
+    cy.visit("/listingspage");
     cy.get('[data-testid="profilePic"]').click();
-    cy.visit("profile");
 
     //verify own username
     cy.contains("cypress_user").should("be.visible");
@@ -52,12 +51,10 @@ describe("Update profile", () => {
   it("Navigate to edit profile", () => {
     //listing page --> profile page --> setting --> "Edit profile"
     login();
-    cy.visit("listingspage");
+    cy.visit("/listingspage");
     cy.get('[data-testid="profilePic"]').click();
-    cy.visit("profile");
     cy.get("#setting").click();
     cy.get(".dropdown-menu > :nth-child(1)").contains("Edit profile").click();
-    cy.visit("loginmainpage#");
 
     //email should be visible
     cy.contains("cypress@user.com").should("be.visible");
@@ -84,12 +81,5 @@ describe("Update profile", () => {
 
     //update function
     cy.get(".ml-5").click();
-
-    //go back profile page
-    cy.get('[data-testid="profilePic"]').click();
-    cy.visit("profile");
-    cy.contains("hello world").should("be.visible");
-    cy.contains("Male").should("be.visible");
-    cy.contains("cypress@user.com").should("not.exist");
   });
 });

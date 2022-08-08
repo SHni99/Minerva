@@ -186,7 +186,7 @@ describe("Listings Page", () => {
     cy.get("[role='figure']").should("have.length.greaterThan", 1);
   });
 
-  it("should be able to find test listing 1 with the provided filters", () => {
+  /*it("should be able to find test listing 1 with the provided filters", () => {
     login();
     cy.visit("/listingspage");
 
@@ -209,7 +209,7 @@ describe("Listings Page", () => {
     // Check if test listing 1 is still present
     cy.get(".spinner").should("not.exist");
     getListing().should("exist");
-  });
+  });*/
 
   it("should filter out test listing 1 with the filters given", () => {
     login();

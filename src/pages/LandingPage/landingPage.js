@@ -44,9 +44,11 @@ const switchPageLogin = (navigate, e) => {
 const switchPageRegister = (navigate, e) => {
   e.preventDefault();
   if (supabaseClient.auth.user()) {
-    navigate("/create-listing");
+    supabaseClient.auth.signOut().then(({ error }) => {
+      if (error) alert(error.message);
+    });
   } else {
-    navigate("/registerpage");
+    navigate("/create-listing");
   }
 };
 
@@ -91,10 +93,13 @@ const IntroSection = () => {
           >
             {supabaseClient.auth.user() ? "My Profile" : "Login"}
           </Button>
-          <Button variant="light m-2" onClick={(e) => {
+          <Button
+            variant="light m-2"
+            onClick={(e) => {
               switchPageRegister(navigate, e);
-            }}>
-          {supabaseClient.auth.user()? "Create Listings" : "Register"}
+            }}
+          >
+            {supabaseClient.auth.user() ? "Log out" : "Register"}
           </Button>
         </Col>
       </Row>

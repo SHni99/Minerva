@@ -179,7 +179,17 @@ function CredentialsCorner(props) {
         </Link>
 
         <div className={navBarStyles.tooltip}>
-          <Button variant="secondary" size="lg" className="mx-3">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="mx-3"
+            onClick={() =>
+              supabaseClient.auth
+                .signOut()
+                .then(navigate("/"))
+                .then(({ error }) => alert(error.message))
+            }
+          >
             <BoxArrowRight />
           </Button>
           <span className={navBarStyles.tooltiptext}>Log Out</span>

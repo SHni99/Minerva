@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { supabaseClient } from "../../config/supabase-client";
 import { useNavigate } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -9,9 +9,13 @@ import { Button } from "react-bootstrap";
 import settingStyles from "./setting.module.css";
 import makeAnimated from "react-select/animated";
 import Select from "react-select";
+import AuthContext from "util/AuthContext";
+import ToastContext from "util/ToastContext";
 
 const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
   const navigate = useNavigate();
+  const { handleLogout } = useContext(AuthContext);
+  const { showSimpleToast } = useContext(ToastContext);
   const user = supabaseClient.auth.user();
   const animatedComponents = makeAnimated();
   const [fullBlockedData, setFullBlockeddata] = useState("");
@@ -53,19 +57,6 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
     };
     checkBlockedUsers();
   }, [user, blockedArray]);
-
-  //log user out and redirect to landing page
-  const handleLogout = async (navigate, e) => {
-    e.preventDefault();
-    try {
-      navigate("/");
-      const { error } = await supabaseClient.auth.signOut();
-      if (error) throw error;
-      //input logout popup
-    } catch (error) {
-      alert(error.message);
-    }
-  };
 
   const blockedList = () => {
     return (
@@ -192,9 +183,7 @@ const Setting = ({ showModal, onHide, blockedArray, setOption, option }) => {
 
         <Dropdown.Item
           eventKey="logout"
-          onClick={(e) => {
-            handleLogout(navigate, e);
-          }}
+          onClick={() => handleLogout(showSimpleToast, navigate)}
           className="text-primary"
         >
           Logout

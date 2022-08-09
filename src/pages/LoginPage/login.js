@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ToastContext from "util/ToastContext";
 import { supabaseClient } from "../../config/supabase-client";
 import loginPageStyles from "./login.module.css";
 
-const LoginPage = ({ showSimpleToast }) => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const home = () => navigate("/");
   const registerPage = () => navigate("/registerpage");
   const passwordPage = () => navigate("/passwordpage");
+  const { showSimpleToast } = useContext(ToastContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

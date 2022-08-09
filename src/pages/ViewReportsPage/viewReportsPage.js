@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import NavBar from "components/NavBar/navBar";
 import FooterBar from "components/FooterBar/footerBar";
 import { supabaseClient } from "config/supabase-client";
@@ -19,11 +19,13 @@ import {
   PersonCheck,
   PersonX,
 } from "react-bootstrap-icons";
+import ToastContext from "util/ToastContext";
 
-const ViewReportsPage = ({ setToastOptions }) => {
+const ViewReportsPage = () => {
   // Minimum permission level required to be considered an admin.
   const ADMIN_THRESHOLD = 1;
   const [modalState, setModalState] = useState({ show: false });
+  const { setToastOptions } = useContext(ToastContext);
 
   return (
     <div

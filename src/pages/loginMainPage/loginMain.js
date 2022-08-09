@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { supabaseClient } from "../../config/supabase-client";
 import Login from "pages/LoginPage/login";
 import Profile from "pages/UpdateProfilePage/updateProfile";
+import ToastContext from "util/ToastContext";
 
-export default function LoginMainPage({ showSimpleToast }) {
+export default function LoginMainPage() {
   //value pass into setSession will update session
   const [session, setSession] = useState(null);
+  const { showSimpleToast } = useContext(ToastContext);
 
   // backend trigger to execute for next event
   useEffect(() => {
@@ -22,7 +24,11 @@ export default function LoginMainPage({ showSimpleToast }) {
       {!session ? (
         <Login />
       ) : (
-        <Profile key={session.user.id} session={session} showSimpleToast={showSimpleToast}/>
+        <Profile
+          key={session.user.id}
+          session={session}
+          showSimpleToast={showSimpleToast}
+        />
       )}
     </div>
   );

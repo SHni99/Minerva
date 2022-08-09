@@ -5,7 +5,7 @@ import navBarStyles from "./navBar.module.css";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Container from "react-bootstrap/Container";
-import { ChatDots } from "react-bootstrap-icons";
+import { ChatDots, BoxArrowRight } from "react-bootstrap-icons";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -177,6 +177,13 @@ function CredentialsCorner(props) {
         <Link to="/chats" className={navBarStyles.chat}>
           <ChatDots></ChatDots>
         </Link>
+
+        <div className={navBarStyles.tooltip}>
+          <Button variant="secondary" size="lg" className="mx-3">
+            <BoxArrowRight />
+          </Button>
+          <span className={navBarStyles.tooltiptext}>Log Out</span>
+        </div>
       </div>
     );
   }

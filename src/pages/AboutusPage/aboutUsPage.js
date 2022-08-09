@@ -47,46 +47,38 @@ function AboutUsBody(props) {
   );
 
   return (
-    <div className={aboutUsStyles["body"]}>
-      <div className={"row row-sm-12 mb-5 text-center poppins-semi-bold-black-64px"}>
+    <div className={`${aboutUsStyles["body"]}`}>
+      <div
+        className={
+          "row row-sm-12 mb-5 text-center poppins-semi-bold-black-64px"
+        }
+      >
         About Us
       </div>
 
       <div className={`row text-center`}>
-        <div className={`col-lg-4 col-sm-12 mr-auto `}>
+        <div className={`col-lg-4 col-sm-12 mr-auto py-2`}>
           <div
-            className={`${aboutUsStyles["avatarmaster"]}`}
+            className={`${aboutUsStyles["avatarmaster"]} mx-auto`}
             style={{ backgroundImage: `url(${shenghanImgUrl})` }}
           />
           <div className="row">
-          <div
-            className={` poppins-semi-bold-black-24px`}
-          >
-            Ni Shenghan
-          </div>
-          <div
-            className={` poppins-normal-black-24px`}
-          >
-            Telegram: @boba_fatt
-            <br />
-            GitHub: SHni99
-          </div>
+            <div className={` poppins-semi-bold-black-24px`}>Ni Shenghan</div>
+            <div className={` poppins-normal-black-24px`}>
+              Telegram: @boba_fatt
+              <br />
+              GitHub: SHni99
+            </div>
           </div>
         </div>
 
-        <div className={`col-lg-4 col-sm-12 ml-auto `}>
+        <div className={`col-lg-4 col-sm-12 ml-auto py-2`}>
           <div
-            className={`${aboutUsStyles["avatarmaster"]}`}
+            className={`${aboutUsStyles["avatarmaster"]} mx-auto`}
             style={{ backgroundImage: `url(${chunzhiImgUrl})` }}
           />
-          <div
-            className={`poppins-semi-bold-black-24px`}
-          >
-           Kok Chun Zhi
-          </div>
-          <div
-            className={`poppins-normal-black-24px`}
-          >
+          <div className={`poppins-semi-bold-black-24px`}>Kok Chun Zhi</div>
+          <div className={`poppins-normal-black-24px`}>
             Telegram: @kokcz
             <br />
             GitHub: chunzkok

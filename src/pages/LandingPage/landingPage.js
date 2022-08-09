@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -9,6 +9,8 @@ import { supabaseClient } from "config/supabase-client";
 import { useNavigate } from "react-router-dom";
 
 import landingPageStyles from "./landingPage.module.css";
+import AuthContext from "util/AuthContext";
+import ToastContext from "util/ToastContext";
 
 const LandingPage = () => {
   return (
@@ -32,28 +34,27 @@ const srcImgLink = (imgName) => {
   return `url("${require("assets/images/" + imgName)}")`;
 };
 
-const switchPageLogin = (navigate, e) => {
-  e.preventDefault();
-  if (supabaseClient.auth.user()) {
-    navigate("/profile");
-  } else {
-    navigate("/loginpage");
-  }
-};
-
-const switchPageRegister = (navigate, e) => {
-  e.preventDefault();
-  if (supabaseClient.auth.user()) {
-    supabaseClient.auth.signOut().then(({ error }) => {
-      if (error) alert(error.message);
-    });
-  } else {
-    navigate("/create-listing");
-  }
-};
-
 const IntroSection = () => {
   const navigate = useNavigate();
+  const { handleLogout } = useContext(AuthContext);
+  const { showSimpleToast } = useContext(ToastContext);
+
+  const switchPageLogin = (navigate, e) => {
+    e.preventDefault();
+    if (supabaseClient.auth.user()) {
+      navigate("/profile");
+    } else {
+      navigate("/loginpage");
+    }
+  };
+
+  const switchPageRegister = (navigate, e) => {
+    if (supabaseClient.auth.user()) {
+      handleLogout(showSimpleToast, navigate);
+    } else {
+      navigate("/create-listing");
+    }
+  };
   return (
     <Container
       className="px-md-3 px-lg-5"

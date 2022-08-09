@@ -52,7 +52,7 @@ const IntroSection = () => {
     if (supabaseClient.auth.user()) {
       handleLogout(showSimpleToast, navigate);
     } else {
-      navigate("/create-listing");
+      navigate("/registerpage");
     }
   };
   return (

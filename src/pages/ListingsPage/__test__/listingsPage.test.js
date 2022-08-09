@@ -13,6 +13,7 @@ import AuthContext from "util/AuthContext";
 import ListingsPage from "../listingsPage";
 import mockListings, { CONSTANTS } from "./mockDb";
 import selectEvent from "react-select-event";
+import ToastContext from "util/ToastContext";
 
 // Mock the alert function as jsdom does not implement this
 global.alert = jest.fn();
@@ -30,9 +31,13 @@ const wrapPage = (authData = { logged_in: false }) => {
 
   const { container, unmount } = render(
     <AuthContext.Provider value={{ authData }}>
-      <Router location={history.location} navigator={history}>
-        <ListingsPage />
-      </Router>
+      <ToastContext.Provider
+        value={{ showSimpleToast: jest.fn(), setToastOptions: jest.fn() }}
+      >
+        <Router location={history.location} navigator={history}>
+          <ListingsPage />
+        </Router>
+      </ToastContext.Provider>
     </AuthContext.Provider>
   );
 

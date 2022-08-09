@@ -3,15 +3,23 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryHistory } from "history";
 import { MemoryRouter, Router } from "react-router-dom";
+import { AuthProvider } from "util/AuthContext";
+import ToastContext from "util/ToastContext";
 import LoginPage from "../login";
 
 const wrapLoginPage = () => {
   const history = createMemoryHistory();
 
   render(
-    <Router location={history.location} navigator={history}>
-      <LoginPage />
-    </Router>
+    <AuthProvider>
+      <ToastContext.Provider
+        value={{ showSimpleToast: jest.fn(), setToastOptions: jest.fn() }}
+      >
+        <Router location={history.location} navigator={history}>
+          <LoginPage />
+        </Router>
+      </ToastContext.Provider>
+    </AuthProvider>
   );
 
   return history;
@@ -43,11 +51,7 @@ describe("Forgot password", () => {
 
 describe("Form components", () => {
   beforeEach(() => {
-    render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>
-    );
+    wrapLoginPage();
   });
 
   const typeIntoForm = ({ email, password }) => {

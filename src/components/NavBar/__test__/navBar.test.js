@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
 import AuthContext, { AuthProvider } from "util/AuthContext";
+import ToastContext from "util/ToastContext";
 import NavBar from "../navBar";
 
 const mockAuthData = {
@@ -20,17 +21,25 @@ const wrapNavBar = (authData) => {
   if (authData) {
     render(
       <AuthContext.Provider value={{ authData, BANNED_THRESHOLD }}>
-        <Router location={history.location} navigator={history}>
-          <NavBar />
-        </Router>
+        <ToastContext.Provider
+          value={{ showSimpleToast: jest.fn(), setToastOptions: jest.fn() }}
+        >
+          <Router location={history.location} navigator={history}>
+            <NavBar />
+          </Router>
+        </ToastContext.Provider>
       </AuthContext.Provider>
     );
   } else {
     render(
       <AuthProvider>
-        <Router location={history.location} navigator={history}>
-          <NavBar />
-        </Router>
+        <ToastContext.Provider
+          value={{ showSimpleToast: jest.fn(), setToastOptions: jest.fn() }}
+        >
+          <Router location={history.location} navigator={history}>
+            <NavBar />
+          </Router>
+        </ToastContext.Provider>
       </AuthProvider>
     );
   }

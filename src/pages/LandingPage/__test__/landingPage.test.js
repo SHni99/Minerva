@@ -4,6 +4,8 @@ import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
 import { supabaseClient } from "config/supabase-client";
 import LandingPage from "../landingPage";
+import { AuthProvider } from "util/AuthContext";
+import ToastContext from "util/ToastContext";
 
 // Mock logged in user by default
 jest.mock("config/supabase-client", () => ({
@@ -11,6 +13,7 @@ jest.mock("config/supabase-client", () => ({
   supabaseClient: {
     auth: {
       user: jest.fn(),
+      signOut: jest.fn().mockResolvedValue(() => ({ error: null })),
     },
   },
 }));
@@ -23,9 +26,15 @@ const wrapPage = () => {
   const history = createMemoryHistory();
 
   render(
-    <Router location={history.location} navigator={history}>
-      <LandingPage />
-    </Router>
+    <AuthProvider>
+      <ToastContext.Provider
+        value={{ showSimpleToast: jest.fn(), setToastOptions: jest.fn() }}
+      >
+        <Router location={history.location} navigator={history}>
+          <LandingPage />
+        </Router>
+      </ToastContext.Provider>
+    </AuthProvider>
   );
 
   return history;
@@ -143,16 +152,16 @@ describe("Introduction Section", () => {
       });
     });
 
-    describe("Create Listings Button", () => {
-      const getCreateListingsButton = () =>
-        screen.getByRole("button", { name: /create listings/i });
+    describe("Logout Button", () => {
+      const getLogoutButton = () =>
+        screen.getByRole("button", { name: /Log out/i });
 
       it("is absent when user is not logged in", () => {
         // Mocking non-logged-in user
         mockUser(null);
         wrapPage();
         expect(
-          screen.queryByRole("button", { name: /create listings/i })
+          screen.queryByRole("button", { name: /Log out/i })
         ).not.toBeInTheDocument();
       });
 
@@ -160,15 +169,20 @@ describe("Introduction Section", () => {
         // Mocking logged-in user
         mockUser({ id: "a9fbf7d6-e8fb-4985-956c-f4e9dfb5cd0e" });
         wrapPage();
-        expect(getCreateListingsButton()).toBeInTheDocument();
+        expect(getLogoutButton()).toBeInTheDocument();
       });
 
-      it("redirects users to the create listings page", () => {
+      it("logs the user out", () => {
         // Mocking logged-in user
         mockUser({ id: "a9fbf7d6-e8fb-4985-956c-f4e9dfb5cd0e" });
+
+        // Mocks signout method
+        supabaseClient.auth.signOut = jest.fn().mockResolvedValue(() => ({}));
+
         const history = wrapPage();
-        fireEvent.click(getCreateListingsButton());
-        expect(history.location.pathname).toBe("/create-listing");
+        fireEvent.click(getLogoutButton());
+        expect(history.location.pathname).toBe("/");
+        expect(supabaseClient.auth.signOut).toHaveBeenCalled();
       });
     });
   });

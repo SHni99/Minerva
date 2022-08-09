@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }) => {
   const handleLogout = (showSimpleToast, navigate) => {
     supabase.auth
       .signOut()
-      .then(navigate("/"))
       .then(({ error }) => {
         if (error) alert(error);
         else
@@ -36,7 +35,8 @@ export const AuthProvider = ({ children }) => {
             "You have successfully logged out.",
             2000
           );
-      });
+      })
+      .then(() => navigate("/"));
   };
 
   return (

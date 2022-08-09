@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+import { supabaseClient as supabase } from "config/supabase-client";
 
 const AuthContext = createContext();
 
@@ -11,7 +12,7 @@ export const AuthProvider = ({ children }) => {
     id: null,
     blocked: [],
     preferences: {},
-    email: null
+    email: null,
   });
   const [authLoading, setAuthLoading] = useState(false);
   // Maximum permission level for a banned user
@@ -20,6 +21,24 @@ export const AuthProvider = ({ children }) => {
   // Minimum permission level for an admin
   const ADMIN_THRESHOLD = 1;
 
+  // Takes in 2 arguments:
+  // 1. showSimpleToast: method that displays a simple toast (taken from ToastContext)
+  // 2. navigate: method provided by a useNavigate() call in the relevant page
+  const handleLogout = (showSimpleToast, navigate) => {
+    supabase.auth
+      .signOut()
+      .then(navigate("/"))
+      .then(({ error }) => {
+        if (error) alert(error);
+        else
+          showSimpleToast(
+            "Logged Out",
+            "You have successfully logged out.",
+            2000
+          );
+      });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -27,6 +46,7 @@ export const AuthProvider = ({ children }) => {
         setAuthData,
         authLoading,
         setAuthLoading,
+        handleLogout,
         ADMIN_THRESHOLD,
         BANNED_THRESHOLD,
       }}

@@ -10,6 +10,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Dropdown from "react-bootstrap/Dropdown";
 import { supabaseClient } from "config/supabase-client";
+import ToastContext from "util/ToastContext";
 
 const NavBar = ({ _userLoggedIn }) => {
   const { authData, authLoading, ADMIN_THRESHOLD, BANNED_THRESHOLD } =
@@ -120,6 +121,8 @@ export default NavBar;
 
 function CredentialsCorner(props) {
   const { isLoggedIn, isBanned, avatarUrl, authLoading: loading } = props;
+  const { handleLogout } = useContext(AuthContext);
+  const { showSimpleToast } = useContext(ToastContext);
   const navigate = useNavigate();
 
   // Let this corner load as it changes depending on user's authentication state
@@ -183,12 +186,7 @@ function CredentialsCorner(props) {
             variant="secondary"
             size="lg"
             className="mx-3"
-            onClick={() =>
-              supabaseClient.auth
-                .signOut()
-                .then(navigate("/"))
-                .then(({ error }) => alert(error.message))
-            }
+            onClick={() => handleLogout(showSimpleToast, navigate)}
           >
             <BoxArrowRight />
           </Button>

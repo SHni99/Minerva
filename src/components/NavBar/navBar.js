@@ -172,7 +172,7 @@ function CredentialsCorner(props) {
         />
 
         {/* Create Listing Button */}
-        <Button href="create-listing" className="mx-4" active>
+        <Button href="create-listing" className="mx-3 px-2" active>
           Create Listing
         </Button>
 
@@ -185,7 +185,7 @@ function CredentialsCorner(props) {
           <Button
             variant="secondary"
             size="lg"
-            className="mx-3"
+            className="ms-3 me-0 px-2"
             onClick={() => handleLogout(showSimpleToast, navigate)}
           >
             <BoxArrowRight />

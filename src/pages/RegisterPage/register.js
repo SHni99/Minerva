@@ -7,6 +7,11 @@ import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Button from "react-bootstrap/Button";
 
+import dynamic from 'next/dynamic';
+const PasswordChecklist = dynamic(() => import('react-password-checklist'), {
+  ssr: false,
+});
+
 const RegisterPage = () => {
   const navigate = useNavigate();
   const home = () => navigate("/");
@@ -34,7 +39,7 @@ const RegisterPage = () => {
   const popover = (
     <Popover id="popover-basic">
       <Popover.Body>
-        {/*<PasswordChecklist //list of password requirement to be met. User-friendly tool.
+        <PasswordChecklist //list of password requirement to be met. User-friendly tool.
           rules={[
             "minLength",
             "specialChar",
@@ -46,7 +51,7 @@ const RegisterPage = () => {
           minLength={8}
           value={password}
           valueAgain={confirmPassword}
-        />*/}
+        />
       </Popover.Body>
     </Popover>
   );

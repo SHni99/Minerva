@@ -17,19 +17,6 @@ describe("Profile Page", () => {
     //verify own username
     cy.contains("cypress_user").should("be.visible");
 
-    //verify own listing modal (edit/delete)
-    cy.get("[role='figure']").click();
-    cy.contains("cypress_user").should("be.visible");
-    cy.get(".btn-outline-secondary").contains("Edit").should("be.visible");
-    cy.get(".btn-danger").contains("Delete").should("be.visible");
-    cy.get(".btn-close").click();
-
-    //go to reviews
-    cy.get("#noanim-tab-example-tab-reviews").click();
-
-    //go to listings
-    cy.get("#noanim-tab-example-tab-listings").click();
-
     //show content in setting
     cy.get("#setting").click();
     cy.get(".dropdown-menu > :nth-child(1)")

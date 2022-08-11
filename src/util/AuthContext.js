@@ -25,18 +25,16 @@ export const AuthProvider = ({ children }) => {
   // 1. showSimpleToast: method that displays a simple toast (taken from ToastContext)
   // 2. navigate: method provided by a useNavigate() call in the relevant page
   const handleLogout = (showSimpleToast, navigate) => {
-    supabase.auth
-      .signOut()
-      .then(({ error }) => {
-        if (error) alert(error);
-        else
-          showSimpleToast(
-            "Logged Out",
-            "You have successfully logged out.",
-            2000
-          );
-      })
-      .then(() => navigate("/"));
+    navigate("/");
+    supabase.auth.signOut().then(({ error }) => {
+      if (error) alert(error);
+      else
+        showSimpleToast(
+          "Logged Out",
+          "You have successfully logged out.",
+          2000
+        );
+    });
   };
 
   return (

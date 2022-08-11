@@ -165,8 +165,10 @@ describe("Listings Page", () => {
     // Assert presence of confirmation message
     cy.contains("Are you sure?").should("be.visible");
     cy.get("button").contains("Yes").click();
+    cy.get(".spinner-border").should("not.exist");
 
     // Ensure listing is really deleted
-    getListing().should("not.exist");
+    cy.visit("/listingspage");
+    cy.get("[role='figure']").contains(`cypress-user here`).should("not.exist");
   });
 });

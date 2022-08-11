@@ -272,51 +272,30 @@ describe("Listings Page", () => {
 describe("After searching", () => {
   it("test listings should be able to be deleted", () => {
     login();
-    cy.visit("/listingspage");
-
-    // Click on created card with "cypress-admin here"
-    cy.get("[role='figure']")
-      .contains("cypress-user here")
-      .parent()
-      .parent()
-      .click();
-
-    // Click on the Delete button
-    cy.get(".btn").contains("Delete").click();
-
-    // Assert presence of confirmation message
-    cy.contains("Are you sure?").should("be.visible");
-    cy.get("button").contains("Yes").click();
-
-    // Ensure listing is really deleted
-    cy.get("[role='figure']")
-      .contains("cypress-user here")
-      .parent()
-      .parent()
-      .should("not.exist");
+    cy.deleteTestListing("user");
 
     // Toggle to find test listing 2
+    cy.visit("/listingspage");
     cy.contains("tutor").click();
 
-    // Click on created card with "cypress-admin here"
-    cy.get("[role='figure']")
-      .contains("cypress-user here")
-      .parent()
-      .parent()
-      .click();
+    const getListing = () =>
+      cy.get("[role='figure']").contains("cypress-user here").parent().parent();
+
+    // Click on created card with "cypress-user here"
+    getListing().should("be.visible");
+    getListing().click();
 
     // Click on the Delete button
+    cy.get(".btn").contains("Delete").should("be.visible");
     cy.get(".btn").contains("Delete").click();
 
     // Assert presence of confirmation message
     cy.contains("Are you sure?").should("be.visible");
     cy.get("button").contains("Yes").click();
+    cy.get(".spinner-border").should("not.exist");
 
     // Ensure listing is really deleted
-    cy.get("[role='figure']")
-      .contains("cypress-user here")
-      .parent()
-      .parent()
-      .should("not.exist");
+    cy.visit("/listingspage");
+    cy.get("[role='figure']").contains(`cypress-user here`).should("not.exist");
   });
 });

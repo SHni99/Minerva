@@ -62,11 +62,12 @@ Minerva is developed with a clear focus on enhancing the tuition-matching experi
 
 Our application follows a robust design process, ensuring that each feature is implemented with careful consideration of user feedback and technical feasibility.
 
-For a detailed breakdown of features implemented in milestones 1 and 2, please refer to Annex 1 and 2.
+## Try Out Our App
 
+Check out the live app here: [Minerva Platform](https://orbital-minerva.herokuapp.com/)
 ---
 
-We welcome contributions and feedback on our platform. Together, we can make Minerva the go-to solution for tuition-matching services.
+We welcome feedback on our platform. Together, we can make Minerva the go-to solution for tuition-matching services.
 
 
 ## Poster
